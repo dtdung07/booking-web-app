@@ -1,0 +1,114 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: #1e392a; /* màu nền trang */
+}
+
+.main-header {
+    background-color: #1e392a; 
+    padding: 15px 20px; /* Thêm padding vào header thay vì container */
+    width: 100%;
+}
+
+.main-header .container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    color: #fff;
+    font-weight: bold;
+}
+
+.logo i {
+    color: #f2c200; /* ngôi sao vàng */
+    font-size: 24px;
+    margin-right: 8px;
+}
+
+.logo-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.1;
+}
+
+.logo-top {
+    font-size: 14px;
+    letter-spacing: 1px;
+}
+
+.logo-bottom {
+    font-size: 26px;
+    font-weight: 700;
+}
+
+.hotline {
+    text-align: right;
+    margin-left: 20px;
+    margin-right: auto;
+    color: #fff;
+}
+
+.hotline p {
+    margin: 0;
+    font-size: 12px;
+}
+
+.hotline strong {
+    color: #f2c200; /* màu vàng */
+    font-size: 20px;
+}
+
+.main-nav ul {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.main-nav li {
+    margin: 0 13px;
+}
+
+.main-nav a {
+    text-decoration: none;
+    color: #fff;
+    font-weight: 600;
+    font-size: 13px;
+    transition: color 0.3s;
+}
+
+.main-nav a:hover {
+    color: #f2c200;
+    text-decoration: none;
+    
+}
+
+.btn-booking {
+    border: 2px solid #f2c200;
+    color: #f2c200;
+    text-decoration: none;
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-weight: bold;
+    transition: all 0.3s;
+}
+
+.btn-booking:hover {
+    background: #f2c200;
+    color: #1e392a;
+}
