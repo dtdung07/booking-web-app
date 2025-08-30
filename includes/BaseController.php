@@ -24,10 +24,8 @@ class BaseController
         // Lấy nội dung view
         $content = ob_get_clean();
         
-        // Include layout với content
-        include 'app/views/layouts/header.php';
-        echo $content;
-        include 'app/views/layouts/footer.php';
+        // Include layout mới với content
+        include 'app/views/layouts/layout.php';
     }
     
     /**

@@ -1,14 +1,12 @@
-/*
-========================================
-  FOOTER
-========================================
-*/
+
 .main-footer-bottom {
-    background-color: #1e392a;
-    color: white;
+    position: relative;
+    background-color: var(--colorPrimary) ;
     padding: 50px 0;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
+
+
 
 .footer-col_main {
     display: flex;
@@ -27,21 +25,7 @@
     margin-bottom: 20px;
 }
 
-.btn-booking-footer {
-    display: inline-block;
-    background-color: #f7b731;
-    color: #1e392a;
-    padding: 12px 25px;
-    text-decoration: none;
-    font-weight: 900;
-    font-size: 16px;
-    border-radius: 5px;
-    transition: background-color 0.3s;
-}
 
-.btn-booking-footer:hover {
-    background-color: #ffc95e;
-}
 
 /* Cột điều hướng */
 .footer-nav {
@@ -62,7 +46,7 @@
 }
 
 .footer-nav a:hover {
-    color: #f7b731;
+    color:var(--colorYellow);
 }
 
 /* Cột liên hệ */
@@ -76,7 +60,7 @@
 }
 .footer-contact strong {
     font-weight: 800;
-    color: #f7b731;
+    color: var(--colorYellow);
 }
 
 /* Cột mạng xã hội */
@@ -87,7 +71,7 @@
 }
 
 .social-icons a {
-    color: #1e392a;
+    color: var(--colorPrimary);
     background-color: white;
     width: 40px;
     height: 40px;
@@ -101,7 +85,7 @@
 }
 
 .social-icons a:hover {
-    background-color: #f7b731;
+    background-color: var(--colorYellow);
     transform: translateY(-3px);
 }
 
@@ -110,42 +94,30 @@
     color: rgba(255, 255, 255, 0.7);
 }
 
-/*
-========================================
-  NÚT CUỘN LÊN ĐẦU TRANG (SCROLL TO TOP)
-========================================
-*/
+.scroll-top {
+    position: absolute;   
+    top: 0px;
+    left:   1230px; 
+}
+
 .scroll-to-top {
-    position: fixed; /* QUAN TRỌNG: Giúp nút luôn nằm cố định */
-    bottom: 30px;
-    right: 30px;
-    background-color: #f7b731;
-    color: #1e392a;
+    display: flex; 
+    justify-content: center;
+    align-items: center;
     width: 50px;
     height: 50px;
     border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    background-color: var(--colorYellow);
+    color: var(--colorPrimary);
     font-size: 20px;
     text-decoration: none;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
     transition: all 0.3s ease;
-    
-    /* Ẩn nút ban đầu */
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(20px);
-}
-
-.scroll-to-top.visible {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
+    cursor: pointer;
 }
 
 .scroll-to-top:hover {
-    background-color: #ffc95e;
+    background-color: white; /* Đổi màu nền khi hover cho nổi bật */
+    color: #1e392a;
     transform: translateY(-5px);
 }
 

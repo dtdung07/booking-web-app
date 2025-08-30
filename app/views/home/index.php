@@ -1,17 +1,14 @@
-
-
-<main style="background-image: url('https://quannhautudo.com/Static/web_images/header-bg-web.jpg'); background-size: contain; background-position: center; background-attachment: fixed;">
-
-    <section class="banner-section">
-        <div class="banner-hero-section">
-            <img src="public/images/home-layer-1_v2.webp" alt="">
-            <img src="public/images/home-layer-2_v2.webp" alt="">
-            <img src="public/images/home-layer-3_v2.webp" alt="">
-            <img src="public/images/home-layer-4_v2.webp" alt="">
+<main class="home-main">
+    <section class="banner-brand">
+        <div class="banner-brand-section">
+            <img src="<?php echo asset('images/home-layer-1_v2.webp'); ?>" alt="" class="floating-layer layer-1">
+            <img src="<?php echo asset('images/home-layer-2_v2.webp'); ?>" alt="" class="floating-layer layer-2">
+            <img src="<?php echo asset('images/home-layer-3_v2.webp'); ?>" alt="">
+            <img src="<?php echo asset('images/home-layer-4_v2.webp'); ?>" alt="">
             <img src="https://quannhautudo.com/Static/web_images/Gach-1.png" alt="" class="gach_1">
             <img src="https://quannhautudo.com/Static/web_images/Gach-2.png" alt="" class="gach_2">
            <div class="tv-frame">
-               <video src="public/videos/web-tv.mp4" controls ></video>
+               <video src="<?php echo asset('videos/web-tv.mp4'); ?>" controls ></video>
              <img src="https://quannhautudo.com/Static/web_images/TV.png" alt="" class="frame" >
            </div>
         </div>
@@ -163,7 +160,7 @@
             
             <!-- Button xem thực đơn -->
             <div class="section-cta">
-                <a href="?page=menu" class="btn-main">XEM THỰC ĐƠN</a>
+                <a href="?page=menu" class="btn-booking">XEM THỰC ĐƠN</a>
             </div>
         </div>
     </section>
@@ -295,8 +292,8 @@
             </div>
             <div class="hero-media media-2">
                 <video autoplay muted loop playsinline>
-                    <source src="database/videos/Ghe-Tu-Do-vp9-chrome.webm" type="video/webm">
-                    <source src="database/videos/Ghe-Tu-Do-hevc-safari.mp4" type="video/mp4">
+                    <source src="public/videos/Ghe-Tu-Do-vp9-chrome.webm" type="video/webm">
+                    <source src="public/videos/Ghe-Tu-Do-hevc-safari.mp4" type="video/mp4">
                     <p>Trình duyệt không hỗ trợ video HTML5.</p>
                 </video>
             </div>

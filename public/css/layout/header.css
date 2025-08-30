@@ -1,0 +1,104 @@
+
+*{
+  margin: 0;
+  padding: 0;
+   top: 0;
+    left: 0;
+  box-sizing: border-box;
+}
+
+.main-header {
+    background-image: url('https://quannhautudo.com/Static/web_images/header-bg-web.jpg');
+    padding: 0px 20px; 
+    width: 100%;
+    background-size: contain;
+    position: fixed;
+    z-index: var(--z-index-fixed);
+    height: var(--header-height);
+    display: flex;
+    align-items: center;
+}
+
+.main-header .container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    color: #fff;
+    font-weight: bold;
+}
+
+.logo i {
+    color: var(--colorYellow); /* ngôi sao vàng */
+    font-size: 24px;
+    margin-right: 8px;
+}
+
+.logo-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.1;
+}
+
+.logo-top {
+    font-size: 14px;
+    letter-spacing: 1px;
+}
+
+.logo-bottom {
+    font-size: 26px;
+    font-weight: 700;
+}
+
+.hotline {
+    text-align: right;
+    margin-left: 20px;
+    margin-right: auto;
+    color: #fff;
+}
+
+.hotline p {
+    margin: 0;
+    font-size: 12px;
+}
+
+.hotline strong {
+    color: var(--colorYellow); /* màu vàng */
+    font-size: 20px;
+}
+
+.main-nav ul {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.main-nav li {
+    margin: 0 13px;
+
+}
+
+.main-nav a {
+    text-decoration: none;
+    color: #fff;
+    font-weight: var(--font-weight-semibold);
+    font-size: 13px;
+    transition: color 0.3s;
+}
+
+.main-nav a:hover {
+    color: var(--colorYellow);
+    text-decoration: none;
+    
+}
+
+

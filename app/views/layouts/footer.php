@@ -44,9 +44,11 @@
             </div>
             </div>
         </div>
+        <div class="scroll-top">
+            <a href="#" class="scroll-to-top" aria-label="Cuộn lên đầu trang">
+    <i class="fas fa-arrow-up"></i>
+    </a>
+        </div>
     </div>
 </footer>
 
-<a href="#" class="scroll-to-top" aria-label="Cuộn lên đầu trang">
-    <i class="fas fa-arrow-up"></i>
-</a>
