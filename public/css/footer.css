@@ -1,0 +1,171 @@
+/*
+========================================
+  FOOTER
+========================================
+*/
+.main-footer-bottom {
+    background-color: #1e392a;
+    color: white;
+    padding: 50px 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.footer-col_main {
+    display: flex;
+    justify-content: space-between;
+}
+
+
+
+.footer-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr ; /* 4 cột bằng nhau */
+    gap: 60px;
+}
+
+.footer-col .logo {
+    margin-bottom: 20px;
+}
+
+.btn-booking-footer {
+    display: inline-block;
+    background-color: #f7b731;
+    color: #1e392a;
+    padding: 12px 25px;
+    text-decoration: none;
+    font-weight: 900;
+    font-size: 16px;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+.btn-booking-footer:hover {
+    background-color: #ffc95e;
+}
+
+/* Cột điều hướng */
+.footer-nav {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.footer-nav li {
+    margin-bottom: 15px;
+}
+
+.footer-nav a {
+    text-decoration: none;
+    color: white;
+    font-weight: 600;
+    transition: color 0.3s;
+}
+
+.footer-nav a:hover {
+    color: #f7b731;
+}
+
+/* Cột liên hệ */
+.footer-contact p {
+    margin: 0 0 10px 0;
+    line-height: 1.6;
+}
+.footer-contact a {
+    text-decoration: none;
+    color: white;
+}
+.footer-contact strong {
+    font-weight: 800;
+    color: #f7b731;
+}
+
+/* Cột mạng xã hội */
+.social-icons {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.social-icons a {
+    color: #1e392a;
+    background-color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-decoration: none;
+    font-size: 18px;
+    transition: all 0.3s;
+}
+
+.social-icons a:hover {
+    background-color: #f7b731;
+    transform: translateY(-3px);
+}
+
+.copyright {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/*
+========================================
+  NÚT CUỘN LÊN ĐẦU TRANG (SCROLL TO TOP)
+========================================
+*/
+.scroll-to-top {
+    position: fixed; /* QUAN TRỌNG: Giúp nút luôn nằm cố định */
+    bottom: 30px;
+    right: 30px;
+    background-color: #f7b731;
+    color: #1e392a;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 20px;
+    text-decoration: none;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+    
+    /* Ẩn nút ban đầu */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(20px);
+}
+
+.scroll-to-top.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.scroll-to-top:hover {
+    background-color: #ffc95e;
+    transform: translateY(-5px);
+}
+
+
+/* Responsive cho Footer */
+@media (max-width: 992px) {
+    .footer-grid {
+        grid-template-columns: repeat(2, 1fr); /* 2 cột trên tablet */
+    }
+}
+
+@media (max-width: 576px) {
+    .footer-grid {
+        grid-template-columns: 1fr; /* 1 cột trên mobile */
+        text-align: center;
+    }
+    .footer-col .logo {
+        justify-content: center;
+    }
+    .social-icons {
+        justify-content: center;
+    }
+}

@@ -11,10 +11,48 @@ body {
     background: #1e392a; /* màu nền trang */
 }
 
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+}
+
 .main-header {
-    background-color: #1e392a; 
+    background-color: rgba(30, 57, 42, 0.9); /* Semi-transparent để hiện background */
+    background-image: url('https://quannhautudo.com/Static/web_images/header-bg-web.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
     padding: 15px 20px; /* Thêm padding vào header thay vì container */
     width: 100%;
+    position: relative;
+}
+
+/* Overlay để header dễ đọc hơn */
+.main-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(30, 57, 42, 0.7); /* Overlay tối */
+    z-index: 1;
+}
+
+/* Đảm bảo nội dung header hiện trên overlay */
+.main-header .container {
+    position: relative;
+    z-index: 2;
+}
+
+/* Responsive background cho mobile */
+@media (max-width: 767px) {
+    .main-header {
+        background-image: url('https://quannhautudo.com/Static/web_images/header-bg-mob.jpg');
+    }
 }
 
 .main-header .container {

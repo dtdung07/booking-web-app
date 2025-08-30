@@ -1,0 +1,93 @@
+/*
+========================================
+  SECTION HIỂN THỊ ẢNH ĐƠN VỚI ANIMATION
+========================================
+*/
+.simple-image-section {
+    background-color: #1e392a; /* Nền xanh đậm để khớp với trang */
+    padding: 60px 0; /* Khoảng đệm trên và dưới */
+    overflow: hidden; /* Ẩn phần tràn để tạo hiệu ứng */
+    width: 100vw; /* Full viewport width */
+    margin-left: calc(-50vw + 50%); /* Mở rộng ra ngoài container */
+}
+
+.simple-image-section .container {
+    max-width: none; /* Bỏ giới hạn max-width */
+    padding: 0; /* Bỏ padding */
+    margin: 0; /* Bỏ margin */
+    width: 100%; /* Full width */
+}
+
+.scrolling-wrapper {
+    width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    position: relative;
+}
+
+.scrolling-content {
+    display: inline-flex;
+    gap: 30px; /* Khoảng cách giữa các ảnh */
+    animation: scroll-seamless 20s linear infinite;
+    will-change: transform;
+    width: auto; /* Để flex tự tính toán */
+}
+
+/* Pause animation khi hover vào bất kỳ ảnh nào */
+.scrolling-content:hover {
+    animation-play-state: paused;
+}
+
+.scrolling-content a {
+    flex-shrink: 0;
+    display: inline-block;
+    width: 580px; /* Cố định chiều rộng khớp với ảnh */
+}
+
+.simple-image-section img {
+    display: block; /* Bỏ khoảng trống thừa mặc định bên dưới ảnh */
+    width: 580px;    /* Quan trọng: Giữ nguyên chiều rộng */
+    height: 330px;  /* Giữ nguyên chiều cao */
+    object-fit: cover; /* Cắt ảnh để vừa khung mà không bị méo */
+    border-radius: 10px; /* Thêm bo góc cho đẹp mắt (tùy chọn) */
+    transition: transform 0.3s ease; /* Hiệu ứng hover */
+    margin: 0; /* Bỏ margin để gap của flex container xử lý khoảng cách */
+}
+
+
+/* Keyframe animation cho hiệu ứng scroll liền mạch */
+@keyframes scroll-seamless {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(calc(-50% - 15px)); /* Di chuyển đúng bằng một nửa + half gap */
+    }
+}
+
+/* Responsive cho mobile */
+@media (max-width: 768px) {
+    .scrolling-content {
+        gap: 20px; /* Giảm khoảng cách trên mobile */
+        animation-duration: 15s; /* Chạy nhanh hơn trên mobile */
+    }
+    
+    .scrolling-content a {
+        width: 280px; /* Giảm chiều rộng trên mobile */
+    }
+    
+    .simple-image-section img {
+        width: 280px; /* Giảm chiều rộng ảnh trên mobile */
+        height: 180px; /* Giảm chiều cao trên mobile */
+    }
+    
+    /* Điều chỉnh animation cho mobile */
+    @keyframes scroll-seamless {
+        0% {
+            transform: translateX(0);
+        }
+        100% {
+            transform: translateX(calc(-50% - 10px)); /* Điều chỉnh cho gap nhỏ hơn */
+        }
+    }
+}
