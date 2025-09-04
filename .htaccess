@@ -3,6 +3,12 @@
 # Bật Rewrite Engine
 RewriteEngine On
 
+# Redirect login to login.php
+RewriteRule ^login/?$ login.php [L,QSA]
+
+# Redirect admin to admin dashboard  
+RewriteRule ^admin/?$ index.php?page=admin&action=dashboard [L,QSA]
+
 # Ngăn chặn truy cập trực tiếp vào thư mục config và includes
 RedirectMatch 403 ^/config/.*$
 RedirectMatch 403 ^/includes/.*$
