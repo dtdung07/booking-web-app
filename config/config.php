@@ -44,6 +44,15 @@ function asset($path) {
     return ASSETS_URL . "/" . ltrim($path, '/');
 }
 
+function url($path = '') {
+    return BASE_URL . "/" . ltrim($path, '/');
+}
+
+function isActivePage($page) {
+    $currentPage = $_GET['page'] ?? 'home';
+    return $currentPage === $page ? 'active' : '';
+}
+
 function view($view, $data = []) {
     extract($data);
     $viewFile = APP_PATH . '/views/' . $view . '.php';

@@ -1,0 +1,143 @@
+
+.main-footer-bottom {
+    position: relative;
+    background-color: var(--colorPrimary) ;
+    padding: 50px 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+
+
+.footer-col_main {
+    display: flex;
+    justify-content: space-between;
+}
+
+
+
+.footer-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr ; /* 4 cột bằng nhau */
+    gap: 60px;
+}
+
+.footer-col .logo {
+    margin-bottom: 20px;
+}
+
+
+
+/* Cột điều hướng */
+.footer-nav {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.footer-nav li {
+    margin-bottom: 15px;
+}
+
+.footer-nav a {
+    text-decoration: none;
+    color: white;
+    font-weight: 600;
+    transition: color 0.3s;
+}
+
+.footer-nav a:hover {
+    color:var(--colorYellow);
+}
+
+/* Cột liên hệ */
+.footer-contact p {
+    margin: 0 0 10px 0;
+    line-height: 1.6;
+}
+.footer-contact a {
+    text-decoration: none;
+    color: white;
+}
+.footer-contact strong {
+    font-weight: 800;
+    color: var(--colorYellow);
+}
+
+/* Cột mạng xã hội */
+.social-icons {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.social-icons a {
+    color: var(--colorPrimary);
+    background-color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-decoration: none;
+    font-size: 18px;
+    transition: all 0.3s;
+}
+
+.social-icons a:hover {
+    background-color: var(--colorYellow);
+    transform: translateY(-3px);
+}
+
+.copyright {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.scroll-top {
+    position: absolute;   
+    top: 0px;
+    left:   1230px; 
+}
+
+.scroll-to-top {
+    display: flex; 
+    justify-content: center;
+    align-items: center;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: var(--colorYellow);
+    color: var(--colorPrimary);
+    font-size: 20px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.scroll-to-top:hover {
+    background-color: white; /* Đổi màu nền khi hover cho nổi bật */
+    color: #1e392a;
+    transform: translateY(-5px);
+}
+
+
+/* Responsive cho Footer */
+@media (max-width: 992px) {
+    .footer-grid {
+        grid-template-columns: repeat(2, 1fr); /* 2 cột trên tablet */
+    }
+}
+
+@media (max-width: 576px) {
+    .footer-grid {
+        grid-template-columns: 1fr; /* 1 cột trên mobile */
+        text-align: center;
+    }
+    .footer-col .logo {
+        justify-content: center;
+    }
+    .social-icons {
+        justify-content: center;
+    }
+}
