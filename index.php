@@ -49,6 +49,10 @@ switch ($request) {
         $controller = new ContactController();
         break;
         
+    case 'admin':
+        $controller = new AdminController();
+        break;
+        
     default:
         $controller = new HomeController();
         $action = 'notFound';
