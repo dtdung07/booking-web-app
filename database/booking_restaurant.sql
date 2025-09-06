@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th9 03, 2025 lúc 05:28 PM
+-- Thời gian đã tạo: Th9 04, 2025 lúc 05:33 AM
 -- Phiên bản máy phục vụ: 10.4.32-MariaDB
 -- Phiên bản PHP: 8.2.12
 
@@ -59,6 +59,13 @@ CREATE TABLE `coso` (
   `DiaChi` varchar(255) NOT NULL,
   `DienThoai` varchar(15) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Đang đổ dữ liệu cho bảng `coso`
+--
+
+INSERT INTO `coso` (`MaCoSo`, `TenCoSo`, `DiaChi`, `DienThoai`) VALUES
+(1, 'HN01', 'Bắc Từ Liêm, Hà Nội', '0987654321');
 
 -- --------------------------------------------------------
 
@@ -155,6 +162,13 @@ CREATE TABLE `nhanvien` (
   `TenNhanVien` varchar(100) NOT NULL,
   `ChucVu` enum('admin','nhan_vien') NOT NULL DEFAULT 'nhan_vien'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Đang đổ dữ liệu cho bảng `nhanvien`
+--
+
+INSERT INTO `nhanvien` (`MaNV`, `MaCoSo`, `TenDN`, `MatKhau`, `TenNhanVien`, `ChucVu`) VALUES
+(1, 1, 'admin', '$2y$10$p2xMBCPYswhhhQ1x.oEE0.V9sauinL1EV2AcOg/DSTKTVoz4N7o6a', 'Admin', 'admin');
 
 -- --------------------------------------------------------
 
@@ -270,7 +284,7 @@ ALTER TABLE `ban`
 -- AUTO_INCREMENT cho bảng `coso`
 --
 ALTER TABLE `coso`
-  MODIFY `MaCoSo` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `MaCoSo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT cho bảng `danhmuc`
@@ -300,7 +314,7 @@ ALTER TABLE `monan`
 -- AUTO_INCREMENT cho bảng `nhanvien`
 --
 ALTER TABLE `nhanvien`
-  MODIFY `MaNV` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `MaNV` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT cho bảng `uudai`
