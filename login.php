@@ -29,7 +29,7 @@ spl_autoload_register(function($class) {
 
 // Kiểm tra nếu đã đăng nhập thì chuyển về dashboard
 if (isset($_SESSION['user']) && isset($_SESSION['is_logged_in']) && $_SESSION['is_logged_in'] === true) {
-    header("Location: ?page=admin&action=dashboard");
+    header("Location: index.php?page=admin&action=dashboard");
     exit;
 }
 

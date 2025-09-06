@@ -4,7 +4,7 @@ class MenuController extends BaseController
 {
     public function index() 
     {
-        $this->render('menu/index');
+        $this->render('menu/menu');
     }
     
     public function show() 
