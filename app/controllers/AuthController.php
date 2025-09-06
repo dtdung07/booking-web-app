@@ -23,9 +23,9 @@ class AuthController extends BaseController
 
     public function index() 
     {
-        // Nếu đã đăng nhập, chuyển hướng về trang chủ
+        // Nếu đã đăng nhập, chuyển hướng về admin dashboard
         if ($this->isLoggedIn()) {
-            $this->redirect('?page=home');
+            $this->redirect('?page=admin&action=dashboard');
             return;
         }
         
@@ -36,9 +36,9 @@ class AuthController extends BaseController
     
     public function login() 
     {
-        // Nếu đã đăng nhập, chuyển hướng về trang chủ
+        // Nếu đã đăng nhập, chuyển hướng về admin dashboard
         if ($this->isLoggedIn()) {
-            $this->redirect('?page=home');
+            $this->redirect('?page=admin&action=dashboard');
             return;
         }
         

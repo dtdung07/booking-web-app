@@ -170,90 +170,69 @@
             <div class="cs-grid">
                 
                 <aside class="cs-sidebar">
-                    <h2>17 CƠ SỞ</h2>
+                    <h2><?php echo $total_branches; ?> CƠ SỞ</h2>
                     <p>Quán Nhậu Tự Do tự hào khi có số lượng cơ sở khắp các quận cùng đội ngũ nhân viên nhiệt tình chu đáo sẵn sàng phục vụ quý thực khách.</p>
                     <ul class="cs-locations-list">
-                        <li><a href="#"><span>Ba Đình</span> <span>1</span></a></li>
-                        <li><a href="#"><span>Cầu Giấy</span> <span>4</span></a></li>
-                        <li><a href="#"><span>Đống Đa</span> <span>3</span></a></li>
-                        <li><a href="#"><span>Hai Bà Trưng</span> <span>3</span></a></li>
-                        <li><a href="#"><span>Hoàng Mai</span> <span>1</span></a></li>
-                        <li><a href="#"><span>Long Biên</span> <span>1</span></a></li>
-                        <li><a href="#"><span>Ocean Park</span> <span>2</span></a></li>
-                        <li><a href="#"><span>Thanh Xuân</span> <span>1</span></a></li>
-                        <li><a href="#"><span>Vinsmart</span> <span>1</span></a></li>
+                        <?php if(isset($location_counts) && !empty($location_counts)): ?>
+                            <?php foreach($location_counts as $district => $count): ?>
+                            <li><a href="#cs-group-<?php echo strtolower(str_replace(' ', '-', $district)); ?>" data-district="<?php echo htmlspecialchars($district); ?>"><span><?php echo htmlspecialchars($district); ?></span> <span><?php echo $count; ?></span></a></li>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                           
+                        <?php endif; ?>
                     </ul>
                 </aside>
 
                 <div class="cs-main-content">
-                    <div class="cs-group">
-                        <h3 class="cs-group-title">BA ĐÌNH</h3>
-                        <div class="cs-card">
-                            <div class="cs-card-image">
-                                <img src="https://storage.quannhautudo.com/data/thumb_1200/Data/images/product/2023/06/202306281114157262.webp" alt="68 Khúc Thừa Dụ">
-                                <span class="cs-status-tag">Đang mở</span>
+                    <?php if(isset($grouped_branches) && !empty($grouped_branches)): ?>
+                        <?php foreach($grouped_branches as $district => $branches): ?>
+                        <div class="cs-group" id="cs-group-<?php echo strtolower(str_replace(' ', '-', $district)); ?>">
+                            <h3 class="cs-group-title"><?php echo strtoupper(htmlspecialchars($district)); ?></h3>
+                            <?php foreach($branches as $branch): ?>
+                            <div class="cs-card">
+                                <div class="cs-card-image">
+                                    <img src="<?php echo $branch['image']; ?>" alt="<?php echo htmlspecialchars($branch['name']); ?>">
+                                    <span class="cs-status-tag<?php echo $branch['status'] === 'Đang mở' ? ' is-open' : ''; ?>">
+                                        <?php if($branch['status'] === 'Đang mở'): ?>
+                                            <span class="dot"></span>
+                                        <?php endif; ?>
+                                        <?php echo htmlspecialchars($branch['status']); ?>
+                                    </span>
+                                </div>
+                                <div class="cs-card-details">
+                                    <h4><i class="fa-solid fa-location-dot"></i> <?php echo htmlspecialchars($branch['name']); ?></h4>
+                                    <p><?php echo htmlspecialchars($branch['description']); ?></p>
+                                    <div class="cs-card-actions">
+                                        <a href="?page=booking&branch_id=<?php echo $branch['id']; ?>" class="btn-action">Đặt bàn ngay</a>
+                                        <a href="https://www.google.com/maps/search/<?php echo urlencode($branch['name'] . ' ' . $branch['address']); ?>" target="_blank" class="btn-action">Xem bản đồ</a>
+                                        <a href="?page=branches&action=detail&id=<?php echo $branch['id']; ?>" class="btn-action">Xem chi tiết</a>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="cs-card-details">
-                                <h4><i class="fa-solid fa-location-dot"></i> 67A Phó Đức Chính</h4>
-                                <p>Quán Nhậu Tự Do 67A Phó Đức Chính - "Chốn ăn chơi" mới của anh em...</p>
-                                <div class="cs-card-actions">
-                                    <a href="#" class="btn-action">Đặt bàn ngay</a>
-                                    <a href="#" class="btn-action">Xem bản đồ</a>
-                                    <a href="#" class="btn-action">Xem chi tiết</a>
+                            <?php endforeach; ?>
+                        </div>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <!-- Fallback content nếu không có dữ liệu -->
+                        <div class="cs-group" id="cs-group-ba-dinh">
+                            <h3 class="cs-group-title">BA ĐÌNH</h3>
+                            <div class="cs-card">
+                                <div class="cs-card-image">
+                                    <img src="https://storage.quannhautudo.com/data/thumb_1200/Data/images/product/2023/06/202306281114157262.webp" alt="67A Phó Đức Chính">
+                                    <span class="cs-status-tag">Đang mở</span>
+                                </div>
+                                <div class="cs-card-details">
+                                    <h4><i class="fa-solid fa-location-dot"></i> 67A Phó Đức Chính</h4>
+                                    <p>Quán Nhậu Tự Do 67A Phó Đức Chính - "Chốn ăn chơi" mới của anh em...</p>
+                                    <div class="cs-card-actions">
+                                        <a href="#" class="btn-action">Đặt bàn ngay</a>
+                                        <a href="#" class="btn-action">Xem bản đồ</a>
+                                        <a href="#" class="btn-action">Xem thực đơn</a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-
-                    <div class="cs-group">
-                        <h3 class="cs-group-title">CẦU GIẤY</h3>
-                        <div class="cs-card">
-                            <div class="cs-card-image">
-                                <img src="https://storage.quannhautudo.com/data/thumb_1200/Data/images/product/2023/06/202306281114157262.webp" alt="68 Khúc Thừa Dụ">
-                                <span class="cs-status-tag">Đang mở</span>
-                            </div>
-                            <div class="cs-card-details">
-                                <h4><i class="fa-solid fa-location-dot"></i> 10 Nguyễn Văn Huyên</h4>
-                                <p>Quán Nhậu Tự Do 10 Nguyễn Văn Huyên - Quán nhậu sành nhất quận Cầ...</p>
-                                <div class="cs-card-actions">
-                                    <a href="#" class="btn-action">Đặt bàn ngay</a>
-                                    <a href="#" class="btn-action">Xem bản đồ</a>
-                                    <a href="#" class="btn-action">Xem chi tiết</a>
-                                </div>
-                            </div>
-                        </div>
-                         <div class="cs-card">
-                            <div class="cs-card-image">
-                                <img src="https://storage.quannhautudo.com/data/thumb_1200/Data/images/product/2023/06/202306281114157262.webp" alt="68 Khúc Thừa Dụ">
-                                <span class="cs-status-tag">Đang mở</span>
-                            </div>
-                            <div class="cs-card-details">
-                                <h4><i class="fa-solid fa-location-dot"></i> 68 Khúc Thừa Dụ</h4>
-                                <p>Quán Nhậu Tự Do 68 Khúc Thừa Dụ - Cầu Giấy</p>
-                                <div class="cs-card-actions">
-                                    <a href="#" class="btn-action">Đặt bàn ngay</a>
-                                    <a href="#" class="btn-action">Xem bản đồ</a>
-                                    <a href="#" class="btn-action">Xem chi tiết</a>
-                                </div>
-                            </div>
-                        </div>
-                         <div class="cs-card">
-                           <div class="cs-card-image">
-                                <img src="https://storage.quannhautudo.com/data/thumb_1200/Data/images/product/2023/06/202306281114157262.webp" alt="68 Khúc Thừa Dụ">
-
-                               <span class="cs-status-tag is-open"><span class="dot"></span>Đang mở</span>
-                                </div>
-                            <div class="cs-card-details">
-                                <h4><i class="fa-solid fa-location-dot"></i> Lẩu Bò Tự Do - 58 Khúc Thừa Dụ</h4>
-                                <p>Lẩu Bò Tự Do 58 Khúc Thừa Dụ - Quán lẩu ngon quận Cầu Giấy</p>
-                                <div class="cs-card-actions">
-                                    <a href="#" class="btn-action">Đặt bàn ngay</a>
-                                    <a href="#" class="btn-action">Xem bản đồ</a>
-                                    <a href="#" class="btn-action">Xem chi tiết</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -272,8 +251,8 @@
             </div>
             <div class="hero-media media-1">
                 <video autoplay muted loop playsinline>
-                    <source src="database/videos/Loa-Tu-Do-vp9-chrome.webm" type="video/webm">
-                    <source src="database/videos/Loa-Tu-Do-hevc-safari.mp4" type="video/mp4">
+                    <source src="public/videos/Loa-Tu-Do-vp9-chrome.webm" type="video/webm">
+                    <source src="public/videos/Loa-Tu-Do-hevc-safari.mp4" type="video/mp4">
                     <p>Trình duyệt không hỗ trợ video HTML5.</p>
                 </video>
             </div>
@@ -384,6 +363,34 @@ function updateCarousel() {
     console.log(`Slide: ${currentSlideIndex}, translateX: -${translateX}px, cardWidth: ${cardWidth}`);
 }
 
+// Function để xử lý cuộn đến section cơ sở
+function initializeLocationNavigation() {
+    const locationLinks = document.querySelectorAll('.cs-locations-list a[data-district]');
+    
+    locationLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const targetId = this.getAttribute('href').substring(1); // Bỏ dấu #
+            const targetElement = document.getElementById(targetId);
+            
+            if (targetElement) {
+                // Cuộn mượt mà đến element
+                targetElement.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+                
+                // Thêm highlight effect tạm thời
+                targetElement.classList.add('highlight');
+                setTimeout(() => {
+                    targetElement.classList.remove('highlight');
+                }, 2000);
+            }
+        });
+    });
+}
+
 // Function để xử lý video
 function initializeVideos() {
     const videos = document.querySelectorAll('video');
@@ -430,6 +437,10 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialize videos
     setTimeout(initializeVideos, 200); // Delay thêm một chút để đảm bảo video elements đã ready
+    
+    // Initialize location navigation
+    initializeLocationNavigation();
+    console.log('Location navigation initialized');
 });
 
 // Bỏ auto slide - chỉ điều khiển thủ công

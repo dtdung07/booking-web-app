@@ -6,7 +6,7 @@ class AdminController extends BaseController
     {
         // Yêu cầu đăng nhập để truy cập admin
         if (!$this->isLoggedIn()) {
-            $this->redirect('?page=auth&action=login');
+            $this->redirect('login.php');
             return;
         }
     }
@@ -26,11 +26,5 @@ class AdminController extends BaseController
     // Kiểm tra user đã đăng nhập chưa
     private function isLoggedIn() {
         return isset($_SESSION['user']) && isset($_SESSION['is_logged_in']) && $_SESSION['is_logged_in'] === true;
-    }
-    
-    // Chuyển hướng
-    private function redirect($url) {
-        header("Location: $url");
-        exit;
     }
 }
