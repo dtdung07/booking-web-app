@@ -192,16 +192,11 @@
                             <div class="cs-card">
                                 <div class="cs-card-image">
                                     <img src="<?php echo $branch['image']; ?>" alt="<?php echo htmlspecialchars($branch['name']); ?>">
-                                    <span class="cs-status-tag<?php echo $branch['status'] === 'Đang mở' ? ' is-open' : ''; ?>">
-                                        <?php if($branch['status'] === 'Đang mở'): ?>
-                                            <span class="dot"></span>
-                                        <?php endif; ?>
-                                        <?php echo htmlspecialchars($branch['status']); ?>
-                                    </span>
+                                    
                                 </div>
                                 <div class="cs-card-details">
                                     <h4><i class="fa-solid fa-location-dot"></i> <?php echo htmlspecialchars($branch['name']); ?></h4>
-                                    <p><?php echo htmlspecialchars($branch['description']); ?></p>
+                                    <!-- <p><?php echo htmlspecialchars($branch['description']); ?></p> -->
                                     <div class="cs-card-actions">
                                         <a href="?page=booking&branch_id=<?php echo $branch['id']; ?>" class="btn-action">Đặt bàn ngay</a>
                                         <a href="https://www.google.com/maps/search/<?php echo urlencode($branch['name'] . ' ' . $branch['address']); ?>" target="_blank" class="btn-action">Xem bản đồ</a>

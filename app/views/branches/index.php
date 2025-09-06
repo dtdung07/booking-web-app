@@ -18,21 +18,19 @@
         </div>
     </section>
 
-    <section class="branches-section">
+<section class="branches-section">
   <div class="container">
     <div class="branches-grid" id="branchesGrid">
-        <?php $branch?>
-      <?php foreach ($branches as $branch):?>
-
-    
-        <div class="branch-card" data-district="<?php echo htmlspecialchars(strtolower($branch['district'])); ?>">
-        </div> <div class="branch-image">
-                <img src="<?php echo $branch['image']; ?>" alt="<?php echo $branch['name']; ?>" loading="lazy">
-          </div>
-        <div class="branch-content">
+      <?php foreach ($branches as $branch): ?>
+        <div class="branch-card" data-district="<?php echo strtolower(str_replace(' ', '-', $branch['district'])); ?>">
+         
+          <!-- Nội dung bên trái -->
+          <div class="branch-content">
             <div class="branch-header">
-                <h3 class="branch-name"><?php echo $branch['name'];?></h3>
+              <h3 class="branch-name"><?php echo $branch['name']; ?></h3>
+              <p class="branch-description"><?php echo $branch['description']; ?></p>
             </div>
+
             <div class="branch-info">
                 <div class="state">
                     <span><?php echo $branch['status']; ?></span>
@@ -41,6 +39,22 @@
                     <span>HOẠT ĐỘNG TỪ <?php echo $branch['operating_hours']; ?></span>
                 </div>
             </div>
+
+            <div class="branch-stats">
+              <div class="stat-item">
+                <span class="stat-label">Sức chứa</span>
+                <span class="stat-value"><?php echo $branch['capacity']; ?></span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">Diện tích</span>
+                <span class="stat-value"><?php echo $branch['area']; ?></span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">Số tầng</span>
+                <span class="stat-value"><?php echo $branch['floors']; ?></span>
+              </div>
+            </div>
+
             <div class="branch-actions">
               <a href="<?php echo $branch['map_link']; ?>" target="_blank" class="btn btn-outline">
                 <i class="fas fa-map-marker-alt"></i>
@@ -59,9 +73,16 @@
                 <i class="fas fa-phone"></i>
                 <span><?php echo $branch['hotline']; ?></span>
               </div>
-              </div>
-         
-         <?php endforeach; ?>
+          </div> <!-- end branch-content -->
+
+          <!-- Ảnh bên phải -->
+          <div class="branch-image">
+            <img src="<?php echo $branch['image']; ?>" alt="<?php echo $branch['name']; ?>" loading="lazy">
+          </div>
+
+        </div> <!-- end branch-card -->
+        
+      <?php endforeach; ?>
     </div>
 
     <?php if (empty($branches)): ?>
@@ -190,9 +211,7 @@ function renderBranches(branches) {
         html += `
             <div class="branch-card" data-district="${branch.district.toLowerCase()}">
                 
-             <div class="branch-image">
-                    <img src="${branch.image}" alt="${branch.name}" loading="lazy">
-                </div>
+             
 
             <div class="branch-content">
                     <div class="branch-header">
@@ -208,20 +227,26 @@ function renderBranches(branches) {
             </div>
                                
                     <div class="branch-actions">
-                        
+                            <a href="${branch.map_link}" target="_blank" class="btn btn-outline">
+                                <i class="fas fa-map-marker-alt"></i>
+                                Xem bản đồ
+                            </a>
                         <a href="?page=branches&action=detail&id=${branch.id}" class="btn btn-outline">
                             <i class="fas fa-info-circle"></i>
                             Xem menu
                         </a>
                         <button class="btn btn-outline" onclick="openBookingModal(${branch.id})">
                             <i class="fas fa-calendar-check"></i>
-                            Đặt bàn
+                            Đặt bàn ngay
                         </button>
                     </div>
                     <div class="info-item">
                         <i class="fas fa-phone"></i>
                         <span>${branch.hotline}</span>
                     </div>
+                </div>
+                <div class="branch-image">
+                    <img src="${branch.image}" alt="${branch.name}" loading="lazy">
                 </div>
                
             </div>

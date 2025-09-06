@@ -40,12 +40,6 @@ class HomeController extends BaseController
                 'name' => $branch_data['TenCoSo'],
                 'address' => $branch_data['DiaChi'],
                 'phone' => $branch_data['DienThoai'],
-                'description' => $branch_data['Mota'],
-                'operating_hours' => $branch_data['ThoiGianHoatDong'],
-                'capacity' => $branch_data['SucChua'],
-                'area' => $branch_data['DienTich'],
-                'floors' => $branch_data['SoTang'],
-                'status' => $this->getStatusText($branch_data['TrangThai']),
                 'image' => 'https://storage.quannhautudo.com/data/thumb_1200/Data/images/product/2023/06/202306281114157262.webp'
             ];
             

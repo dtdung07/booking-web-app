@@ -147,7 +147,6 @@ class BranchController extends BaseController
                 'name' => $this->coSo->TenCoSo,
                 'address' => $this->coSo->DiaChi,
                 'phone' => $this->coSo->DienThoai,
-                
                 'image' => 'https://storage.quannhautudo.com/data/thumb_800/Data/images/product/2023/10/202310241151064241.webp',
                 'gallery' => [
                     'public/images/branch-1-1.webp',
