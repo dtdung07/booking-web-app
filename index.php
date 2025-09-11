@@ -3,6 +3,9 @@
  * File điểm vào chính của ứng dụng
  */
 
+// Bắt đầu session
+session_start();
+
 // Bao gồm file cấu hình
 require_once 'config/config.php';
 
@@ -47,6 +50,10 @@ switch ($request) {
         
     case 'contact':
         $controller = new ContactController();
+        break;
+        
+    case 'branches':
+        $controller = new BranchController();
         break;
         
     case 'admin':

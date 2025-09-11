@@ -1,14 +1,7 @@
 <?php
+$title = "Quán Nhậu Tự Do - Thực Đơn";
 $page_title = "Quán Nhậu Tự Do - Thực Đơn";
-include '../../../includes/header.php';
 ?>
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quán Nhậu Tự Do - Website Đặt Bàn</title>
-    <link rel="stylesheet" href="../../../public/css/style-menu.css">
-</head>
 
 <!-- Main -->
 <main class="main-content">

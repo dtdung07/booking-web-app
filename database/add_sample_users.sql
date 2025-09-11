@@ -5,7 +5,7 @@ USE booking_restaurant;
 
 -- Thêm tài khoản admin
 INSERT INTO nhanvien (MaCoSo, TenDN, MatKhau, TenNhanVien, ChucVu) VALUES
-(1, 'admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Quản trị viên hệ thống', 'admin')
+(1, 'admin', '111', 'Quản trị viên hệ thống', 'admin')
 ON DUPLICATE KEY UPDATE TenDN=TenDN;
 
 -- Thêm một số nhân viên mẫu

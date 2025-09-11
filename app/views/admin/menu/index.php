@@ -11,44 +11,37 @@ include __DIR__ . "/connect.php";
         body {
             font-family: 'Arial', sans-serif;
            
-        background-size: contain; 
-        background-image: url('https://quannhautudo.com/Static/web_images/header-bg-mob.jpg');
-                    min-height: 100vh;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    color: #333;
-                }
-
+        }
         nav{
-            background-color:pink;
+            background-color: #4A7C59;
             padding: 20px;
         }
 
         a{
-            color: white;
+            color: white !important;
             padding: 10px;
-            text-decoration: none;
+            text-decoration: none !important;
         }
+
     </style>
 </head>
-<body style="margin: 0px">
+<body>
     <nav>
-        <a href="index.php?action=xem">Danh sách nhân viên</a>
-        <a href="index.php?action=add">Thêm nhân viên</a>
+        <a href="index.php?action=view">Danh sách món ăn</a>
+        <a href="index.php?action=create">Thêm mới món ăn</a>
     </nav>
 
     <?php
         if(isset($_GET['action'])){
             switch ($_GET['action']) {
-                case 'xem':
-                    include __DIR__ . "/user/view.php";
+                case 'view':
+                    include __DIR__ . "/view.php";
                     break;
                 case 'create':
-                    include __DIR__ . "/user/create.php";
+                    include __DIR__ . "/create.php";
                     break;
                 case 'update':
-                    include "update.php";
+                    include __DIR__ . "/update.php";
                     break;
                 case 'delete':
                     include "process-delete.php";
@@ -57,7 +50,7 @@ include __DIR__ . "/connect.php";
                     include "process-update.php";
                     break;
                 default:
-                    include "index.php";
+                    include "view.php";
                     break;
             }
         }
