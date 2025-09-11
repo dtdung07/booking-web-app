@@ -68,6 +68,10 @@
     font-size: 20px;
 }
 
+.main-nav {
+   background: transparent !important;
+}
+
 .main-nav ul {
     display: flex;
     list-style: none;

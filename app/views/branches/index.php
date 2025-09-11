@@ -128,7 +128,6 @@ function initializeTabs() {
                 this.style.transform = 'translateY(-2px)';
             }
         });
-        
         button.addEventListener('mouseleave', function() {
             if (!this.classList.contains('active')) {
                 this.style.transform = 'translateY(0)';

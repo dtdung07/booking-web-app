@@ -19,37 +19,37 @@ function formatPrice(price) {
 document.addEventListener('DOMContentLoaded', function () {
 
     // === KHAI BÁO BIẾN DOM (Tất cả các hệ thống) ===
-    const menuGrid = document.getElementById('menu-grid');
-    const stickyCartWidget = document.getElementById('sticky-cart-widget');
-    const cartCountDisplay = document.getElementById('cart-item-count');
-    const cartPriceDisplay = document.getElementById('cart-total-price');
+    const menuGrid = document.getElementById('menu2-grid');
+    const stickyCartWidget = document.getElementById('menu2-sticky-cart-widget');
+    const cartCountDisplay = document.getElementById('menu2-cart-item-count');
+    const cartPriceDisplay = document.getElementById('menu2-cart-total-price');
 
     // Modal Món ăn
-    const itemModal = document.getElementById('itemModal');
-    const quantityInputModal = document.getElementById('quantity');
-    const orderNowBtn = document.getElementById('orderNowBtn');
+    const itemModal = document.getElementById('menu2-itemModal');
+    const quantityInputModal = document.getElementById('menu2-quantity');
+    const orderNowBtn = document.getElementById('menu2-orderNowBtn');
 
     // Modal Bill
-    const billOverlay = document.getElementById('billOverlay');
-    const billCloseBtn = document.getElementById('billCloseBtn');
-    const billItemsContainer = document.getElementById('billItemsContainer');
-    const billTotalPriceDisplay = document.getElementById('billTotalPriceDisplay');
-    const billClearAllBtn = document.getElementById('billClearAllBtn');
-    const proceedToBookingBtn = document.getElementById('proceedToBookingBtn');
+    const billOverlay = document.getElementById('menu2-billOverlay');
+    const billCloseBtn = document.getElementById('menu2-billCloseBtn');
+    const billItemsContainer = document.getElementById('menu2-billItemsContainer');
+    const billTotalPriceDisplay = document.getElementById('menu2-billTotalPriceDisplay');
+    const billClearAllBtn = document.getElementById('menu2-billClearAllBtn');
+    const proceedToBookingBtn = document.getElementById('menu2-proceedToBookingBtn');
 
     // Modal Đặt bàn
-    const bookingOverlay = document.getElementById('bookingOverlay');
-    const bookingGuestsDisplay = document.getElementById('booking-guests-display');
+    const bookingOverlay = document.getElementById('menu2-bookingOverlay');
+    const bookingGuestsDisplay = document.getElementById('menu2-booking-guests-display');
 
     // Modal Calendar
-    const dateInput = document.getElementById('date-display-input');
-    const dpOverlay = document.getElementById('datePickerOverlay');
-    const dpGrid = document.getElementById('dp-days-grid');
-    const dpMonthYearDisplay = document.getElementById('dp-current-month-year');
-    const dpPrevMonthBtn = document.getElementById('dp-prev-month');
-    const dpNextMonthBtn = document.getElementById('dp-next-month');
-    const dpTodayBtn = document.getElementById('dp-today-btn');
-    const dpCloseBtn = document.getElementById('dp-close-btn');
+    const dateInput = document.getElementById('menu2-date-display-input');
+    const dpOverlay = document.getElementById('menu2-datePickerOverlay');
+    const dpGrid = document.getElementById('menu2-dp-days-grid');
+    const dpMonthYearDisplay = document.getElementById('menu2-dp-current-month-year');
+    const dpPrevMonthBtn = document.getElementById('menu2-dp-prev-month');
+    const dpNextMonthBtn = document.getElementById('menu2-dp-next-month');
+    const dpTodayBtn = document.getElementById('menu2-dp-today-btn');
+    const dpCloseBtn = document.getElementById('menu2-dp-close-btn');
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
@@ -86,19 +86,19 @@ document.addEventListener('DOMContentLoaded', function () {
             const item = shoppingCart[itemId];
             const itemTotalPrice = item.price * item.quantity;
             const itemHtml = `
-                <div class="bill-item" data-item-id="${itemId}">
-                    <div class="item-info">
-                        <p class="item-name">${item.name}</p>
-                        <p class="item-price">${formatPrice(item.price)}đ</p>
+                <div class="menu2-bill-item" data-item-id="${itemId}">
+                    <div class="menu2-item-info">
+                        <p class="menu2-item-name">${item.name}</p>
+                        <p class="menu2-item-price">${formatPrice(item.price)}đ</p>
                     </div>
-                    <div class="item-controls">
-                        <div class="quantity-controls">
-                            <button type="button" class="bill-qty-decrease" data-action="bill-qty-decrease">-</button>
+                    <div class="menu2-item-controls">
+                        <div class="menu2-quantity-controls">
+                            <button type="button" class="menu2-bill-qty-decrease" data-action="bill-qty-decrease">-</button>
                             <input type="number" value="${item.quantity}" min="1" readonly>
-                            <button type="button" class="bill-qty-increase" data-action="bill-qty-increase">+</button>
+                            <button type="button" class="menu2-bill-qty-increase" data-action="bill-qty-increase">+</button>
                         </div>
-                        <div class="item-total-price">${formatPrice(itemTotalPrice)}đ</div>
-                        <div class="delete_item" data-action="delete-item"><i class="fas fa-trash-alt"></i></div>
+                        <div class="menu2-item-total-price">${formatPrice(itemTotalPrice)}đ</div>
+                        <div class="menu2-delete_item" data-action="delete-item"><i class="fas fa-trash-alt"></i></div>
                     </div>
                 </div>`;
             billItemsContainer.insertAdjacentHTML('beforeend', itemHtml);
@@ -136,10 +136,10 @@ document.addEventListener('DOMContentLoaded', function () {
         currentItemPrice = parseFloat(price);
         currentItemName = name;
 
-        document.getElementById('modalItemName').textContent = name;
-        document.getElementById('modalPrice').textContent = formatPrice(price) + 'đ';
-        document.getElementById('modalImage').src = imageUrl || 'https://storage.quannhautudo.com/data/thumb_400/Data/images/product/2025/06/202506271712248578.webp';
-        document.getElementById('modalDescription').textContent = description || 'Món ăn ngon tại nhà hàng';
+        document.getElementById('menu2-modalItemName').textContent = name;
+        document.getElementById('menu2-modalPrice').textContent = formatPrice(price) + 'đ';
+        document.getElementById('menu2-modalImage').src = imageUrl || 'https://storage.quannhautudo.com/data/thumb_400/Data/images/product/2025/06/202506271712248578.webp';
+        document.getElementById('menu2-modalDescription').textContent = description || 'Món ăn ngon tại nhà hàng';
         quantityInputModal.value = 1;
 
         itemModal.style.display = 'block';
@@ -179,16 +179,16 @@ document.addEventListener('DOMContentLoaded', function () {
         const action = target.dataset.action;
 
         // Xử lý nút "+ Đặt" TRƯỚC để ngăn modal mở ra
-        if (target.closest('.btn-add-to-cart')) {
+        if (target.closest('.menu2-btn-add-to-cart')) {
             e.stopPropagation(); // Ngăn modal mở ra khi bấm nút "+ Đặt"
             e.preventDefault(); // Ngăn các hành động mặc định khác
-            const btn = target.closest('.btn-add-to-cart');
+            const btn = target.closest('.menu2-btn-add-to-cart');
             addToCart(btn.dataset.id, btn.dataset.name, btn.dataset.price, 1);
             return; // Dừng xử lý các sự kiện khác
         }
 
         // Actions for menu cards - chỉ xử lý khi KHÔNG phải là nút "+ Đặt"
-        const menuCard = target.closest('.menu-card');
+        const menuCard = target.closest('.menu2-card');
         if (menuCard && menuCard.dataset.action === 'open-modal') {
             openItemModal(
                 menuCard.dataset.id,
@@ -221,7 +221,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         // Action for category tabs
-        const tabBtn = target.closest('.tab-btn');
+        const tabBtn = target.closest('.menu2-tab-btn');
         if (tabBtn) {
             filterByCategory(tabBtn.dataset.category);
         }
@@ -250,7 +250,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!actionTarget) return;
 
         const action = actionTarget.dataset.action;
-        const itemDiv = e.target.closest('.bill-item');
+        const itemDiv = e.target.closest('.menu2-bill-item');
         if (!itemDiv) return;
         const itemId = itemDiv.dataset.itemId;
 
@@ -300,13 +300,13 @@ document.addEventListener('DOMContentLoaded', function () {
         const daysInMonth = new Date(year, month + 1, 0).getDate();
 
         for (let i = 0; i < firstDayOfMonth; i++) {
-            dpGrid.insertAdjacentHTML('beforeend', '<div class="dp-day empty"></div>');
+            dpGrid.insertAdjacentHTML('beforeend', '<div class="menu2-dp-day empty"></div>');
         }
 
         for (let day = 1; day <= daysInMonth; day++) {
             const cellDate = new Date(year, month, day);
             const cell = document.createElement('div');
-            cell.className = 'dp-day';
+            cell.className = 'menu2-dp-day';
             cell.textContent = day;
             cell.dataset.date = cellDate.toISOString();
             let classes = [];
@@ -343,7 +343,7 @@ document.addEventListener('DOMContentLoaded', function () {
         closeDatePickerModal();
     });
     dpGrid.addEventListener('click', (e) => {
-        const target = e.target.closest('.dp-day:not(.empty):not(.disabled)');
+        const target = e.target.closest('.menu2-dp-day:not(.empty):not(.disabled)');
         if (!target) return;
         selectedDate = new Date(target.dataset.date);
         dateInput.value = formatDateForInput(selectedDate);
@@ -374,10 +374,10 @@ document.addEventListener('DOMContentLoaded', function () {
 // nhưng logic gọi đã được chuyển vào trong qua event delegation.
 
 function filterByCategory(categoryId) {
-    const allTabs = document.querySelectorAll('.tab-btn');
+    const allTabs = document.querySelectorAll('.menu2-tab-btn');
     allTabs.forEach(tab => tab.classList.remove('active'));
 
-    const activeTab = document.querySelector(`.tab-btn[data-category="${categoryId}"]`);
+    const activeTab = document.querySelector(`.menu2-tab-btn[data-category="${categoryId}"]`);
     if (activeTab) {
         activeTab.classList.add('active');
     }
@@ -397,22 +397,22 @@ function filterByCategory(categoryId) {
                 renderMenuGrid(data.data, data.type);
             } else {
                 console.error('Error fetching menu data:', data.message);
-                document.getElementById('menu-grid').innerHTML = `<div class="no-items"><p>Đã có lỗi xảy ra khi tải thực đơn.</p></div>`;
+                document.getElementById('menu2-grid').innerHTML = `<div class="menu2-no-items"><p>Đã có lỗi xảy ra khi tải thực đơn.</p></div>`;
             }
         })
         .catch(error => {
             console.error('Network error:', error);
-            document.getElementById('menu-grid').innerHTML = `<div class="no-items"><p>Lỗi mạng, không thể tải thực đơn.</p></div>`;
+            document.getElementById('menu2-grid').innerHTML = `<div class="menu2-no-items"><p>Lỗi mạng, không thể tải thực đơn.</p></div>`;
         });
 }
 
 function updatePageTitle(categoryId, activeTab) {
-    const pageTitle = document.querySelector('.menu-container h2');
+    const pageTitle = document.querySelector('.menu2-container h2');
     if (pageTitle) {
         if (categoryId === 'all') {
             pageTitle.textContent = ''; // Hoặc 'Tất cả món ăn'
         } else if (activeTab) {
-            const categoryName = activeTab.querySelector('.tab-text').textContent;
+            const categoryName = activeTab.querySelector('.menu2-tab-text').textContent;
             pageTitle.textContent = categoryName;
         }
     }
@@ -420,35 +420,35 @@ function updatePageTitle(categoryId, activeTab) {
 
 // HÀM MỚI: Hợp nhất 2 hàm updateMenuGrid và updateMenuGridGrouped
 function renderMenuGrid(data, type) {
-    const menuGrid = document.getElementById('menu-grid');
+    const menuGrid = document.getElementById('menu2-grid');
     menuGrid.innerHTML = ''; // Xóa nội dung cũ
 
     if (type === 'grouped') {
-        menuGrid.classList.remove('category-grid');
+        menuGrid.classList.remove('menu2-category-grid');
         if (Object.keys(data).length === 0) {
-            menuGrid.innerHTML = '<div class="no-items"><p>Không có món ăn nào trong cơ sở này.</p></div>';
+            menuGrid.innerHTML = '<div class="menu2-no-items"><p>Không có món ăn nào trong cơ sở này.</p></div>';
             return;
         }
 
         Object.keys(data).forEach(categoryName => {
             const items = data[categoryName];
             const categorySection = document.createElement('div');
-            categorySection.className = 'category-section';
+            categorySection.className = 'menu2-category-section';
 
             let itemsHtml = '';
             items.forEach(item => itemsHtml += createMenuCardHtml(item));
 
             categorySection.innerHTML = `
-                <h3 class="category-title">${categoryName}</h3>
-                <div class="category-items">${itemsHtml}</div>
+                <h3 class="menu2-category-title">${categoryName}</h3>
+                <div class="menu2-category-items">${itemsHtml}</div>
             `;
             menuGrid.appendChild(categorySection);
         });
 
     } else { // type === 'flat' hoặc mặc định
-        menuGrid.classList.add('category-grid');
+        menuGrid.classList.add('menu2-category-grid');
         if (data.length === 0) {
-            menuGrid.innerHTML = '<div class="no-items"><p>Không có món ăn nào trong danh mục này.</p></div>';
+            menuGrid.innerHTML = '<div class="menu2-no-items"><p>Không có món ăn nào trong danh mục này.</p></div>';
             return;
         }
         let html = '';
@@ -465,7 +465,7 @@ function createMenuCardHtml(item) {
     const escapedDescription = escapeHtml(item.MoTa || '');
 
     return `
-        <div class="menu-card" 
+        <div class="menu2-card" 
              data-action="open-modal"
              data-id="${item.MaMon}"
              data-name="${escapedName}"
@@ -473,13 +473,13 @@ function createMenuCardHtml(item) {
              data-description="${escapedDescription}"
              data-image-url="${imageUrl}">
             <img src="${imageUrl}" alt="${escapedName}" onerror="this.src='https://storage.quannhautudo.com/data/thumb_400/Data/images/product/2025/06/202506271712248578.webp'">
-            <div class="menu-card-content">
-                <span class="menu-card-name">${escapedName}</span>
-                <div class="menu-card-price">
+            <div class="menu2-card-content">
+                <span class="menu2-card-name">${escapedName}</span>
+                <div class="menu2-card-price">
                     ${formatPrice(item.Gia)}đ
                 </div>
-                <div class="menu-card-actions">
-                    <div class="btn-add-to-cart" 
+                <div class="menu2-card-actions">
+                    <div class="menu2-btn-add-to-cart" 
                          data-action="add-to-cart"
                          data-id="${item.MaMon}"
                          data-name="${escapedName}"
@@ -489,6 +489,18 @@ function createMenuCardHtml(item) {
         </div>
     `;
 }
+
+function escapeHtml(text) {
+    const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+    return String(text).replace(/[&<>"']/g, function (m) { return map[m]; });
+}
+
 
 function escapeHtml(text) {
     const map = {

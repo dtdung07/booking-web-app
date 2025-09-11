@@ -1,7 +1,7 @@
 <?php
 // File admin để quản lý cơ sở
-require_once __DIR__ . '/config/database.php';
-require_once __DIR__ . '/app/models/CoSo.php';
+require_once __DIR__ . '/../../../../config/database.php';
+require_once __DIR__ . '/../../../models/CoSo.php';
 
 // Tạo class đơn giản để quản lý cơ sở
 class AdminBranchController
@@ -18,7 +18,7 @@ class AdminBranchController
     public function admin()
     {
         // Render admin view trực tiếp
-        include __DIR__ . '/app/views/admin/branches/index.php';
+        include __DIR__ . '/index.php';
     }
 
     public function getAdminData()
