@@ -1,20 +1,137 @@
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        font-family: 'Poppins', sans-serif;
-    }
 
-    body {
+
+    .menu-page {
         background: #f0f0f0;
-        padding: 70px 140px;
+        /* padding: 70px 140px; */
+    }
+    .menu-container{
+        padding: 50px 140px ;
     }
 
+  .tab-section-menu{
+    text-align: left;
+      z-index: var(--z-index-sticky);
+  top: var(--header-height);
+  position: sticky;
+    padding: 0px 140px; /* Giữ khoảng trống 2 bên cho các icon */
+    background: var(--colorYellow);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+        /* --- CSS CHO ICON (TASK 1) --- */
+        .icon {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            z-index: 10;
+            user-select: none; /* Ngăn bôi đen văn bản icon */
+            transition: opacity 0.2s ease;
+        }
+        .icon.inactive {
+            opacity: 0.3;
+            pointer-events: none; /* Vô hiệu hóa click khi mờ */
+        }
+        #arrow-left {
+            left: 100px; /* Đặt icon trong khoảng padding 150px */
+        }
+        #arrow-right {
+            right: 100px; /* Đặt icon trong khoảng padding 150px */
+        }
+        /* --------------------------- */
+
+
+        .tab-navigation {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            white-space: nowrap;
+            scrollbar-width: none; 
+            scroll-behavior: smooth; /* Cho phép cuộn mượt khi nhấn icon */
+            cursor: grab; /* --- CSS CHO KÉO (TASK 2) --- */
+        }
+
+        /* --- CSS CHO KÉO (TASK 2) --- */
+        .tab-navigation.dragging {
+            cursor: grabbing;
+            scroll-behavior: auto; /* QUAN TRỌNG: tắt cuộn mượt khi đang kéo */
+            user-select: none; /* Ngăn bôi đen text khi kéo */
+        }
+        .tab-navigation.dragging .tab-btn {
+             /* Ngăn việc click nhầm vào tab khi đang kéo */
+            pointer-events: none;
+        }
+        /* -------------------------- */
+
+
+        .tab-navigation::-webkit-scrollbar {
+            display: none;
+        }
+
+        .tab-btn{
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 10px 10px;
+        }
+        .tab-btn.active{
+            border-bottom: 3px solid green;
+        }
+
+
+    .menu-title {
+        font-size: 22px;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 30px;
+    }
     /* ========== MENU GRID ========== */
     .menu-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+    }
+    
+    /* For specific category tabs - use grid layout */
+    .menu-grid.category-grid {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
         gap: 22px;
+    }
+    
+    /* Category sections for "Tất Cả" tab */
+    .category-section {
+        margin-bottom: 30px;
+    }
+    
+    .category-title {
+        font-size: 24px;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 20px;
+        padding-left: 10px;
+        border-left: 4px solid var(--colorYellow);
+    }
+    
+    .category-items {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 22px;
+    }
+    
+    .no-items {
+        text-align: center;
+        padding: 40px 20px;
+        background: #fff;
+        border-radius: 10px;
+        color: #666;
+        font-size: 16px;
     }
 
     .menu-card {
@@ -77,15 +194,27 @@
     .modal {
         display: none;
         position: fixed;
-        z-index: 1000;
         inset: 0;
         background-color: rgba(0,0,0,0.5);
         backdrop-filter: blur(5px);
+       
+        z-index: var(--z-index-modal);
+    }
+    
+    .modal.show {
+        margin: 100px;
+        display: flex;
+         justify-content: center;
+        align-items: center;
+
     }
 
     .modal-box {
         background: #fff;
-        margin: 2% auto;
+        position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
         border-radius: 15px;
         width: 41%;
         max-width: 800px;
@@ -95,10 +224,6 @@
         animation: modalSlideIn 0.3s ease;
     }
 
-    @keyframes modalSlideIn {
-        from { opacity: 0; transform: translateY(-50px); }
-        to   { opacity: 1; transform: translateY(0); }
-    }
 
     .modal-body {
         padding: 0 20px 20px;
@@ -207,26 +332,24 @@
 
 
     /* ========== STICKY CART WIDGET ========== */
-    #sticky-cart-widget {
-        position: fixed;
-        bottom: 30px;
-        right: 30px;
-        background-color: #1B4E30;
-        color: #fff;
-        border-radius: 8px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        cursor: pointer;
-        z-index: 999;
-        overflow: hidden;
-        opacity: 0;
-        transform: translateX(100%);
-        transition: opacity 0.3s ease, transform 0.3s ease;
-        padding: 15px 25px;
-    }
+#sticky-cart-widget {
+  position: fixed;
+  top: 50%;
+  right: 0px;                 /* bám mép phải */
+  left: auto !important;    /* NGẮT mọi left cũ gây kéo dãn */
+  transform: translateY(-50%);
+  display: inline-flex;     /* co theo nội dung */
+  background: #1B4E30;
+  color: #fff;
+  border-radius: 8px 0 0 8px;
+  box-shadow: 0 4px 15px rgba(0,0,0,.2);
+  cursor: pointer; overflow: hidden; opacity: 0; transition: opacity 0.3s ease, transform 0.3s ease;
+  padding: 12px 16px;
+}
 
     #sticky-cart-widget.show {
         opacity: 1;
-        transform: translateX(0);
+        transform: translateY(-50%);
     }
 
     .cart-info {
@@ -259,7 +382,7 @@
         background-color: rgba(0, 0, 0, 0.6);
         justify-content: center;
         align-items: center;
-        z-index: 1050; /* Cao hơn modal chi tiết (1000) */
+        z-index: var(--z-index-modal); /* Cao hơn modal chi tiết */
 
         /* Logic ẩn/hiện */
         display: none; 
@@ -485,6 +608,7 @@
 
         /* --- Khung Form chính --- */
         .booking-form-container {
+            margin-top: 90px;
             background-color: white;
             width: 38%;
             max-width: 550px; /* Chiều rộng tối đa của form */
@@ -493,6 +617,7 @@
             border-radius: 12px;
             max-height: 90vh;
             overflow-y: auto;
+            position: relative;
         }
 
         /* Overlay cho booking form */
@@ -503,7 +628,6 @@
             width: 100%;
             height: 100%;
             background-color: rgba(0, 0, 0, 0.7);
-            z-index: 1100;
             display: none;
             justify-content: center;
             align-items: center;
@@ -728,7 +852,7 @@
             display: none; /* Ẩn mặc định */
             justify-content: center;
             align-items: center;
-            z-index: 1100;
+            z-index: var(--z-index-overlay);
         }
         .date-picker-overlay.show {
             display: flex; /* Hiện khi có class 'show' */

@@ -48,6 +48,10 @@ switch ($request) {
         $controller = new MenuController();
         break;
         
+    case 'menu2':
+        $controller = new MenuController();
+        break;
+        
     case 'contact':
         $controller = new ContactController();
         break;

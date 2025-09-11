@@ -1,6 +1,5 @@
-
 // === NGUỒN DỮ LIỆU TRUNG TÂM (TOÀN CỤC) ===
-let shoppingCart = {}; // { 1: { name: '...', price: 121000, quantity: 2 }, ... }
+const shoppingCart = {}; // { 1: { name: '...', price: 121000, quantity: 2 }, ... }
 let totalCartQuantity = 0;
 let totalCartPrice = 0;
 
@@ -11,38 +10,8 @@ let currentItemName = '';
 
 // === HÀM HELPER TOÀN CỤC ===
 function formatPrice(price) {
+    price = Math.round(price);
     return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-}
-
-// --- Hàm SL cho Modal Món Ăn (điều khiển input #quantity) ---
-function decreaseQuantity() {
-    const quantityInput = document.getElementById('quantity');
-    if (parseInt(quantityInput.value) > 1) {
-        quantityInput.value = parseInt(quantityInput.value) - 1;
-    }
-}
-
-function increaseQuantity() {
-    const quantityInput = document.getElementById('quantity');
-    quantityInput.value = parseInt(quantityInput.value) + 1;
-    // Giả sử không giới hạn khi thêm từ modal
-}
-
-// --- Hàm SL cho Form Đặt Bàn (điều khiển div .quantity-display) (ĐÃ ĐỔI TÊN) ---
-function decreaseBookingGuests() {
-    const display = document.querySelector('.booking-form-container .quantity-display');
-    let currentValue = parseInt(display.textContent);
-    if (currentValue > 1) {
-        display.textContent = currentValue - 1;
-    }
-}
-
-function increaseBookingGuests() {
-    const display = document.querySelector('.booking-form-container .quantity-display');
-    let currentValue = parseInt(display.textContent);
-    if (currentValue < 20) { // Giới hạn tối đa 20 người
-        display.textContent = currentValue + 1;
-    }
 }
 
 
@@ -50,35 +19,39 @@ function increaseBookingGuests() {
 document.addEventListener('DOMContentLoaded', function () {
 
     // === KHAI BÁO BIẾN DOM (Tất cả các hệ thống) ===
-
-    // --- Hệ thống 1: Views (Các "Trang") ---
-    const menuPageView = document.querySelector('.menu-page');
-    const bookingFormView = document.querySelector('.booking-form-container');
-
-    // --- Hệ thống 2: Menu / Giỏ hàng / Bill ---
+    const menuGrid = document.getElementById('menu-grid');
     const stickyCartWidget = document.getElementById('sticky-cart-widget');
     const cartCountDisplay = document.getElementById('cart-item-count');
     const cartPriceDisplay = document.getElementById('cart-total-price');
+
+    // Modal Món ăn
     const itemModal = document.getElementById('itemModal');
     const quantityInputModal = document.getElementById('quantity');
+    const orderNowBtn = document.getElementById('orderNowBtn');
+
+    // Modal Bill
     const billOverlay = document.getElementById('billOverlay');
     const billCloseBtn = document.getElementById('billCloseBtn');
     const billItemsContainer = document.getElementById('billItemsContainer');
     const billTotalPriceDisplay = document.getElementById('billTotalPriceDisplay');
     const billClearAllBtn = document.getElementById('billClearAllBtn');
-    const proceedToBookingBtn = document.getElementById('proceedToBookingBtn'); // Nút chuyển tiếp MỚI
+    const proceedToBookingBtn = document.getElementById('proceedToBookingBtn');
 
-    // --- Hệ thống 3: Calendar của Form Đặt Bàn ---
+    // Modal Đặt bàn
+    const bookingOverlay = document.getElementById('bookingOverlay');
+    const bookingGuestsDisplay = document.getElementById('booking-guests-display');
+
+    // Modal Calendar
     const dateInput = document.getElementById('date-display-input');
-    const dpOverlay = document.getElementById('datePickerOverlay'); // Đổi tên biến để tránh xung đột với billOverlay
-    const dpModal = document.getElementById('datePickerModal');
+    const dpOverlay = document.getElementById('datePickerOverlay');
     const dpGrid = document.getElementById('dp-days-grid');
     const dpMonthYearDisplay = document.getElementById('dp-current-month-year');
     const dpPrevMonthBtn = document.getElementById('dp-prev-month');
     const dpNextMonthBtn = document.getElementById('dp-next-month');
     const dpTodayBtn = document.getElementById('dp-today-btn');
     const dpCloseBtn = document.getElementById('dp-close-btn');
-
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
     // === HỆ THỐNG 2: LOGIC GIỎ HÀNG & BILL ===
 
@@ -113,21 +86,21 @@ document.addEventListener('DOMContentLoaded', function () {
             const item = shoppingCart[itemId];
             const itemTotalPrice = item.price * item.quantity;
             const itemHtml = `
-                    <div class="bill-item" data-item-id="${itemId}">
-                        <div class="item-info">
-                            <p class="item-name">${item.name}</p>
-                            <p class="item-price">${formatPrice(item.price)}đ</p>
+                <div class="bill-item" data-item-id="${itemId}">
+                    <div class="item-info">
+                        <p class="item-name">${item.name}</p>
+                        <p class="item-price">${formatPrice(item.price)}đ</p>
+                    </div>
+                    <div class="item-controls">
+                        <div class="quantity-controls">
+                            <button type="button" class="bill-qty-decrease" data-action="bill-qty-decrease">-</button>
+                            <input type="number" value="${item.quantity}" min="1" readonly>
+                            <button type="button" class="bill-qty-increase" data-action="bill-qty-increase">+</button>
                         </div>
-                        <div class="item-controls">
-                            <div class="quantity-controls">
-                                <button type="button" class="bill-qty-decrease">-</button>
-                                <input type="number" value="${item.quantity}" min="1" readonly>
-                                <button type="button" class="bill-qty-increase">+</button>
-                            </div>
-                            <div class="item-total-price">${formatPrice(itemTotalPrice)}đ</div>
-                            <div class="delete_item"><i class="fas fa-trash-alt"></i></div>
-                        </div>
-                    </div>`;
+                        <div class="item-total-price">${formatPrice(itemTotalPrice)}đ</div>
+                        <div class="delete_item" data-action="delete-item"><i class="fas fa-trash-alt"></i></div>
+                    </div>
+                </div>`;
             billItemsContainer.insertAdjacentHTML('beforeend', itemHtml);
         }
         billTotalPriceDisplay.textContent = formatPrice(totalCartPrice) + 'đ';
@@ -141,60 +114,125 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Gán hàm vào window để HTML onclick có thể gọi được
-    window.addToCart = (itemId, itemName, itemPrice) => {
+    function addToCart(itemId, itemName, itemPrice, quantity = 1) {
         if (shoppingCart[itemId]) {
-            shoppingCart[itemId].quantity += 1;
+            shoppingCart[itemId].quantity += quantity;
         } else {
-            shoppingCart[itemId] = { name: itemName, price: itemPrice, quantity: 1 };
+            shoppingCart[itemId] = { name: itemName, price: parseFloat(itemPrice), quantity: quantity };
         }
         updateAllUI();
-    };
+    }
 
-    window.orderNow = () => {
-        const quantity = parseInt(quantityInputModal.value);
-        if (shoppingCart[currentItemId]) {
-            shoppingCart[currentItemId].quantity += quantity;
-        } else {
-            shoppingCart[currentItemId] = { name: currentItemName, price: currentItemPrice, quantity: quantity };
+    // --- Các hàm Mở/Đóng Modal ---
+    function openModal(element, state) {
+        if (element) {
+            element.classList.toggle('show', state);
+            document.body.style.overflow = (state && (itemModal.style.display === 'block' || billOverlay.classList.contains('show') || dpOverlay.classList.contains('show') || bookingOverlay.classList.contains('show'))) ? 'hidden' : 'auto';
         }
-        updateAllUI();
-        closeItemModal();
-    };
+    }
 
-    // Logic Modal Chi Tiết Món Ăn
-    window.openModal = (itemId, itemName, itemPrice) => {
-        currentItemId = itemId;
-        currentItemPrice = itemPrice;
-        currentItemName = itemName;
-        document.getElementById('modalItemName').textContent = itemName;
-        document.getElementById('modalPrice').textContent = formatPrice(itemPrice) + 'đ';
-        document.getElementById('modalImage').src = 'https://storage.quannhautudo.com/data/thumb_400/Data/images/product/2025/06/202506271712248578.webp';
+    function openItemModal(id, name, price, description = '', imageUrl = '') {
+        currentItemId = id;
+        currentItemPrice = parseFloat(price);
+        currentItemName = name;
+
+        document.getElementById('modalItemName').textContent = name;
+        document.getElementById('modalPrice').textContent = formatPrice(price) + 'đ';
+        document.getElementById('modalImage').src = imageUrl || 'https://storage.quannhautudo.com/data/thumb_400/Data/images/product/2025/06/202506271712248578.webp';
+        document.getElementById('modalDescription').textContent = description || 'Món ăn ngon tại nhà hàng';
         quantityInputModal.value = 1;
+
         itemModal.style.display = 'block';
         document.body.style.overflow = 'hidden';
-    };
+    }
 
     function closeItemModal() {
         itemModal.style.display = 'none';
-        if (!billOverlay.classList.contains('show') && !dpOverlay.classList.contains('show')) {
+        if (!billOverlay.classList.contains('show') && !dpOverlay.classList.contains('show') && !bookingOverlay.classList.contains('show')) {
             document.body.style.overflow = 'auto';
         }
     }
 
-    // Logic Bill Modal
     function openBillModal() {
         renderBillItems();
-        billOverlay.classList.add('show');
-        document.body.style.overflow = 'hidden';
+        openModal(billOverlay, true);
     }
 
-    window.closeBillModal = () => { // Gắn vào window để hàm khác có thể gọi
-        billOverlay.classList.remove('show');
-        if (itemModal.style.display !== 'block' && !dpOverlay.classList.contains('show')) {
+    function closeBillModal() {
+        openModal(billOverlay, false);
+        if (itemModal.style.display !== 'block' && !dpOverlay.classList.contains('show') && !bookingOverlay.classList.contains('show')) {
             document.body.style.overflow = 'auto';
         }
-    };
+    }
+
+    function showBookingForm() {
+        openModal(bookingOverlay, true);
+    }
+
+    function closeBookingForm() {
+        openModal(bookingOverlay, false);
+    }
+
+    // --- Xử lý sự kiện chung bằng Event Delegation ---
+    document.addEventListener('click', function (e) {
+        const target = e.target;
+        const action = target.dataset.action;
+
+        // Xử lý nút "+ Đặt" TRƯỚC để ngăn modal mở ra
+        if (target.closest('.btn-add-to-cart')) {
+            e.stopPropagation(); // Ngăn modal mở ra khi bấm nút "+ Đặt"
+            e.preventDefault(); // Ngăn các hành động mặc định khác
+            const btn = target.closest('.btn-add-to-cart');
+            addToCart(btn.dataset.id, btn.dataset.name, btn.dataset.price, 1);
+            return; // Dừng xử lý các sự kiện khác
+        }
+
+        // Actions for menu cards - chỉ xử lý khi KHÔNG phải là nút "+ Đặt"
+        const menuCard = target.closest('.menu-card');
+        if (menuCard && menuCard.dataset.action === 'open-modal') {
+            openItemModal(
+                menuCard.dataset.id,
+                menuCard.dataset.name,
+                menuCard.dataset.price,
+                menuCard.dataset.description,
+                menuCard.dataset.imageUrl
+            );
+        }
+
+        // Actions for item modal
+        if (action === 'decrease-quantity' && parseInt(quantityInputModal.value) > 1) {
+            quantityInputModal.value--;
+        }
+        if (action === 'increase-quantity') {
+            quantityInputModal.value++;
+        }
+
+        // Actions for booking form
+        if (action === 'decrease-guests' && bookingGuestsDisplay) {
+            let currentValue = parseInt(bookingGuestsDisplay.textContent);
+            if (currentValue > 1) bookingGuestsDisplay.textContent = currentValue - 1;
+        }
+        if (action === 'increase-guests' && bookingGuestsDisplay) {
+            let currentValue = parseInt(bookingGuestsDisplay.textContent);
+            if (currentValue < 20) bookingGuestsDisplay.textContent = currentValue + 1;
+        }
+        if (action === 'close-booking-form') {
+            closeBookingForm();
+        }
+
+        // Action for category tabs
+        const tabBtn = target.closest('.tab-btn');
+        if (tabBtn) {
+            filterByCategory(tabBtn.dataset.category);
+        }
+    });
+
+    // Sự kiện riêng cho các element không dùng delegation
+    orderNowBtn.addEventListener('click', () => {
+        const quantity = parseInt(quantityInputModal.value);
+        addToCart(currentItemId, currentItemName, currentItemPrice, quantity);
+        closeItemModal();
+    });
 
     stickyCartWidget.addEventListener('click', openBillModal);
     billCloseBtn.addEventListener('click', closeBillModal);
@@ -202,35 +240,42 @@ document.addEventListener('DOMContentLoaded', function () {
     billClearAllBtn.addEventListener('click', function (e) {
         e.preventDefault();
         if (confirm('Bạn có chắc chắn muốn xoá tất cả các món trong giỏ hàng tạm?')) {
-            shoppingCart = {};
+            Object.keys(shoppingCart).forEach(key => delete shoppingCart[key]);
             updateAllUI();
         }
     });
 
     billItemsContainer.addEventListener('click', function (e) {
-        const target = e.target;
-        const itemDiv = target.closest('.bill-item');
+        const actionTarget = e.target.closest('[data-action]');
+        if (!actionTarget) return;
+
+        const action = actionTarget.dataset.action;
+        const itemDiv = e.target.closest('.bill-item');
         if (!itemDiv) return;
         const itemId = itemDiv.dataset.itemId;
 
-        if (target.classList.contains('bill-qty-increase')) {
+        if (action === 'bill-qty-increase') {
             shoppingCart[itemId].quantity += 1;
-        } else if (target.classList.contains('bill-qty-decrease')) {
+        } else if (action === 'bill-qty-decrease') {
             if (shoppingCart[itemId].quantity > 1) {
                 shoppingCart[itemId].quantity -= 1;
             } else {
                 delete shoppingCart[itemId];
             }
-        } else if (target.closest('.delete_item')) {
+        } else if (action === 'delete-item') {
             delete shoppingCart[itemId];
         }
         updateAllUI();
     });
 
+    proceedToBookingBtn.addEventListener('click', function () {
+        closeBillModal();
+        showBookingForm();
+    });
 
-    // === HỆ THỐNG 3: LOGIC CALENDAR (CHO FORM ĐẶT BÀN) ===
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    // === HỆ THỐNG 3: LOGIC CALENDAR (GIỮ NGUYÊN, VÌ ĐÃ TỐT) ===
+    // ... (Toàn bộ code calendar của bạn có thể giữ nguyên ở đây) ...
+    // ... Mình sẽ copy lại để đảm bảo file hoàn chỉnh ...
     const maxDate = new Date(today);
     maxDate.setMonth(maxDate.getMonth() + 2);
     let selectedDate = new Date(today);
@@ -242,7 +287,7 @@ document.addEventListener('DOMContentLoaded', function () {
         return `${day} ${monthName}`;
     }
 
-    if (dateInput) { // Chỉ chạy nếu có input này
+    if (dateInput) {
         dateInput.value = formatDateForInput(today);
     }
 
@@ -276,8 +321,8 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function closeDatePickerModal() {
-        dpOverlay.classList.remove('show');
-        if (itemModal.style.display !== 'block' && !billOverlay.classList.contains('show')) {
+        openModal(dpOverlay, false);
+        if (itemModal.style.display !== 'block' && !billOverlay.classList.contains('show') && !bookingOverlay.classList.contains('show')) {
             document.body.style.overflow = 'auto';
         }
     }
@@ -285,46 +330,27 @@ document.addEventListener('DOMContentLoaded', function () {
     if (dateInput) {
         dateInput.addEventListener('click', () => {
             renderCalendar(selectedDate.getFullYear(), selectedDate.getMonth());
-            dpOverlay.classList.add('show');
-            document.body.style.overflow = 'hidden';
+            openModal(dpOverlay, true);
         });
     }
 
     dpCloseBtn.addEventListener('click', closeDatePickerModal);
-    dpOverlay.addEventListener('click', (e) => {
-        if (e.target === dpOverlay) closeDatePickerModal();
-    });
-    dpPrevMonthBtn.addEventListener('click', () => {
-        renderCalendar(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth() - 1);
-    });
-    dpNextMonthBtn.addEventListener('click', () => {
-        renderCalendar(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth() + 1);
-    });
+    dpPrevMonthBtn.addEventListener('click', () => renderCalendar(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth() - 1));
+    dpNextMonthBtn.addEventListener('click', () => renderCalendar(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth() + 1));
     dpTodayBtn.addEventListener('click', () => {
         selectedDate = new Date(today);
         dateInput.value = formatDateForInput(selectedDate);
         closeDatePickerModal();
     });
     dpGrid.addEventListener('click', (e) => {
-        const target = e.target.closest('.dp-day');
-        if (!target || target.classList.contains('empty') || target.classList.contains('disabled')) {
-            return;
-        }
+        const target = e.target.closest('.dp-day:not(.empty):not(.disabled)');
+        if (!target) return;
         selectedDate = new Date(target.dataset.date);
         dateInput.value = formatDateForInput(selectedDate);
         closeDatePickerModal();
     });
 
-
-    // === LOGIC MỚI: CHUYỂN TIẾP TỪ BILL SANG ĐẶT BÀN ===
-    proceedToBookingBtn.addEventListener('click', function () {
-        closeBillModal(); // Đóng bill
-        showBookingForm(); // Hiển thị booking form với overlay
-    });
-
-
     // === Đóng modal chung ===
-    // Đóng modal khi nhấn ESC
     document.addEventListener('keydown', function (event) {
         if (event.key === 'Escape') {
             closeItemModal();
@@ -334,36 +360,143 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // Đóng modal khi click outside
-    window.onclick = function (event) {
+    window.addEventListener('click', function (event) {
         if (event.target == itemModal) closeItemModal();
         if (event.target == billOverlay) closeBillModal();
         if (event.target == dpOverlay) closeDatePickerModal();
-    }
+        if (event.target == bookingOverlay) closeBookingForm();
+    });
 
 }); // --- KẾT THÚC DOMCONTENTLOADED ---
 
-// === FUNCTIONS TOÀN CỤC CHO BOOKING FORM ===
-function showBookingForm() {
-    const bookingOverlay = document.getElementById('bookingOverlay');
-    if (bookingOverlay) {
-        bookingOverlay.classList.add('show');
-        document.body.style.overflow = 'hidden';
+// === FUNCTION TOÀN CỤC CHO CATEGORY FILTERING ===
+// Lưu ý: Các hàm này vẫn nằm ngoài DOMContentLoaded để có thể gọi từ nơi khác nếu cần
+// nhưng logic gọi đã được chuyển vào trong qua event delegation.
+
+function filterByCategory(categoryId) {
+    const allTabs = document.querySelectorAll('.tab-btn');
+    allTabs.forEach(tab => tab.classList.remove('active'));
+
+    const activeTab = document.querySelector(`.tab-btn[data-category="${categoryId}"]`);
+    if (activeTab) {
+        activeTab.classList.add('active');
+    }
+
+    updatePageTitle(categoryId, activeTab);
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const maCoSo = urlParams.get('coso') || '11';
+    const url = `index.php?page=menu&action=getMenuData&coso=${maCoSo}&category=${categoryId}`;
+
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Giả sử server luôn trả về một cấu trúc dữ liệu duy nhất
+                // và ta sẽ có một hàm render duy nhất để xử lý
+                renderMenuGrid(data.data, data.type);
+            } else {
+                console.error('Error fetching menu data:', data.message);
+                document.getElementById('menu-grid').innerHTML = `<div class="no-items"><p>Đã có lỗi xảy ra khi tải thực đơn.</p></div>`;
+            }
+        })
+        .catch(error => {
+            console.error('Network error:', error);
+            document.getElementById('menu-grid').innerHTML = `<div class="no-items"><p>Lỗi mạng, không thể tải thực đơn.</p></div>`;
+        });
+}
+
+function updatePageTitle(categoryId, activeTab) {
+    const pageTitle = document.querySelector('.menu-container h2');
+    if (pageTitle) {
+        if (categoryId === 'all') {
+            pageTitle.textContent = ''; // Hoặc 'Tất cả món ăn'
+        } else if (activeTab) {
+            const categoryName = activeTab.querySelector('.tab-text').textContent;
+            pageTitle.textContent = categoryName;
+        }
     }
 }
 
-function closeBookingForm() {
-    const bookingOverlay = document.getElementById('bookingOverlay');
-    if (bookingOverlay) {
-        bookingOverlay.classList.remove('show');
-        document.body.style.overflow = 'auto';
+// HÀM MỚI: Hợp nhất 2 hàm updateMenuGrid và updateMenuGridGrouped
+function renderMenuGrid(data, type) {
+    const menuGrid = document.getElementById('menu-grid');
+    menuGrid.innerHTML = ''; // Xóa nội dung cũ
+
+    if (type === 'grouped') {
+        menuGrid.classList.remove('category-grid');
+        if (Object.keys(data).length === 0) {
+            menuGrid.innerHTML = '<div class="no-items"><p>Không có món ăn nào trong cơ sở này.</p></div>';
+            return;
+        }
+
+        Object.keys(data).forEach(categoryName => {
+            const items = data[categoryName];
+            const categorySection = document.createElement('div');
+            categorySection.className = 'category-section';
+
+            let itemsHtml = '';
+            items.forEach(item => itemsHtml += createMenuCardHtml(item));
+
+            categorySection.innerHTML = `
+                <h3 class="category-title">${categoryName}</h3>
+                <div class="category-items">${itemsHtml}</div>
+            `;
+            menuGrid.appendChild(categorySection);
+        });
+
+    } else { // type === 'flat' hoặc mặc định
+        menuGrid.classList.add('category-grid');
+        if (data.length === 0) {
+            menuGrid.innerHTML = '<div class="no-items"><p>Không có món ăn nào trong danh mục này.</p></div>';
+            return;
+        }
+        let html = '';
+        data.forEach(item => html += createMenuCardHtml(item));
+        menuGrid.innerHTML = html;
     }
 }
 
-// Click outside để đóng booking form
-document.addEventListener('click', function (event) {
-    const bookingOverlay = document.getElementById('bookingOverlay');
-    if (event.target === bookingOverlay) {
-        closeBookingForm();
-    }
-});
+// HÀM MỚI: Tách logic tạo HTML của card ra riêng để tái sử dụng
+function createMenuCardHtml(item) {
+    const imageUrl = item.HinhAnhURL || 'https://storage.quannhautudo.com/data/thumb_400/Data/images/product/2025/06/202506271712248578.webp';
+    // Dùng hàm escape để tránh lỗi XSS hoặc lỗi hiển thị nếu tên/mô tả chứa ký tự đặc biệt
+    const escapedName = escapeHtml(item.TenMon || '');
+    const escapedDescription = escapeHtml(item.MoTa || '');
+
+    return `
+        <div class="menu-card" 
+             data-action="open-modal"
+             data-id="${item.MaMon}"
+             data-name="${escapedName}"
+             data-price="${item.Gia}"
+             data-description="${escapedDescription}"
+             data-image-url="${imageUrl}">
+            <img src="${imageUrl}" alt="${escapedName}" onerror="this.src='https://storage.quannhautudo.com/data/thumb_400/Data/images/product/2025/06/202506271712248578.webp'">
+            <div class="menu-card-content">
+                <span class="menu-card-name">${escapedName}</span>
+                <div class="menu-card-price">
+                    ${formatPrice(item.Gia)}đ
+                </div>
+                <div class="menu-card-actions">
+                    <div class="btn-add-to-cart" 
+                         data-action="add-to-cart"
+                         data-id="${item.MaMon}"
+                         data-name="${escapedName}"
+                         data-price="${item.Gia}">+ Đặt</div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function escapeHtml(text) {
+    const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+    return String(text).replace(/[&<>"']/g, function (m) { return map[m]; });
+}
