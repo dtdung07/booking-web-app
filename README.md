@@ -1,5 +1,5 @@
 ## Cấu trúc hiện tại
-
+```
 booking-web-app/
 ├── app/                                # Mã nguồn chính (MVC)
 │   ├── controllers/                    # Controller điều hướng luồng, gọi model + render view
@@ -49,3 +49,4 @@ booking-web-app/
 ├── README.md                           # Hướng dẫn dự án (cấu trúc, chạy, mô tả)
 ├── index.php                           # Entry point + router (?page=&action=)
 └── login.php                           # Trang đăng nhập Admin độc lập (POST + UI)
+```
