@@ -18,7 +18,7 @@ define('PUBLIC_PATH', ROOT_PATH . '/public');
 define('CONFIG_PATH', ROOT_PATH . '/config');
 
 // Cấu hình URL
-define('BASE_URL', 'http://localhost/booking-web-app');
+define('BASE_URL', 'http://localhost');
 define('ASSETS_URL', BASE_URL . '/public');
 
 // Cấu hình ứng dụng

@@ -1,69 +1,6 @@
 <?php
-/**
- * Trang đăng nhập admin độc lập
- * URL: http://localhost/booking-web-app/login
- */
-
-// Bắt đầu session
-session_start();
-
-// Bao gồm file cấu hình
-require_once 'config/config.php';
-
-// Autoload classes
-spl_autoload_register(function($class) {
-    $paths = [
-        'app/controllers/',
-        'app/models/',
-        'includes/'
-    ];
-    
-    foreach ($paths as $path) {
-        $file = $path . $class . '.php';
-        if (file_exists($file)) {
-            require_once $file;
-            break;
-        }
-    }
-});
-
-// Kiểm tra nếu đã đăng nhập thì chuyển về dashboard
-if (isset($_SESSION['user']) && isset($_SESSION['is_logged_in']) && $_SESSION['is_logged_in'] === true) {
-    header("Location: index.php?page=admin&action=dashboard");
-    exit;
-}
-
-// Xử lý đăng nhập nếu có POST request
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = trim($_POST['username'] ?? '');
-    $password = $_POST['password'] ?? '';
-    $remember = isset($_POST['remember']);
-    
-    if (!empty($username) && !empty($password)) {
-        $user = new User();
-        $userData = $user->findByUsername($username);
-        
-        if ($userData && $user->verifyPassword($password, $userData['mat_khau'])) {
-            // Đăng nhập thành công
-            $_SESSION['user'] = $userData;
-            $_SESSION['is_logged_in'] = true;
-            
-            // Xử lý Remember Me
-            if ($remember) {
-                $token = bin2hex(random_bytes(32));
-                setcookie('remember_token', $token, time() + (30 * 24 * 60 * 60), '/');
-                setcookie('remember_user', $userData['id'], time() + (30 * 24 * 60 * 60), '/');
-            }
-            
-            // Redirect về dashboard
-            header("Location: index.php?page=admin&action=dashboard");
-            exit;
-        } else {
-            $error_message = 'Tên đăng nhập hoặc mật khẩu không đúng';
-        }
-    } else {
-        $error_message = 'Vui lòng nhập đầy đủ thông tin';
-    }
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
 }
 ?>
 <!DOCTYPE html>
@@ -308,22 +245,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
     </style>
+
+
 </head>
 <body>
-    <div class="login-container">
+ <div class="login-container">
         <div class="logo">
             <i class="fas fa-shield-alt"></i>
             <h1>Admin Panel</h1>
         </div>
 
-        <?php if (isset($error_message)): ?>
+        <?php if (isset($_SESSION['error_message'])): ?>
             <div class="error-message">
                 <i class="fas fa-exclamation-circle"></i>
-                <?php echo $error_message; ?>
+                <?php 
+                    echo $_SESSION['error_message']; 
+                    unset($_SESSION['error_message']); // Xóa thông báo sau khi hiển thị
+                ?>
+            </div>
+        <?php endif; ?>
+        
+        <?php if (isset($_SESSION['success_message'])): ?>
+            <div class="success-message"> <i class="fas fa-check-circle"></i>
+                <?php 
+                    echo $_SESSION['success_message']; 
+                    unset($_SESSION['success_message']); 
+                ?>
             </div>
         <?php endif; ?>
 
-        <form method="POST" action="" id="loginForm">
+        <form method="POST" action="index.php?page=auth&action=authenticate" id="loginForm">
             <div class="form-group">
                 <label for="username">Tên đăng nhập</label>
                 <div class="input-group">
@@ -334,7 +285,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         name="username" 
                         class="form-control" 
                         placeholder="Nhập tên đăng nhập"
-                        value="<?php echo isset($_POST['username']) ? htmlspecialchars($_POST['username']) : ''; ?>"
                         required
                     >
                 </div>
