@@ -15,7 +15,8 @@ include "connect.php";
         $sql = "INSERT INTO `monan`(`MaDM`, `TenMon`, `MoTa`, `HinhAnhURL`) VALUES ('$danhmuc','$tenmon','$mota','$anhmon')";
 
         mysqli_query($conn, $sql);
-        header("location: index.php?action=view");
+        header("location: ?page=admin&section=menu");
+        exit(); // Dừng thực thi để tránh output thêm
     }
     else{
         echo "Vui lòng nhập đầy đủ thông tin";

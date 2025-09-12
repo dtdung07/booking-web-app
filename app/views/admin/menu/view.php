@@ -1,71 +1,125 @@
 <?php
 include __DIR__ . "/connect.php";
+
+// Include modal sửa món ăn
+include __DIR__ . "/update.php";
+
+// Cấu hình phân trang
+$recordsPerPage = 10; // Số bản ghi trên mỗi trang
+$page = isset($_GET['p']) ? max(1, (int)$_GET['p']) : 1;
+$offset = max(0, ($page - 1) * $recordsPerPage);
+
+// Đếm tổng số bản ghi
+$countSql = "SELECT COUNT(*) as total FROM `monan` WHERE 1";
+$countResult = mysqli_query($conn, $countSql);
+$totalRecords = mysqli_fetch_array($countResult)['total'];
+$totalPages = ceil($totalRecords / $recordsPerPage);
+
+// Lấy dữ liệu với phân trang
+$sql = "SELECT * FROM `monan` WHERE 1 LIMIT $offset, $recordsPerPage";
+$result = mysqli_query($conn, $sql);
+$menuItems = [];
+while($row = mysqli_fetch_array($result)){
+    $menuItems[] = $row;
+}
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        
-    </style>
-</head>
-<body>
 <!-- Hiển thị danh sách món ăn -->
 <div class="card shadow p-4">
-    <h4 class="mb-3">Danh sách danh mục</h4>
-    <table class="table table-bordered align-middle text-center" id="categoryTable">
+    <h4 class="mb-3">Danh sách món ăn (<?php echo $totalRecords; ?> món)</h4>
+    <table class="table table-bordered align-middle text-center" id="menuTable">
       <thead class="table-dark">
         <tr>
-          <th>#</th>
-          <th>Tên món ăn</th>
-          <th>Mô tả</th>
+          <th width="5%">ID</th>
+          <th width="20%">Tên món ăn</th>
+          <th width="35%">Mô tả</th>
           <th>Ảnh</th>
           <th>Hành động</th>
         </tr>
       </thead>
-      <?php
-                $sql = "SELECT * FROM `monan` WHERE 1";
-    
-                $result = mysqli_query($conn, $sql);
-                while($row = mysqli_fetch_array($result)){
-                // Giới hạn mô tả
-                $motaFull = $row['MoTa'] ?? '';
-                $maxLen = 50;  // số ký tự tối đa
-                if (mb_strlen($motaFull, 'UTF-8') > $maxLen) {
-                    $motaShort = mb_substr($motaFull, 0, $maxLen, 'UTF-8') . '...';
-                } else {
-                    $motaShort = $motaFull;
-                }
-        ?>
       <tbody>
-        <tr>
-          <td><?=$row['MaMon']?></td>
-          <td contenteditable="true"><?=$row['TenMon']?></td>
-          <td contenteditable="true" ><?=$motaShort?></td>
-          <td><img src="<?=$row['HinhAnhURL']?>" width="60" height="60" class="img-fluid rounded"></td>
-          <td>
-            <a class="btn btn-sm btn-danger" href="index.php?action=delete&MaMon=<?=$row['MaMon']?>">Xóa</a>
-            <a class="btn btn-sm btn-success" data-bs-toggle="collapse" data-bs-target="#mon-1" href="?action=update&MaMon=<?=$row['MaMon']?>">Quản lý món</a>
-          </td>
-        </tr>
-        <?php } ?>
-        
+        <?php if (!empty($menuItems)): ?>
+          <?php foreach($menuItems as $row): ?>
+            <?php
+            // Giới hạn mô tả
+            $motaFull = $row['MoTa'] ?? '';
+            $maxLen = 50;  // số ký tự tối đa
+            if (mb_strlen($motaFull, 'UTF-8') > $maxLen) {
+                $motaShort = mb_substr($motaFull, 0, $maxLen, 'UTF-8') . '...';
+            } else {
+                $motaShort = $motaFull;
+            }
+            ?>
+            <tr>
+              <td><?=$row['MaMon']?></td>
+              <td><?=$row['TenMon']?></td>
+              <td><?=$motaShort?></td>
+              <td><img src="<?=$row['HinhAnhURL']?>" width="80" height="80" class="img-fluid rounded"></td>
+              <td>
+              <div class="d-flex justify-content-center gap-2" role="group">
+              <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#updateMenuModal" 
+                          onclick="loadMenuData(<?=$row['MaMon']?>, '<?=htmlspecialchars($row['TenMon'], ENT_QUOTES)?>', '<?=htmlspecialchars($row['HinhAnhURL'], ENT_QUOTES)?>', '<?=htmlspecialchars($row['MoTa'], ENT_QUOTES)?>', '<?=$row['MaDM']?>')">
+              <i class="fas fa-edit"></i> Sửa
+              </button>
+
+              <a class="btn btn-danger" href="?page=admin&section=menu&action=delete&MaMon=<?=$row['MaMon']?>"><i class="fas fa-trash"></i> Xoá</a>
+              </div>
+            </td>
+            </tr>
+          <?php endforeach; ?>
+        <?php else: ?>
+          <tr>
+            <td colspan="5" class="text-center text-muted py-4">
+              <i class="fas fa-utensils fa-3x mb-3"></i>
+              <br>
+              Chưa có món ăn nào trong hệ thống
+            </td>
+          </tr>
+        <?php endif; ?>
       </tbody>
     </table>
 
-    <!-- Phân trang -->
+    <!-- Phân trang (chỉ hiện khi có nhiều hơn 1 trang) -->
+    <?php if ($totalPages > 1): ?>
     <nav>
       <ul class="pagination justify-content-center">
-        <li class="page-item disabled"><a class="page-link">Trước</a></li>
-        <li class="page-item active"><a class="page-link" href="#">1</a></li>
-        <li class="page-item"><a class="page-link" href="#">2</a></li>
-        <li class="page-item"><a class="page-link" href="#">3</a></li>
-        <li class="page-item"><a class="page-link" href="#">Sau</a></li>
+        <!-- Nút Trước -->
+        <li class="page-item <?php echo ($page <= 1) ? 'disabled' : ''; ?>">
+          <a class="page-link" href="<?php echo ($page <= 1) ? '#' : '?page=admin&section=menu&p=' . ($page - 1); ?>">Trước</a>
+        </li>
+        
+        <!-- Các trang số -->
+        <?php
+        $startPage = max(1, $page - 2);
+        $endPage = min($totalPages, $page + 2);
+        
+        // Hiện trang đầu nếu không ở gần đầu
+        if ($startPage > 1) {
+            echo '<li class="page-item"><a class="page-link" href="?page=admin&section=menu&p=1">1</a></li>';
+            if ($startPage > 2) {
+                echo '<li class="page-item disabled"><span class="page-link">...</span></li>';
+            }
+        }
+        
+        // Hiện các trang xung quanh trang hiện tại
+        for ($i = $startPage; $i <= $endPage; $i++) {
+            $activeClass = ($i == $page) ? 'active' : '';
+            echo '<li class="page-item ' . $activeClass . '"><a class="page-link" href="?page=admin&section=menu&p=' . $i . '">' . $i . '</a></li>';
+        }
+        
+        // Hiện trang cuối nếu không ở gần cuối
+        if ($endPage < $totalPages) {
+            if ($endPage < $totalPages - 1) {
+                echo '<li class="page-item disabled"><span class="page-link">...</span></li>';
+            }
+            echo '<li class="page-item"><a class="page-link" href="?page=admin&section=menu&p=' . $totalPages . '">' . $totalPages . '</a></li>';
+        }
+        ?>
+        
+        <!-- Nút Sau -->
+        <li class="page-item <?php echo ($page >= $totalPages) ? 'disabled' : ''; ?>">
+          <a class="page-link" href="<?php echo ($page >= $totalPages) ? '#' : '?page=admin&section=menu&p=' . ($page + 1); ?>">Sau</a>
+        </li>
       </ul>
     </nav>
-  </div>  
-</body>
-</html>
+    <?php endif; ?>
+   </div>

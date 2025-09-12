@@ -11,14 +11,14 @@
     <link rel="stylesheet" href="<?php echo asset('css/layout/footer.css'); ?>">
     <link rel="stylesheet" href="<?php echo asset('css/components/buttons.css'); ?>">
     <link rel="stylesheet" href="<?php echo asset('css/pages/home.css'); ?>">
-    <!-- <link rel="stylesheet" href="<?php echo asset('css/pages/menu.css'); ?>"> -->
+    <link rel="stylesheet" href="<?php echo asset('css/pages/menu.css'); ?>">
     <link rel="stylesheet" href="<?php echo asset('css/style-menu.css'); ?>">
     <link rel="stylesheet" href="<?php echo asset('css/pages/menu2.css'); ?>">
     
     <!-- Page-specific CSS -->
     <?php if (isset($additional_css)): ?>
         <?php echo $additional_css; ?>
-    <?php endif; ?>">
+    <?php endif; ?>
 
     
     

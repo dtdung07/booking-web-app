@@ -16,25 +16,21 @@ if(isset($_GET['action'])){
     }
 }
 
-//Modal thêm món ăn
+//Modal thêm nhân viên
 include __DIR__ . "/create.php";
 
 ?>
 <div class="container-fluid">
 
-    <!-- Search bar -->
+    <!-- Search bar và nút thêm -->
   <div class="row mb-3">
     <div class="col-md-6">
-      <input type="text" class="form-control" id="searchInput" placeholder="Tìm kiếm món ăn trên trang hiện tại...">
-      <!-- <small class="text-muted">
-        <i class="fas fa-info-circle"></i> Tìm kiếm chỉ hoạt động trên trang hiện tại
-      </small> -->
+      <input type="text" class="form-control" id="searchInput" placeholder="Tìm kiếm nhân viên...">
     </div>
     <div class="col-md-6 text-end">
-      <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addBranchModal">
-        <i class="fas fa-plus"></i> Thêm món ăn mới
+      <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addUserModal">
+        <i class="fas fa-plus"></i> Thêm nhân viên mới
       </button>
-
     </div>
   </div>
 
@@ -55,19 +51,18 @@ include __DIR__ . "/create.php";
                     break;
             }
         } else {
-            // Mặc định hiển thị danh sách món ăn khi không có tham số action
+            // Mặc định hiển thị danh sách nhân viên khi không có tham số action
             include __DIR__ . "/view.php";
         }
     ?>
 
-
     </div>
 
 <script>
-  // Tìm kiếm món ăn
+  // Tìm kiếm nhân viên
   document.getElementById('searchInput').addEventListener('keyup', function() {
     let filter = this.value.toLowerCase();
-    let rows = document.querySelectorAll("#menuTable tbody tr");
+    let rows = document.querySelectorAll("#userTable tbody tr");
     let visibleCount = 0;
     
     rows.forEach(row => {
@@ -89,16 +84,16 @@ include __DIR__ . "/create.php";
     let noResultRow = document.querySelector("#noSearchResult");
     if (visibleCount === 0 && filter.trim() !== "") {
       if (!noResultRow) {
-        let tbody = document.querySelector("#menuTable tbody");
+        let tbody = document.querySelector("#userTable tbody");
         let newRow = document.createElement("tr");
         newRow.id = "noSearchResult";
         newRow.innerHTML = `
           <td colspan="5" class="text-center text-muted py-4">
             <i class="fas fa-search fa-2x mb-2"></i>
             <br>
-            Không tìm thấy món ăn phù hợp với từ khóa "<strong>${filter}</strong>"
+            Không tìm thấy nhân viên phù hợp với từ khóa "<strong>${filter}</strong>"
             <br>
-            <small>Thử tìm kiếm với từ khóa khác hoặc kiểm tra các trang khác</small>
+            <small>Thử tìm kiếm với từ khóa khác</small>
           </td>
         `;
         tbody.appendChild(newRow);
