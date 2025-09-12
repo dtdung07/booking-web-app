@@ -12,7 +12,12 @@ class MenuController extends BaseController
     
     public function index() 
     {
-        $this->render('menu/menu');
+        // Lấy danh sách tất cả cơ sở để hiển thị trong modal
+        $branches = $this->getBranches();
+        
+        $this->render('menu/menu', [
+            'branches' => $branches
+        ]);
     }
     
     public function show() 
@@ -149,5 +154,36 @@ class MenuController extends BaseController
                 'type' => 'list'
             ]);
         }
+    }
+    
+    /**
+     * API: Trả về danh sách cơ sở dạng JSON cho dropdown global
+     */
+    public function branches()
+    {
+        header('Content-Type: application/json');
+        try {
+            $branches = $this->getBranches();
+            echo json_encode([
+                'success' => true,
+                'data' => $branches
+            ]);
+        } catch (Exception $e) {
+            echo json_encode([
+                'success' => false,
+                'message' => 'Không thể tải danh sách cơ sở'
+            ]);
+        }
+    }
+    
+    /**
+     * Lấy danh sách tất cả cơ sở
+     */
+    private function getBranches() 
+    {
+        $sql = "SELECT MaCoSo, TenCoSo, DiaChi FROM coso WHERE TenCoSo != '' ORDER BY MaCoSo ASC";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }

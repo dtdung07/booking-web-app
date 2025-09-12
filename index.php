@@ -50,6 +50,7 @@ switch ($request) {
         
     case 'menu2':
         $controller = new MenuController();
+        $action = 'menu2';
         break;
         
     case 'contact':

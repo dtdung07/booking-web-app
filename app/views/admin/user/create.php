@@ -1,55 +1,28 @@
 <?php
-// Kiểm tra quyền truy cập
-// if (!isset($_SESSION['admin']) || $_SESSION['admin']['ChucVu'] !== 'admin') {
-//     header('Location: /');
-//     exit;
-// }
-
 // Lấy danh sách cơ sở để hiển thị trong dropdown
-require_once '../../../../config/database.php';
-$database = new Database();
-$db = $database->getConnection();
-
-$query = "SELECT * FROM coso ORDER BY TenCoSo";
-$stmt = $db->prepare($query);
-$stmt->execute();
-$co_so_list = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$sql_coso = "SELECT * FROM coso ORDER BY TenCoSo";
+$result_coso = mysqli_query($conn, $sql_coso);
 ?>
 
-<div class="container mt-5">
-    <div class="row">
-        <div class="col-md-8 offset-md-2">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h4>Thêm Nhân Viên Mới</h4>
-                </div>
-                <div class="card-body">
-                    <?php if (isset($_SESSION['error_message'])): ?>
-                        <div class="alert alert-danger">
-                            <?php 
-                                echo $_SESSION['error_message']; 
-                                unset($_SESSION['error_message']);
-                            ?>
-                        </div>
-                    <?php endif; ?>
-
-                    <?php if (isset($_SESSION['success_message'])): ?>
-                        <div class="alert alert-success">
-                            <?php 
-                                echo $_SESSION['success_message']; 
-                                unset($_SESSION['success_message']);
-                            ?>
-                        </div>
-                    <?php endif; ?>
-
-                    <form action="/admin/user/store" method="POST">
-                        <div class="form-group mb-3">
-                            <label for="MaCoSo">Cơ Sở</label>
-                            <select class="form-control" id="MaCoSo" name="MaCoSo" required>
-                                <option value="">-- Chọn Cơ Sở --</option>
-                                <?php foreach ($co_so_list as $coso): ?>
-                                    <option value="<?php echo $coso['MaCoSo']; ?>"><?php echo $coso['TenCoSo']; ?></option>
-                                <?php endforeach; ?>
+<!-- Modal thêm nhân viên -->
+<div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title" id="addUserModalLabel">
+          <i class="fas fa-user-plus"></i> Thêm Nhân Viên Mới 
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="addUserForm" action="?page=admin&section=users&action=process-create" method="POST">
+          <div class="form-group mb-3">
+            <label for="MaCoSo">Cơ Sở</label>
+            <select class="form-control" id="MaCoSo" name="MaCoSo" required>
+              <option value="">-- Chọn Cơ Sở --</option>
+              <?php while ($coso = mysqli_fetch_assoc($result_coso)): ?>
+                <option value="<?php echo $coso['MaCoSo']; ?>"><?php echo $coso['TenCoSo']; ?></option>
+              <?php endwhile; ?>
                             </select>
                         </div>
 
@@ -90,20 +63,23 @@ $co_so_list = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             </div>
                         </div>
 
-                        <div class="text-center mt-4">
-                            <button type="submit" class="btn btn-primary">Thêm Nhân Viên</button>
-                            <a href="/admin/users" class="btn btn-secondary ml-2">Hủy</a>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          <i class="fas fa-times"></i> Hủy
+        </button>
+        <button type="submit" form="addUserForm" class="btn" style="background-color: #21A256; border-color: #21A256; color: white;">
+          <i class="fas fa-save"></i> Thêm Nhân Viên
+        </button>
+      </div>
     </div>
+  </div>
 </div>
 
 <script>
 // Kiểm tra mật khẩu trùng khớp khi submit form
-document.querySelector('form').addEventListener('submit', function(e) {
+document.getElementById('addUserForm').addEventListener('submit', function(e) {
     const password = document.getElementById('MatKhau').value;
     const confirmPassword = document.getElementById('XacNhanMatKhau').value;
     

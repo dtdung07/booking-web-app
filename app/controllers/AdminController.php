@@ -19,7 +19,7 @@ class AdminController extends BaseController
     public function dashboard() 
     {
         // Render admin dashboard độc lập (không sử dụng layout)
-        include __DIR__ . '/../views/admin/dashboard.php';
+        include dirname(__DIR__) . '/views/admin/dashboard.php';
         exit;
     }
     

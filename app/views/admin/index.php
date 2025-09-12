@@ -8,6 +8,18 @@ include __DIR__ . "/connect.php";
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Thêm mới nhân viên</title>
     <style>
+        body {
+            font-family: 'Arial', sans-serif;
+           
+        background-size: contain; 
+        background-image: url('https://quannhautudo.com/Static/web_images/header-bg-mob.jpg');
+                    min-height: 100vh;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: #333;
+                }
+
         nav{
             background-color:pink;
             padding: 20px;
