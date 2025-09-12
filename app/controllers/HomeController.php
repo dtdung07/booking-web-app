@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../../config/database.php';
-require_once __DIR__ . '/../models/CoSo.php';
+require_once __DIR__ . '/../models/BranchModel.php';
 
 class HomeController extends BaseController 
 {
@@ -10,7 +10,7 @@ class HomeController extends BaseController
     public function __construct() {
         $database = new Database();
         $this->db = $database->getConnection();
-        $this->coSo = new CoSo($this->db);
+        $this->coSo = new BranchModel($this->db);
     }
 
     public function index() 
@@ -40,7 +40,7 @@ class HomeController extends BaseController
                 'name' => $branch_data['TenCoSo'],
                 'address' => $branch_data['DiaChi'],
                 'phone' => $branch_data['DienThoai'],
-                'image' => 'https://storage.quannhautudo.com/data/thumb_1200/Data/images/product/2023/06/202306281114157262.webp'
+                'image' => $branch_data['AnhUrl'],
             ];
             
             $location_counts[$district]++;
@@ -56,22 +56,6 @@ class HomeController extends BaseController
             'location_counts' => $location_counts,
             'total_branches' => $total_branches
         ]);
-    }
-    
-    /**
-     * Chuyển đổi trạng thái sang text hiển thị
-     */
-    private function getStatusText($status) {
-        switch($status) {
-            case 'Đang mở':
-                return 'Đang mở';
-            case 'Hết bàn':
-                return 'Hết bàn';
-            case 'Đang đóng':
-                return 'Đang đóng';
-            default:
-                return 'Đang mở';
-        }
     }
     
     public function about() 
