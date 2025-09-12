@@ -1,11 +1,4 @@
 
-*{
-  margin: 0;
-  padding: 0;
-   top: 0;
-    left: 0;
-  box-sizing: border-box;
-}
 
 .main-header {
     background-image: url('https://quannhautudo.com/Static/web_images/header-bg-web.jpg');
@@ -14,7 +7,7 @@
     background-size: contain;
     position: fixed;
     z-index: var(--z-index-fixed);
-    height: var(--header-height);
+    height: 70px;
     display: flex;
     align-items: center;
 }
@@ -73,6 +66,10 @@
 .hotline strong {
     color: var(--colorYellow); /* màu vàng */
     font-size: 20px;
+}
+
+.main-nav {
+   background: transparent !important;
 }
 
 .main-nav ul {

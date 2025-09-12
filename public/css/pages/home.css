@@ -1,19 +1,8 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  margin: 0;
-  padding: 0;
-  font-family: var(--font-family-primary);
-  overflow-x: hidden;
-}
 
 .home-main{
   background-size: contain; 
   background-image: url('https://quannhautudo.com/Static/web_images/header-bg-mob.jpg');
+  margin-top: 40px;
 }
 
 .container {
@@ -24,12 +13,13 @@ body {
 }
 
 /* Banner Hero Section Start  */
+
+
 .banner-brand-section {
     position: relative;
     width: 100%;
     height: var(--banner-height);
     display: block;
-    margin-top: var(--header-height);
     overflow: hidden;
 }
 
@@ -371,6 +361,7 @@ body {
 
 .cs-locations-list li a {
     display: flex;
+    color: #333;
     justify-content: space-between;
     align-items: center;
     padding: 15px 0;
@@ -382,14 +373,7 @@ body {
     cursor: pointer;
 }
 
-.cs-locations-list li a:hover {
-    background-color: rgba(255, 193, 7, 0.1);
-    padding-left: 10px;
-    padding-right: 10px;
-    border-radius: 5px;
-    color: #ffc107;
-    transform: translateX(5px);
-}
+
 
 .cs-main-content {
     display: flex;

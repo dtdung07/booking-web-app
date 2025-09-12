@@ -1,21 +1,3 @@
-<?php
-// Bắt đầu session nếu chưa có
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
-// Sử dụng static method để tránh lỗi constructor
-$isLoggedIn = false;
-$currentUser = null;
-
-// Load User model để sử dụng static methods
-$userModelPath = __DIR__ . '/../../models/User.php';
-if (file_exists($userModelPath)) {
-    require_once $userModelPath;
-    $isLoggedIn = User::isUserLoggedIn();
-    $currentUser = User::getCurrentUser();
-}
-?>
 
 <header>
     <div class="main-header">
@@ -24,7 +6,6 @@ if (file_exists($userModelPath)) {
                 <i class="fas fa-star" aria-hidden="true"></i>
                 <div class="logo-text">
                     <span class="logo-top">Nhà hàng online </span>
-                    <!-- <span class="logo-bottom"></span> -->
                 </div>
             </a>
             
@@ -32,7 +13,6 @@ if (file_exists($userModelPath)) {
                 <p>HOTLINE</p>
                 <strong>*1986</strong>
             </div>
-            
             <nav class="main-nav" role="navigation" aria-label="Main navigation">
                 <ul>
                     <li><a href="<?php echo url('?page=menu'); ?>" class="<?php echo isActivePage('menu'); ?>">THỰC ĐƠN</a></li>
@@ -47,4 +27,4 @@ if (file_exists($userModelPath)) {
             </div>
         </div>
     </div>
-</header>
+</head>

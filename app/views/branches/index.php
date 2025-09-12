@@ -3,7 +3,7 @@
 
 <main class="branches-page">
 
-    <section class="tab-section">
+    <section class="tab-section-branches">
         <div class="container">
             <div class="tab-navigation">
                 <button class="tab-btn active" data-district="all">
@@ -60,9 +60,10 @@
                 <i class="fas fa-map-marker-alt"></i>
                 Xem bản đồ
               </a>
-              <a href="?page=branches&action=detail&id=<?php echo $branch['id']; ?>" class="btn btn-outline">
-                <i class="fas fa-info-circle"></i>
-                Xem chi tiết
+
+              <a href="?page=menu2&action=menu2&coso=<?php echo $branch['id']; ?>" class="btn btn-outline">
+                <i class="fas fa-utensils"></i>
+                Xem menu
               </a>
               <button class="btn btn-outline" onclick="openBookingModal(<?php echo $branch['id']; ?>)">
                 <i class="fas fa-calendar-check"></i>
@@ -127,7 +128,6 @@ function initializeTabs() {
                 this.style.transform = 'translateY(-2px)';
             }
         });
-        
         button.addEventListener('mouseleave', function() {
             if (!this.classList.contains('active')) {
                 this.style.transform = 'translateY(0)';
@@ -231,8 +231,8 @@ function renderBranches(branches) {
                                 <i class="fas fa-map-marker-alt"></i>
                                 Xem bản đồ
                             </a>
-                        <a href="?page=branches&action=detail&id=${branch.id}" class="btn btn-outline">
-                            <i class="fas fa-info-circle"></i>
+                                      <a href="?page=menu2&action=menu2&coso=${branch.id}" class="btn btn-outline">
+                            <i class="fas fa-utensils"></i>
                             Xem menu
                         </a>
                         <button class="btn btn-outline" onclick="openBookingModal(${branch.id})">
