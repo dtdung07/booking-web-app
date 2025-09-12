@@ -47,7 +47,7 @@ if (session_status() == PHP_SESSION_NONE) {
 
         .logo i {
             font-size: 4rem;
-            color: #667eea;
+            color: #1B4E30;
             margin-bottom: 1rem;
             display: block;
         }
@@ -116,7 +116,7 @@ if (session_status() == PHP_SESSION_NONE) {
         .checkbox-group input[type="checkbox"] {
             width: 18px;
             height: 18px;
-            accent-color: #667eea;
+            accent-color: #1B4E30;
         }
 
         .checkbox-group label {
@@ -143,7 +143,7 @@ if (session_status() == PHP_SESSION_NONE) {
 
         .btn-login:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 10px 25px rgba(27, 78, 48, 0.3);
         }
 
         .btn-login:active {
@@ -203,14 +203,14 @@ if (session_status() == PHP_SESSION_NONE) {
         .back-to-site {
             display: inline-block;
             margin-top: 1rem;
-            color: #667eea;
+            color: #1B4E30;
             text-decoration: none;
             font-size: 0.9rem;
             transition: color 0.3s ease;
         }
 
         .back-to-site:hover {
-            color: #764ba2;
+            color: #21A256;
         }
 
         /* Responsive */
@@ -252,7 +252,7 @@ if (session_status() == PHP_SESSION_NONE) {
  <div class="login-container">
         <div class="logo">
             <i class="fas fa-shield-alt"></i>
-            <h1>Admin Panel</h1>
+            <h1>Admin Dashboard</h1>
         </div>
 
         <?php if (isset($_SESSION['error_message'])): ?>
