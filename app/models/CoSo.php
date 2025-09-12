@@ -8,6 +8,7 @@ class CoSo {
     public $MaCoSo;
     public $TenCoSo;
     public $DiaChi;
+    public $AnhUrl;
     public $DienThoai;
    
 
@@ -65,7 +66,8 @@ class CoSo {
             $this->TenCoSo = $row['TenCoSo'];
             $this->DiaChi = $row['DiaChi'];
             $this->DienThoai = $row['DienThoai'];
-            
+            $this->AnhUrl = $row['AnhUrl'];
+
             return true;
         }
         return false;
@@ -99,9 +101,7 @@ class CoSo {
     public function create() {
         $query = "INSERT INTO " . $this->table_name . " 
                  SET TenCoSo=:TenCoSo, DiaChi=:DiaChi, DienThoai=:DienThoai, 
-                     Mota=:Mota, ThoiGianHoatDong=:ThoiGianHoatDong, 
-                     SucChua=:SucChua, DienTich=:DienTich, SoTang=:SoTang, 
-                     TrangThai=:TrangThai";
+                     AnhUrl=:AnhUrl";
 
         $stmt = $this->conn->prepare($query);
 
@@ -116,12 +116,7 @@ class CoSo {
         $stmt->bindParam(":TenCoSo", $this->TenCoSo);
         $stmt->bindParam(":DiaChi", $this->DiaChi);
         $stmt->bindParam(":DienThoai", $this->DienThoai);
-        $stmt->bindParam(":Mota", $this->Mota);
-        $stmt->bindParam(":ThoiGianHoatDong", $this->ThoiGianHoatDong);
-        $stmt->bindParam(":SucChua", $this->SucChua);
-        $stmt->bindParam(":DienTich", $this->DienTich);
-        $stmt->bindParam(":SoTang", $this->SoTang);
-        $stmt->bindParam(":TrangThai", $this->TrangThai);
+        $stmt->bindParam(":AnhUrl", $this->AnhUrl);
 
         if($stmt->execute()) {
             return true;
@@ -135,9 +130,7 @@ class CoSo {
     public function update() {
         $query = "UPDATE " . $this->table_name . " 
                  SET TenCoSo=:TenCoSo, DiaChi=:DiaChi, DienThoai=:DienThoai, 
-                     Mota=:Mota, ThoiGianHoatDong=:ThoiGianHoatDong, 
-                     SucChua=:SucChua, DienTich=:DienTich, SoTang=:SoTang, 
-                     TrangThai=:TrangThai 
+                    ,AnhUrl=:AnhUrl
                  WHERE MaCoSo=:MaCoSo";
 
         $stmt = $this->conn->prepare($query);
@@ -154,13 +147,7 @@ class CoSo {
         $stmt->bindParam(":TenCoSo", $this->TenCoSo);
         $stmt->bindParam(":DiaChi", $this->DiaChi);
         $stmt->bindParam(":DienThoai", $this->DienThoai);
-        $stmt->bindParam(":Mota", $this->Mota);
-        $stmt->bindParam(":ThoiGianHoatDong", $this->ThoiGianHoatDong);
-        $stmt->bindParam(":SucChua", $this->SucChua);
-        $stmt->bindParam(":DienTich", $this->DienTich);
-        $stmt->bindParam(":SoTang", $this->SoTang);
-        $stmt->bindParam(":TrangThai", $this->TrangThai);
-        $stmt->bindParam(":MaCoSo", $this->MaCoSo);
+        $stmt->bindParam(":AnhUrl", $this->AnhUrl);
 
         if($stmt->execute()) {
             return true;

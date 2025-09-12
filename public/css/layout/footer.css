@@ -4,6 +4,8 @@
     background-color: var(--colorPrimary) ;
     padding: 50px 0;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
+    z-index: 1; /* Đảm bảo footer ở lớp thấp */
+    margin-top: auto; /* Đẩy footer xuống dưới cùng */
 }
 
 

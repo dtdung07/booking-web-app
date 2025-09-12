@@ -24,6 +24,29 @@
 }
 
 
+*{
+  margin: 0;
+  padding: 0;
+  top: 0;
+  left: 0;
+  box-sizing: border-box;
+}
+body {
+  margin: 0px ;
+  padding: 0;
+  font-family: var(--font-family-primary);
+  overflow-x: hidden;
+
+}
+
+main {
+  flex: 1; /* Cho phép main mở rộng để đẩy footer xuống */
+  position: relative; /* Thay đổi từ sticky sang relative */
+}
+
+
+
+
 :root {
   --colorLinkGreen: #21A256;
   --colorYellow: #FFA827;
@@ -72,6 +95,8 @@
   --z-index-popover: 600;
   --z-index-tooltip: 700;
   --z-index-toast: 800;
+  --z-index-overlay: 900;
+  --z-index-fullscreen: 1000;
   
   /* Transitions */
   --transition-fast: 0.15s ease;
