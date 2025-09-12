@@ -63,7 +63,7 @@ switch ($request) {
     case 'admin':
         $controller = new AdminController();
         break;
-        
+    
     default:
         $controller = new HomeController();
         $action = 'notFound';

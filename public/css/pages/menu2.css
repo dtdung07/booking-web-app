@@ -259,6 +259,16 @@
     .menu2-modal-description p {
         color: #666;
         line-height: 1.6;
+        max-height: 120px;
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding-right: 5px;
+        scroll-behavior: smooth;
+
+    }
+    ::-webkit-scrollbar {
+        width: 6px;   /* Thu hẹp chiều rộng dọc */
+        height: 6px;  /* Thu hẹp chiều cao ngang */
     }
 
     hr {
