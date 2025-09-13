@@ -1,15 +1,10 @@
 <?php
-require_once __DIR__ . '/../../../../config/database.php';
-require_once __DIR__ . '/../../../models/CoSo.php';
+// Include AdminBranchController để lấy dữ liệu
+require_once __DIR__ . '/../../../controllers/admin/AdminBranchController.php';
 
-// Khởi tạo kết nối database
-$database = new Database();
-$db = $database->getConnection();
-$coSo = new CoSo($db);
-
-// Lấy tất cả cơ sở từ database
-$stmt = $coSo->getAll();
-$branches = $stmt->fetchAll(PDO::FETCH_ASSOC);
+// Khởi tạo controller và lấy dữ liệu branches
+$controller = new AdminBranchController();
+$branches = $controller->getBranches();
 ?>
 
 <!DOCTYPE html>
@@ -40,6 +35,7 @@ $branches = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 <div class="container mt-5">
   <h2 class="mb-4 text-center">Hệ thống quản lý cơ sở</h2>
+
 
   <!-- Search bar -->
   <div class="row mb-3">
@@ -221,7 +217,7 @@ $branches = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
   // Xem chi tiết cơ sở
   function viewBranch(id) {
-    fetch(`admin_branches.php?action=get_data`)
+    fetch(`../../../controllers/admin/AdminBranchController.php?action=get_data`)
       .then(response => response.json())
       .then(data => {
         if (data.success) {
@@ -236,25 +232,55 @@ $branches = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
   // Chỉnh sửa cơ sở
   function editBranch(id) {
-    fetch(`admin_branches.php?action=get_data`)
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          const branch = data.data.find(b => b.MaCoSo == id);
-          if (branch) {
-            // Điền dữ liệu vào form edit
-            document.getElementById('editMaCoSo').value = branch.MaCoSo;
-            document.getElementById('editTenCoSo').value = branch.TenCoSo;
-            document.getElementById('editDiaChi').value = branch.DiaChi;
-            document.getElementById('editDienThoai').value = branch.DienThoai;
-            document.getElementById('editAnhUrl').value = branch.AnhUrl || '';
-            
-            // Hiển thị modal edit
-            new bootstrap.Modal(document.getElementById('editBranchModal')).show();
+    console.log('editBranch called with id:', id);
+    
+    // Đường dẫn đúng từ view đến controller
+    fetch(`../../../controllers/admin/AdminBranchController.php?action=get_data`)
+      .then(response => {
+        console.log('Response status:', response.status);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.text(); // Get as text first to check for HTML errors
+      })
+      .then(text => {
+        console.log('Raw response:', text);
+        try {
+          const data = JSON.parse(text);
+          console.log('API response data:', data);
+          if (data.success) {
+            const branch = data.data.find(b => b.MaCoSo == id);
+            console.log('Found branch:', branch);
+            if (branch) {
+              // Điền dữ liệu vào form edit
+              document.getElementById('editMaCoSo').value = branch.MaCoSo;
+              document.getElementById('editTenCoSo').value = branch.TenCoSo;
+              document.getElementById('editDiaChi').value = branch.DiaChi;
+              document.getElementById('editDienThoai').value = branch.DienThoai;
+              document.getElementById('editAnhUrl').value = branch.AnhUrl || '';
+              
+              // Hiển thị modal edit
+              const modal = new bootstrap.Modal(document.getElementById('editBranchModal'));
+              console.log('Showing modal');
+              modal.show();
+            } else {
+              console.error('Branch not found for id:', id);
+              alert('Không tìm thấy cơ sở với ID: ' + id);
+            }
+          } else {
+            console.error('API returned error:', data.message);
+            alert('Lỗi API: ' + data.message);
           }
+        } catch (parseError) {
+          console.error('JSON parse error:', parseError);
+          console.error('Response was not JSON:', text);
+          alert('Lỗi: Server trả về dữ liệu không đúng định dạng JSON');
         }
       })
-      .catch(error => console.error('Lỗi:', error));
+      .catch(error => {
+        console.error('Fetch error:', error);
+        alert('Lỗi khi tải dữ liệu: ' + error.message);
+      });
   }
 
   // Xóa cơ sở
@@ -263,7 +289,7 @@ $branches = $stmt->fetchAll(PDO::FETCH_ASSOC);
       const formData = new FormData();
       formData.append('maCoSo', id);
 
-      fetch('admin_branches.php?action=delete', {
+      fetch('../../../controllers/admin/AdminBranchController.php?action=delete', {
         method: 'POST',
         body: formData
       })
@@ -295,7 +321,7 @@ $branches = $stmt->fetchAll(PDO::FETCH_ASSOC);
       formData.append('dienThoai', dienThoai);
       formData.append('anhUrl', anhUrl);
 
-      fetch('admin_branches.php?action=add', {
+      fetch('../../../controllers/admin/AdminBranchController.php?action=add', {
         method: 'POST',
         body: formData
       })
@@ -333,7 +359,7 @@ $branches = $stmt->fetchAll(PDO::FETCH_ASSOC);
       formData.append('dienThoai', dienThoai);
       formData.append('anhUrl', anhUrl);
 
-      fetch('admin_branches.php?action=update', {
+      fetch('../../../controllers/admin/AdminBranchController.php?action=update', {
         method: 'POST',
         body: formData
       })
