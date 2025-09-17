@@ -10,7 +10,6 @@ include __DIR__ . "/connect.php";
     <style>
         body {
             font-family: 'Arial', sans-serif;
-           
         background-size: contain; 
         background-image: url('https://quannhautudo.com/Static/web_images/header-bg-mob.jpg');
                     min-height: 100vh;

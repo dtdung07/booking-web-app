@@ -1,12 +1,25 @@
 <?php
+// Kiểm tra quyền truy cập - chỉ cho phép admin
+if (!isset($_SESSION['user']) || $_SESSION['user']['ChucVu'] !== 'admin') {
+    $_SESSION['error_message'] = 'Bạn không có quyền truy cập trang này.';
+    header('Location: index.php?page=auth&action=login');
+    exit;
+}
+
 // Kết nối database để lấy thống kê (sử dụng mysqli)
-$host = 'localhost';
-$user = 'root';
-$pass = '';
+$host = 'db';
+$user = 'bookinguser';
+$pass = 'bookingpass';
 $database = 'booking_restaurant';
-$port = '3306';
+$port = 3306; // Port mặc định của MySQL
 
 $conn = mysqli_connect($host, $user, $pass, $database, $port);
+
+// Kiểm tra kết nối
+if (!$conn) {
+    die("Kết nối database thất bại: " . mysqli_connect_error());
+}
+
 mysqli_set_charset($conn, "utf8");
 
 // Lấy thống kê

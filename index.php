@@ -64,6 +64,10 @@ switch ($request) {
     case 'admin':
         $controller = new AdminController();
         break;
+        
+    case 'nhanvien':
+        $controller = new NhanVienController();
+        break;
     
     default:
         $controller = new HomeController();
