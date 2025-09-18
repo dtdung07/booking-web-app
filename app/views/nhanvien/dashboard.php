@@ -6,70 +6,21 @@ if (!isset($_SESSION['user']) || $_SESSION['user']['ChucVu'] !== 'nhan_vien') {
     exit;
 }
 
+// Include helper functions
+require_once __DIR__ . '/NhanVienHelper.php';
+
 // Lấy thông tin nhân viên hiện tại
 $currentUser = $_SESSION['user'];
 
-// Kết nối database để lấy thống kê (sử dụng mysqli)
-$host = 'db';
-$user = 'bookinguser';
-$pass = 'bookingpass';
-$database = 'booking_restaurant';
-$port = 3306;
-$conn = mysqli_connect($host, $user, $pass, $database, $port);
+// Lấy dữ liệu được truyền từ controller
+$section = $_GET['section'] ?? 'overview';
 
-if (!$conn) {
-    die("Kết nối database thất bại: " . mysqli_connect_error());
-}
-
-mysqli_set_charset($conn, "utf8");
-
-// Lấy thống kê cho nhân viên
-if ($conn && isset($currentUser['MaCoSo'])) {
-    $maCoSo = $currentUser['MaCoSo'];
-
-    // ---------- Thông tin cơ sở ----------
-    $stmt = $conn->prepare("SELECT * FROM coso WHERE MaCoSo = ?");
-    $stmt->bind_param("s", $maCoSo);
-    $stmt->execute();
-    $coSoInfo = $stmt->get_result()->fetch_assoc();
-
-    // ---------- Tổng số đơn đặt bàn ----------
-    $stmt = $conn->prepare("SELECT COUNT(*) as total FROM dondatban WHERE MaCoSo = ?");
-    $stmt->bind_param("s", $maCoSo);
-    $stmt->execute();
-    $todayBookings = $stmt->get_result()->fetch_assoc()['total'];
-
-    // ---------- Đơn đặt bàn hôm nay ----------
-    $today = date('Y-m-d');
-    $stmt = $conn->prepare("SELECT COUNT(*) as total FROM dondatban WHERE MaCoSo = ? AND DATE(ThoiGianTao) = ?");
-    $stmt->bind_param("ss", $maCoSo, $today);
-    $stmt->execute();
-    $todayNewBookings = $stmt->get_result()->fetch_assoc()['total'];
-
-    // ---------- Đơn chờ xác nhận ----------
-    $stmt = $conn->prepare("SELECT COUNT(*) as total FROM dondatban WHERE MaCoSo = ? AND TrangThai = 'cho_xac_nhan'");
-    $stmt->bind_param("s", $maCoSo);
-    $stmt->execute();
-    $pendingBookings = $stmt->get_result()->fetch_assoc()['total'];
-
-    // ---------- Tổng số đặt bàn (tính luôn cho tháng) ----------
-    $stmt = $conn->prepare("SELECT COUNT(*) as total FROM dondatban WHERE MaCoSo = ?");
-    $stmt->bind_param("s", $maCoSo);
-    $stmt->execute();
-    $monthlyBookings = $stmt->get_result()->fetch_assoc()['total'];
-
-    $stmt->close();
-} 
-else {
-    $coSoInfo = null;
-    $todayBookings = 2;
-    $todayNewBookings = 0;
-    $pendingBookings = 2;
-    $monthlyBookings = 0;
-}
-
-// Lấy tham số để quyết định hiển thị content nào
-$section = $_GET['section'] ?? 'dashboard';
+// Lấy dữ liệu dashboard
+$coSoInfo = $dashboardData['coSoInfo'];
+$todayBookings = $dashboardData['todayBookings'] ?? 0;
+$todayNewBookings = $dashboardData['todayBookings'] ?? 0;
+$pendingBookings = $dashboardData['pendingBookings'] ?? 0;
+$confirmedBookings = $dashboardData['confirmedBookings'] ?? 0;
 ?>
 
 <!DOCTYPE html>
@@ -77,7 +28,7 @@ $section = $_GET['section'] ?? 'dashboard';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Nhân Viên - <?php echo htmlspecialchars($currentUser['TenNhanVien']); ?></title>
+    <title>Dashboard Nhân Viên - <?php echo htmlspecialchars($currentUser['TenNhanVien'] ?? ''); ?></title>
     
     <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -246,12 +197,19 @@ $section = $_GET['section'] ?? 'dashboard';
                     Đơn đặt bàn
                 </a>
             </li>
+             <li class="nav-item">
+                <a class="nav-link" href="index.php?page=menu">
+                    <i class="fas fa-add me-2"></i>
+                    Tạo đơn
+                </a>
+            </li>
             <li class="nav-item">
                 <a class="nav-link" href="index.php?page=menu">
                     <i class="fas fa-utensils me-2"></i>
                     Xem Menu
                 </a>
             </li>
+           
             <li class="nav-item mt-3">
                 <a class="nav-link" href="index.php">
                     <i class="fas fa-home me-2"></i>
@@ -279,18 +237,14 @@ $section = $_GET['section'] ?? 'dashboard';
                     <i class="fas fa-bars"></i>
                 </button>
                 <h1 class="h3 mb-0">
-                    <?php 
-                    switch($section) {
-                        case 'bookings': echo 'Quản lý đơn đặt bàn'; break;
-                        default: echo $coSoInfo ? htmlspecialchars($coSoInfo['TenCoSo']) : 'Dashboard Nhân Viên'; break;
-                    }
-                    ?>
+                    <?php
+                     echo htmlspecialchars($coSoInfo['TenCoSo']); ?>
                 </h1>
             </div>
             
             <div class="d-flex align-items-center">
                 <span class="text-muted me-3">
-                    Chào mừng, <?php echo htmlspecialchars($currentUser['TenNhanVien']); ?>!
+                    Chào mừng, <?php echo htmlspecialchars($currentUser['TenNhanVien'] ?? ''); ?>!
                 </span>
                 <div class="dropdown">
                     <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" 
@@ -513,9 +467,3 @@ $section = $_GET['section'] ?? 'dashboard';
 </body>
 </html>
 
-<?php
-// Đóng kết nối database
-if ($conn) {
-    mysqli_close($conn);
-}
-?>

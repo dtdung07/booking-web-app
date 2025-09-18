@@ -1,117 +1,18 @@
 <?php
 // File này được include trong dashboard.php để hiển thị section đơn đặt bàn
+// Dữ liệu được truyền từ controller qua biến $bookingsData
 
-// Lấy danh sách đơn đặt bàn cho cơ sở hiện tại
-$bookingsList = [];
-$totalBookings = 0;
+// Lấy dữ liệu bookings từ controller
+$bookingsList = $bookingsData['bookingsList'] ?? [];
+$totalBookings = $bookingsData['totalBookings'] ?? 0;
+$totalPages = $bookingsData['totalPages'] ?? 0;
+$currentPage = $bookingsData['currentPage'] ?? 1;
+$limit = $bookingsData['limit'] ?? 10;
 
-if ($conn && isset($currentUser['MaCoSo'])) {
-    $maCoSo = $currentUser['MaCoSo'];
-    
-    // Phân trang
-    $page = isset($_GET['booking_page']) ? (int)$_GET['booking_page'] : 1;
-    $limit = 10;
-    $offset = ($page - 1) * $limit;
-    
-    // Lọc theo trạng thái
-    $statusFilter = $_GET['status_filter'] ?? 'all';
-    $searchKeyword = $_GET['search'] ?? '';
-    
-    // Lọc theo thời gian (mặc định là đơn hôm nay)
-    $timeFilter = $_GET['time_filter'] ?? 'hom_nay';
-    
-    // Xây dựng câu truy vấn
-    $whereConditions = ["d.MaCoSo = ?"];
-    $params = [$maCoSo];
-    $paramTypes = "s";
-    
-    if ($statusFilter !== 'all') {
-        $whereConditions[] = "d.TrangThai = ?";
-        $params[] = $statusFilter;
-        $paramTypes .= "s";
-    }
-    
-    // Lọc theo thời gian
-    if ($timeFilter === 'hom_nay') {
-        // Đơn hôm nay: chỉ lấy những đơn có ngày bắt đầu là hôm nay
-        $whereConditions[] = "DATE(d.ThoiGianBatDau) = CURDATE()";
-    } elseif ($timeFilter === 'dat_truoc') {
-        // Đơn đặt trước: lấy những đơn có ngày bắt đầu từ ngày mai trở đi
-        $whereConditions[] = "DATE(d.ThoiGianBatDau) > CURDATE()";
-    }
-    
-    if (!empty($searchKeyword)) {
-        $whereConditions[] = "(kh.TenKH LIKE ? OR kh.SDT LIKE ? OR d.MaDon LIKE ?)";
-        $searchParam = "%$searchKeyword%";
-        $params[] = $searchParam;
-        $params[] = $searchParam;
-        $params[] = $searchParam;
-        $paramTypes .= "sss";
-    }
-    
-    $whereClause = implode(" AND ", $whereConditions);
-    
-    // Đếm tổng số đơn
-    $countQuery = "SELECT COUNT(*) as total FROM dondatban d 
-                   LEFT JOIN khachhang kh ON d.MaKH = kh.MaKH 
-                   WHERE $whereClause";
-    $countStmt = $conn->prepare($countQuery);
-    $countStmt->bind_param($paramTypes, ...$params);
-    $countStmt->execute();
-    $totalBookings = $countStmt->get_result()->fetch_assoc()['total'];
-    $countStmt->close();
-    
-    // Lấy danh sách đơn đặt bàn với thông tin khách hàng
-    $query = "SELECT d.*, kh.TenKH, kh.SDT, kh.Email as EmailKH,
-                     GROUP_CONCAT(CONCAT(b.TenBan, ' (', b.SucChua, ' người)') SEPARATOR ', ') as DanhSachBan
-              FROM dondatban d 
-              LEFT JOIN khachhang kh ON d.MaKH = kh.MaKH
-              LEFT JOIN dondatban_ban db ON d.MaDon = db.MaDon
-              LEFT JOIN ban b ON db.MaBan = b.MaBan
-              WHERE $whereClause
-              GROUP BY d.MaDon
-              ORDER BY d.ThoiGianTao DESC 
-              LIMIT ? OFFSET ?";
-    
-    $params[] = $limit;
-    $params[] = $offset;
-    $paramTypes .= "ii";
-    
-    $stmt = $conn->prepare($query);
-    $stmt->bind_param($paramTypes, ...$params);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    
-    while ($row = $result->fetch_assoc()) {
-        $bookingsList[] = $row;
-    }
-    
-    $stmt->close();
-}
-
-// Tính số trang
-$totalPages = ceil($totalBookings / $limit);
-
-// Hàm hiển thị trạng thái
-function getStatusBadge($status) {
-    switch($status) {
-        case 'cho_xac_nhan':
-            return '<span class="status-badge pending"><i class="fas fa-clock"></i> Chờ xác nhận</span>';
-        case 'da_xac_nhan':
-            return '<span class="status-badge confirmed"><i class="fas fa-check-circle"></i> Đã xác nhận</span>';
-        case 'da_huy':
-            return '<span class="status-badge cancelled"><i class="fas fa-times-circle"></i> Đã hủy</span>';
-        case 'hoan_thanh':
-            return '<span class="status-badge completed"><i class="fas fa-check-double"></i> Hoàn thành</span>';
-        default:
-            return '<span class="status-badge">' . htmlspecialchars($status) . '</span>';
-    }
-}
-
-// Hàm định dạng ngày giờ
-function formatDateTime($dateTime) {
-    return date('d/m/Y H:i', strtotime($dateTime));
-}
+// Lấy các filter parameters
+$statusFilter = $_GET['status_filter'] ?? 'all';
+$timeFilter = $_GET['time_filter'] ?? 'hom_nay';
+$searchKeyword = $_GET['search'] ?? '';
 ?>
 
 <style>
@@ -455,7 +356,7 @@ tr:hover {
                             <td>
                                 <div class="booking-time">
                                     <i class="fas fa-clock"></i>
-                                    <?php echo formatDateTime($booking['ThoiGianBatDau']); ?>
+                                    <?php echo NhanVienHelper::formatDateTime($booking['ThoiGianBatDau']); ?>
                                 </div>
                             </td>
                             <td>
@@ -463,7 +364,7 @@ tr:hover {
                             </td>
                             
                             <td>
-                                <?php echo getStatusBadge($booking['TrangThai']); ?>
+                                <?php echo NhanVienHelper::getStatusBadge($booking['TrangThai']); ?>
                             </td>
                            
                             <td>

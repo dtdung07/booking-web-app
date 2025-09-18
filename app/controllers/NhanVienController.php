@@ -2,19 +2,26 @@
 
 require_once __DIR__ . '/../../config/database.php'; 
 require_once __DIR__ . '/../models/NhanVienModel.php'; 
+require_once __DIR__ . '/../models/BookingModel.php'; 
+require_once __DIR__ . '/../models/BranchModel.php'; 
 require_once __DIR__ . '/../../includes/BaseController.php'; 
 require_once __DIR__ . '/AuthController.php'; 
 
 class NhanVienController extends BaseController 
 {
     private $nhanVienModel;
+    private $bookingModel;
+    private $branchModel;
     private $authController;
+    private $db;
 
     public function __construct() {
-        // Khởi tạo kết nối DB và NhanVienModel
+        // Khởi tạo kết nối DB và các Model
         $database = new Database();
-        $db = $database->getConnection();
-        $this->nhanVienModel = new NhanVienModel($db);
+        $this->db = $database->getConnection();
+        $this->nhanVienModel = new NhanVienModel($this->db);
+        $this->bookingModel = new BookingModel($this->db);
+        $this->branchModel = new BranchModel($this->db);
         $this->authController = new AuthController();
         
         if (session_status() === PHP_SESSION_NONE) {
@@ -28,7 +35,28 @@ class NhanVienController extends BaseController
         // Kiểm tra quyền truy cập - chỉ cho phép nhân viên
         $this->authController->requireNhanVien();
         
-        // Include view dashboard cho nhân viên
+        $currentUser = $_SESSION['user'];
+        $maCoSo = $currentUser['MaCoSo'];
+        
+        // Lấy thống kê dashboard
+        $dashboardData = $this->getDashboardStatistics($maCoSo);
+        
+        // Xử lý section hiển thị
+        $section = $_GET['section'] ?? 'overview';
+        
+        switch ($section) {
+            case 'bookings':
+                $bookingsData = $this->getBookingsList($maCoSo);
+                break;
+            case 'profile':
+                $profileData = $this->getProfileData($currentUser['MaNV']);
+                break;
+            default:
+                $section = 'overview';
+                break;
+        }
+        
+        // Truyền dữ liệu cho view
         include __DIR__ . '/../views/nhanvien/dashboard.php';
         exit;
     }
@@ -51,68 +79,6 @@ class NhanVienController extends BaseController
 
         include __DIR__ . '/../views/nhanvien/profile.php';
         exit;
-    }
-
-    // Cập nhật thông tin cá nhân
-    public function updateProfile()
-    {
-        $this->authController->requireNhanVien();
-        
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            $this->redirect('index.php?page=nhanvien&action=profile');
-            return;
-        }
-
-        $currentUser = $_SESSION['user'];
-        
-        // Lấy dữ liệu từ form
-        $tenNhanVien = trim($_POST['TenNhanVien'] ?? '');
-        $matKhauMoi = trim($_POST['MatKhauMoi'] ?? '');
-        $xacNhanMatKhau = trim($_POST['XacNhanMatKhau'] ?? '');
-
-        // Validate dữ liệu
-        if (empty($tenNhanVien)) {
-            $_SESSION['error_message'] = 'Tên nhân viên không được để trống.';
-            $this->redirect('index.php?page=nhanvien&action=profile');
-            return;
-        }
-
-        // Kiểm tra mật khẩu mới nếu có
-        if (!empty($matKhauMoi)) {
-            if (strlen($matKhauMoi) < 6) {
-                $_SESSION['error_message'] = 'Mật khẩu mới phải có ít nhất 6 ký tự.';
-                $this->redirect('index.php?page=nhanvien&action=profile');
-                return;
-            }
-
-            if ($matKhauMoi !== $xacNhanMatKhau) {
-                $_SESSION['error_message'] = 'Xác nhận mật khẩu không khớp.';
-                $this->redirect('index.php?page=nhanvien&action=profile');
-                return;
-            }
-        }
-
-        // Cập nhật thông tin
-        if ($this->nhanVienModel->getById($currentUser['MaNV'])) {
-            $this->nhanVienModel->TenNhanVien = $tenNhanVien;
-            
-            // Cập nhật mật khẩu nếu có
-            if (!empty($matKhauMoi)) {
-                $this->nhanVienModel->MatKhau = password_hash($matKhauMoi, PASSWORD_DEFAULT);
-            }
-
-            if ($this->nhanVienModel->update()) {
-                // Cập nhật session
-                $_SESSION['user']['TenNhanVien'] = $tenNhanVien;
-                $_SESSION['success_message'] = 'Cập nhật thông tin thành công!';
-            } else {
-                $_SESSION['error_message'] = 'Có lỗi xảy ra khi cập nhật thông tin.';
-            }
-        } else {
-            $_SESSION['error_message'] = 'Không tìm thấy thông tin nhân viên.';
-        }
-
-        $this->redirect('index.php?page=nhanvien&action=profile');
     }
 
     // Xem danh sách đặt bàn (nếu có)
@@ -230,7 +196,8 @@ class NhanVienController extends BaseController
     // Xem chi tiết đơn đặt bàn
     public function viewBookingDetail()
     {
-    error_log("viewBookingDetail called----------------------------");
+    error_log("\033[31mviewBookingDetail called----------------------------\033[0m");
+
         $this->authController->requireNhanVien();
         
         $maDon = $_GET['id'] ?? '';
@@ -245,7 +212,6 @@ class NhanVienController extends BaseController
         try {
             $database = new Database();
             $conn = $database->getConnection();
-            
             $currentUser = $_SESSION['user'];
             
             // Lấy thông tin chi tiết đơn đặt bàn
@@ -270,31 +236,140 @@ class NhanVienController extends BaseController
             $booking = $stmt->fetch(PDO::FETCH_ASSOC);
             
             if (!$booking) {
-                $_SESSION['error_message'] = 'Không tìm thấy đơn đặt bàn.';
+                $_SESSION['error_message'] = 'Không tìm thấy đơn đặt bàn hoặc bạn không có quyền xem.';
                 $this->redirect('index.php?page=nhanvien&action=dashboard&section=bookings');
                 return;
             }
 
-            // Lấy danh sách món ăn đã đặt (nếu có)
-            $menuQuery = "SELECT ct.*, m.TenMon, m.MoTa, mc.Gia as GiaMenu
-                          FROM chitietdondatban ct
-                          LEFT JOIN monan m ON ct.MaMon = m.MaMon
-                          LEFT JOIN menu_coso mc ON ct.MaMon = mc.MaMon AND mc.MaCoSo = ?
-                          WHERE ct.MaDon = ?
-                          ORDER BY ct.MaMon";
+            // Lấy thông tin món ăn đã đặt
+            $menuQuery = "SELECT 
+                    m.TenMon, 
+                    mc.Gia, 
+                    dm.SoLuong, 
+                    (mc.Gia * dm.SoLuong) as ThanhTien
+                FROM chitietdondatban dm
+                JOIN monan m ON dm.MaMon = m.MaMon
+                JOIN menu_coso mc ON m.MaMon = mc.MaMon AND mc.MaCoSo = ?
+                WHERE dm.MaDon = ?
+                ORDER BY m.TenMon;
+                ";
+            
             $menuStmt = $conn->prepare($menuQuery);
             $menuStmt->bindParam(1, $currentUser['MaCoSo']);
             $menuStmt->bindParam(2, $maDon);
             $menuStmt->execute();
+            
             $menuItems = $menuStmt->fetchAll(PDO::FETCH_ASSOC);
-
-            include __DIR__ . '/../views/nhanvien/booking_detail.php';
-            exit;
-
+            
         } catch (Exception $e) {
-            error_log("Error viewing booking detail: " . $e->getMessage());
+            error_log("Error loading booking detail: " . $e->getMessage());
             $_SESSION['error_message'] = 'Có lỗi xảy ra khi tải thông tin đơn đặt bàn.';
             $this->redirect('index.php?page=nhanvien&action=dashboard&section=bookings');
+            return;
+        }
+
+        // Truyền dữ liệu cho view
+        include __DIR__ . '/../views/nhanvien/booking_detail.php';
+        exit;
+    }
+
+    // Lấy thống kê dashboard
+    private function getDashboardStatistics($maCoSo)
+    {
+        try {
+            // Lấy thông tin cơ sở
+            $coSoInfo = $this->branchModel->getById($maCoSo);
+            
+            // Lấy các thống kê booking
+            $todayBookings = $this->bookingModel->countBookingsByBranch($maCoSo);
+            $todayNewBookings = $this->bookingModel->countTodayBookingsByBranch($maCoSo);
+            $pendingBookings = $this->bookingModel->countPendingBookingsByBranch($maCoSo);
+            $confirmedBookings = $this->bookingModel->countConfirmedBookingsByBranch($maCoSo);
+            
+            return [
+                'coSoInfo' => $coSoInfo,
+                'todayBookings' => $todayBookings,
+                'todayNewBookings' => $todayNewBookings,
+                'pendingBookings' => $pendingBookings,
+                'confirmedBookings' => $confirmedBookings
+            ];
+        } catch (Exception $e) {
+            error_log("Error getting dashboard statistics: " . $e->getMessage());
+            return [
+                'coSoInfo' => 'hello',
+                'todayBookings' => 0,
+                'todayNewBookings' => 0,
+                'pendingBookings' => 0,
+                'confirmedBookings' => 0
+            ];
+        }
+    }
+
+    // Lấy danh sách đơn đặt bàn với phân trang và lọc
+    private function getBookingsList($maCoSo)
+    {
+        try {
+            // Phân trang
+            $page = isset($_GET['booking_page']) ? (int)$_GET['booking_page'] : 1;
+            $limit = 10;
+            $offset = ($page - 1) * $limit;
+            
+            // Các filter
+            $statusFilter = $_GET['status_filter'] ?? 'all';
+            $timeFilter = $_GET['time_filter'] ?? 'hom_nay';
+            $searchKeyword = $_GET['search'] ?? '';
+            
+            // Lấy danh sách booking
+            $bookings = $this->bookingModel->getBookingsByBranch(
+                $maCoSo, 
+                $limit, 
+                $offset, 
+                $statusFilter, 
+                $timeFilter, 
+                $searchKeyword
+            );
+            
+            // Đếm tổng số
+            $totalBookings = $this->bookingModel->countBookingsByBranchWithFilter(
+                $maCoSo, 
+                $statusFilter, 
+                $timeFilter, 
+                $searchKeyword
+            );
+            
+            $totalPages = ceil($totalBookings / $limit);
+            
+            return [
+                'bookingsList' => $bookings,
+                'totalBookings' => $totalBookings,
+                'totalPages' => $totalPages,
+                'currentPage' => $page,
+                'limit' => $limit
+            ];
+        } catch (Exception $e) {
+            error_log("Error getting bookings list: " . $e->getMessage());
+            return [
+                'bookingsList' => [],
+                'totalBookings' => 0,
+                'totalPages' => 0,
+                'currentPage' => 1,
+                'limit' => 10
+            ];
+        }
+    }
+
+    // Lấy thông tin profile nhân viên
+    private function getProfileData($maNV)
+    {
+        try {
+            $nhanVien = $this->nhanVienModel->getById($maNV);
+            if ($nhanVien) {
+                return $this->nhanVienModel->toArray();
+            }
+            return null;
+        } catch (Exception $e) {
+            error_log("Error getting profile data: " . $e->getMessage());
+            return null;
         }
     }
 }

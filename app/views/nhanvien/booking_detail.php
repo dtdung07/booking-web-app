@@ -2,6 +2,9 @@
 // File này hiển thị chi tiết đơn đặt bàn
 // Biến $booking và $menuItems đã được truyền từ controller
 
+// Include helper functions
+require_once __DIR__ . '/NhanVienHelper.php';
+
 if (!isset($booking) || !$booking) {
     $_SESSION['error_message'] = 'Không tìm thấy thông tin đơn đặt bàn.';
     header('Location: index.php?page=nhanvien&action=dashboard&section=bookings');
@@ -12,34 +15,8 @@ if (!isset($booking) || !$booking) {
 $tongTien = 0;
 if (isset($menuItems) && !empty($menuItems)) {
     foreach ($menuItems as $item) {
-        $tongTien += $item['SoLuong'] * $item['DonGia'];
+        $tongTien += $item['SoLuong'] * $item['Gia'];
     }
-}
-
-// Hàm hiển thị trạng thái
-function getStatusBadge($status) {
-    switch($status) {
-        case 'cho_xac_nhan':
-            return '<span class="status-badge pending"><i class="fas fa-clock"></i> Chờ xác nhận</span>';
-        case 'da_xac_nhan':
-            return '<span class="status-badge confirmed"><i class="fas fa-check-circle"></i> Đã xác nhận</span>';
-        case 'da_huy':
-            return '<span class="status-badge cancelled"><i class="fas fa-times-circle"></i> Đã hủy</span>';
-        case 'hoan_thanh':
-            return '<span class="status-badge completed"><i class="fas fa-check-double"></i> Hoàn thành</span>';
-        default:
-            return '<span class="status-badge">' . htmlspecialchars($status) . '</span>';
-    }
-}
-
-// Hàm định dạng ngày giờ
-function formatDateTime($dateTime) {
-    return date('d/m/Y H:i', strtotime($dateTime));
-}
-
-// Hàm định dạng tiền
-function formatCurrency($amount) {
-    return number_format($amount, 0, ',', '.') . ' đ';
 }
 ?>
 
@@ -433,7 +410,7 @@ function formatCurrency($amount) {
                     </h3>
                     <div class="detail-row">
                         <span class="detail-label">Thời gian đặt:</span>
-                        <span class="detail-value"><?php echo formatDateTime($booking['ThoiGianBatDau']); ?></span>
+                        <span class="detail-value"><?php echo NhanVienHelper::formatDateTime($booking['ThoiGianBatDau']); ?></span>
                     </div>
                     <div class="detail-row">
                         <span class="detail-label">Bàn đã đặt:</span>
@@ -441,11 +418,11 @@ function formatCurrency($amount) {
                     </div>
                     <div class="detail-row">
                         <span class="detail-label">Trạng thái:</span>
-                        <span class="detail-value"><?php echo getStatusBadge($booking['TrangThai']); ?></span>
+                        <span class="detail-value"><?php echo NhanVienHelper::getStatusBadge($booking['TrangThai']); ?></span>
                     </div>
                     <div class="detail-row">
                         <span class="detail-label">Ngày tạo đơn:</span>
-                        <span class="detail-value"><?php echo formatDateTime($booking['ThoiGianTao']); ?></span>
+                        <span class="detail-value"><?php echo NhanVienHelper::formatDateTime($booking['ThoiGianTao']); ?></span>
                     </div>
                     <?php if (!empty($booking['NhanVienXacNhan'])): ?>
                     <div class="detail-row">
@@ -478,17 +455,15 @@ function formatCurrency($amount) {
                                         <td><?php echo $index + 1; ?></td>
                                         <td><?php echo htmlspecialchars($item['TenMon'] ?? 'Món ăn #' . $item['MaMon']); ?></td>
                                         <td><?php echo number_format($item['SoLuong']); ?></td>
-                                        <td class="price-highlight"><?php echo formatCurrency($item['DonGia']); ?></td>
-                                        <td class="price-highlight"><?php echo formatCurrency($item['SoLuong'] * $item['DonGia']); ?></td>
+                                        <td class="price-highlight"><?php echo NhanVienHelper::formatCurrency($item['Gia']); ?></td>
+                                        <td class="price-highlight"><?php echo NhanVienHelper::formatCurrency($item['SoLuong'] * $item['Gia']); ?></td>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>
                         </table>
 
 
-                        <h3>Tổng: <?php echo formatCurrency($tongTien); ?></h3>
-                        
-                       
+                        <h3>Tổng: <?php echo NhanVienHelper::formatCurrency($tongTien); ?></h3>
                     <?php else: ?>
                         <div class="empty-menu">
                             <i class="fas fa-utensils" style="font-size: 3rem; color: #cbd5e1; margin-bottom: 1rem;"></i>
@@ -610,7 +585,7 @@ function formatCurrency($amount) {
             const kitchenWindow = window.open('', '_blank', 'width=800,height=600');
             const maDon = <?php echo json_encode($booking['MaDon']); ?>;
             const tenKH = <?php echo json_encode($booking['TenKH'] ?? 'N/A'); ?>;
-            const thoiGian = <?php echo json_encode(formatDateTime($booking['ThoiGianBatDau'])); ?>;
+            const thoiGian = <?php echo json_encode(NhanVienHelper::formatDateTime($booking['ThoiGianBatDau'])); ?>;
             const soKhach = <?php echo json_encode($booking['SoLuongKH']); ?>;
             const danhSachBan = <?php echo json_encode($booking['DanhSachBan'] ?? 'Chưa chọn bàn'); ?>;
             
