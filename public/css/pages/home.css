@@ -467,14 +467,14 @@
 
 .cs-card-actions {
     display: flex;
-    gap: 15px;
+    gap: 10px;
 }
 
 .btn-action {
     background-color: #f4f4f4;
     color: #333;
     text-decoration: none;
-    padding: 8px 20px;
+    padding: 8px 30px;
     border-radius: 5px;
     font-size: 14px;
     font-weight: 600;

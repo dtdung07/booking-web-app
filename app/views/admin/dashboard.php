@@ -236,6 +236,12 @@ $section = $_GET['section'] ?? 'dashboard';
                     Quản lý Cơ sở
                 </a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link <?php echo $section === 'table' ? 'active' : ''; ?>" href="?page=admin&section=table">
+                    <i class="fas fa-chair me-2"></i>
+                    Quản lý Bàn ăn
+                </a>
+            </li>
             <li class="nav-item mt-3">
                 <a class="nav-link" href="index.php" target="_blank">
                     <i class="fas fa-home me-2"></i>
@@ -269,6 +275,7 @@ $section = $_GET['section'] ?? 'dashboard';
                         case 'categories': echo 'Quản lý Danh mục'; break;
                         case 'users': echo 'Quản lý Nhân viên'; break;
                         case 'branches': echo 'Quản lý Cơ sở'; break;
+                        case 'table': echo 'Quản lý Bàn ăn'; break;
                         default: echo 'Dashboard'; break;
                     }
                     ?>
@@ -311,6 +318,10 @@ $section = $_GET['section'] ?? 'dashboard';
                     
                 case 'branches':
                     include __DIR__ . '/branches/index.php';
+                    break;
+                    
+                case 'table':
+                    include __DIR__ . '/table/index.php';
                     break;
                     
                 default: // dashboard

@@ -28,10 +28,35 @@
           <div class="branch-content">
             <div class="branch-header">
               <h3 class="branch-name"><?php echo $branch['name']; ?></h3>
+              <p class="branch-description"><?php echo $branch['description']; ?></p>
+            </div>
+
+            <div class="branch-info">
+                <div class="state">
+                    <span><?php echo $branch['status']; ?></span>
+                </div>
+                <div class="info-item">
+                    <span>HOẠT ĐỘNG TỪ <?php echo $branch['operating_hours']; ?></span>
+                </div>
+            </div>
+
+            <div class="branch-stats">
+              <div class="stat-item">
+                <span class="stat-label">Sức chứa</span>
+                <span class="stat-value"><?php echo $branch['capacity']; ?></span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">Diện tích</span>
+                <span class="stat-value"><?php echo $branch['area']; ?></span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">Số tầng</span>
+                <span class="stat-value"><?php echo $branch['floors']; ?></span>
+              </div>
             </div>
 
             <div class="branch-actions">
-              <a href="https://maps.google.com/?q=<?php echo urlencode($branch['district']); ?>" target="_blank" class="btn btn-outline">
+              <a href="<?php echo $branch['map_link']; ?>" target="_blank" class="btn btn-outline">
                 <i class="fas fa-map-marker-alt"></i>
                 Xem bản đồ
               </a>
@@ -192,9 +217,17 @@ function renderBranches(branches) {
                     <div class="branch-header">
                         <h3 class="branch-name">${branch.name}</h3>
                     </div>
+                   <div class="branch-info">
+                <div class="state">
+                    <span>Đang mở</span>
+                </div>
+                <div class="info-item">
+                    <span>HOẠT ĐỘNG TỪ 09 : 24</span>
+                </div>
+            </div>
                                
                     <div class="branch-actions">
-                            <a href="https://maps.google.com/?q=${encodeURIComponent(branch.district)}" target="_blank" class="btn btn-outline">
+                            <a href="${branch.map_link}" target="_blank" class="btn btn-outline">
                                 <i class="fas fa-map-marker-alt"></i>
                                 Xem bản đồ
                             </a>

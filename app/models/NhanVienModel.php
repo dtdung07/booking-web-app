@@ -200,6 +200,7 @@ class NhanVienModel
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(1, $this->TenDN);
         $stmt->execute();
+        
         return $stmt->rowCount() > 0;
     }
 
@@ -212,23 +213,24 @@ class NhanVienModel
     public function login($username, $password)
     {
         $query = "SELECT * FROM " . $this->table_name . " WHERE TenDN = ?";
+        
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(1, $username);
         $stmt->execute();
+        
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         
         if ($row && password_verify($password, $row['MatKhau'])) {
-                $this->MaNV = $row['MaNV'];
-                $this->MaCoSo = $row['MaCoSo'];
-                $this->TenDN = $row['TenDN'];
-                $this->MatKhau = $row['MatKhau'];
-                $this->TenNhanVien = $row['TenNhanVien'];
-                $this->ChucVu = $row['ChucVu'];
-                return [true, $this->toArray()];
-        } else {
-            error_log("DEBUG MODEL - User NOT found in database");
-            return [false, null];
+            $this->MaNV = $row['MaNV'];
+            $this->MaCoSo = $row['MaCoSo'];
+            $this->TenDN = $row['TenDN'];
+            $this->MatKhau = $row['MatKhau'];
+            $this->TenNhanVien = $row['TenNhanVien'];
+            $this->ChucVu = $row['ChucVu'];
+            return true;
         }
+        
+        return false;
     }
 
     /**
@@ -244,21 +246,6 @@ class NhanVienModel
         $stmt->execute();
         
         return $stmt;
-    }
-
-    /**
-     * Chuyển đổi thuộc tính object thành array
-     * @return array
-     */
-    public function toArray()
-    {
-        return [
-            'MaNV' => $this->MaNV,
-            'MaCoSo' => $this->MaCoSo,
-            'TenDN' => $this->TenDN,
-            'TenNhanVien' => $this->TenNhanVien,
-            'ChucVu' => $this->ChucVu
-        ];
     }
 }
 ?>

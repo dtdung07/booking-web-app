@@ -1,122 +1,235 @@
 <?php
 
-require_once __DIR__ . '/../../config/database.php'; 
-require_once __DIR__ . '/../models/NhanVienModel.php'; 
-require_once __DIR__ . '/../../includes/BaseController.php'; 
+// Kiểm tra và include User model
+$userModelPath = __DIR__ . '/../models/User.php';
+if (file_exists($userModelPath)) {
+    require_once $userModelPath;
+} else {
+    throw new Exception("User model not found at: " . $userModelPath);
+}
 
 class AuthController extends BaseController 
 {
-    private $nhanVienModel;
+    private $userModel;
 
     public function __construct() {
-        // Khởi tạo kết nối DB và NhanVienModel
-        $database = new Database();
-        $db = $database->getConnection();
-        $this->nhanVienModel = new NhanVienModel($db);
+        $this->userModel = new User();
         
+        // Bắt đầu session nếu chưa có
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
     }
 
-    // Hiển thị form đăng nhập
-    public function login()
+    public function index() 
     {
+        // Nếu đã đăng nhập, chuyển hướng về admin dashboard
         if ($this->isLoggedIn()) {
-            $this->redirect('index.php?page=admin&action=dashboard');
+            $this->redirect('?page=admin&action=dashboard');
             return;
         }
-        include __DIR__ . '/../../login.php';
+        
+        // Render trang đăng nhập admin độc lập (không sử dụng layout)
+        include __DIR__ . '/../views/auth/admin-login.php';
         exit;
     }
     
-    // Xử lý thông tin đăng nhập từ form
+    public function login() 
+    {
+        // Nếu đã đăng nhập, chuyển hướng về admin dashboard
+        if ($this->isLoggedIn()) {
+            $this->redirect('?page=admin&action=dashboard');
+            return;
+        }
+        
+        // Render trang đăng nhập admin độc lập (không sử dụng layout)
+        include __DIR__ . '/../views/auth/admin-login.php';
+        exit;
+    }
+    
     public function authenticate() 
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            $this->redirect('index.php?page=auth&action=login');
+            $this->redirect('?page=auth&action=login');
             return;
         }
 
         $username = trim($_POST['username'] ?? '');
         $password = $_POST['password'] ?? '';
-        $remember = isset($_POST['remember']);
+        $remember_me = isset($_POST['remember_me']);
 
-     
+        // Validate input
         if (empty($username) || empty($password)) {
-            error_log("DEBUG LOGIN - Empty username or password");
-            $_SESSION['error_message'] = 'Vui lòng nhập đầy đủ thông tin.';
-            $this->redirect('index.php?page=auth&action=login');
+            $_SESSION['error'] = 'Vui lòng nhập đầy đủ thông tin đăng nhập.';
+            $this->redirect('?page=auth&action=login');
             return;
         }
 
-        // Sử dụng NhanVienModel để xác thực
-        list($isSuccess, $nhanVienData) = $this->nhanVienModel->login($username, $password);
-
-        if ($nhanVienData) {
-            error_log("DEBUG LOGIN - User data: " . json_encode($nhanVienData));
-        }
-
-        if ($isSuccess) {
-            // Đăng nhập thành công
-            $_SESSION['user'] = $nhanVienData;
-            $_SESSION['is_logged_in'] = true;
-            
-            if ($remember) {
-                // Xử lý "Ghi nhớ đăng nhập" (tương tự logic cũ)
-                $token = bin2hex(random_bytes(32));
-                $expires = time() + (30 * 24 * 60 * 60); // 30 ngày
-                setcookie('remember_token', $token, $expires, '/');
-                setcookie('remember_user', $nhanVienData['MaNV'], $expires, '/');
+        // Tìm user trong database
+        if ($this->userModel->findByUsername($username)) {
+            // Kiểm tra mật khẩu
+            if ($this->userModel->verifyPassword($password)) {
+                // Đăng nhập thành công
+                $_SESSION['user'] = $this->userModel->toArray();
+                $_SESSION['user']['branch_name'] = $this->userModel->getBranchName();
+                $_SESSION['success'] = 'Đăng nhập thành công!';
+                
+                // Xử lý remember me
+                if ($remember_me) {
+                    $this->setRememberMeCookie();
+                }
+                
+                // Chuyển hướng đến admin dashboard
+                $this->redirect('?page=admin&action=dashboard');
+                return;
             }
-            
-            $this->redirect('index.php?page=admin&action=dashboard');
-            return;
         }
         
         // Đăng nhập thất bại
-        error_log("DEBUG LOGIN - Login failed, redirecting to login page");
-        $_SESSION['error_message'] = 'Tên đăng nhập hoặc mật khẩu không chính xác.';
-        $this->redirect('index.php?page=auth&action=login');
+        $_SESSION['error'] = 'Tên đăng nhập hoặc mật khẩu không chính xác.';
+        $_SESSION['old_input'] = ['username' => $username];
+        $this->redirect('?page=auth&action=login');
     }
     
     public function logout() 
     {
-        // Xóa cookie
-        if (isset($_COOKIE['remember_token'])) {
-            setcookie('remember_token', '', time() - 3600, '/');
-            setcookie('remember_user', '', time() - 3600, '/');
+        // Xóa remember me cookie
+        if (isset($_COOKIE['remember_me'])) {
+            setcookie('remember_me', '', time() - 3600, '/');
         }
+        
+        // Xóa session
         session_destroy();
         
-        // Khởi tạo lại session để lưu thông báo
+        // Khởi tạo session mới để hiện thông báo
         session_start();
-        $_SESSION['success_message'] = 'Đăng xuất thành công!';
-        $this->redirect('index.php?page=auth&action=login');
+        $_SESSION['success'] = 'Đăng xuất thành công!';
+        $this->redirect('?page=home');
     }
 
+    // Kiểm tra user đã đăng nhập chưa
     public function isLoggedIn() {
-        if (isset($_SESSION['is_logged_in']) && $_SESSION['is_logged_in'] === true) {
+        if (isset($_SESSION['user'])) {
             return true;
         }
-        // Kiểm tra cookie "Ghi nhớ đăng nhập"
-        if (isset($_COOKIE['remember_user']) && isset($_COOKIE['remember_token'])) {
-            $maNV = $_COOKIE['remember_user'];
-            if ($this->nhanVienModel->getById($maNV)) {
-                $_SESSION['user'] = $this->nhanVienModel->toArray();
-                $_SESSION['is_logged_in'] = true;
+        
+        // Kiểm tra remember me cookie
+        if (isset($_COOKIE['remember_me'])) {
+            $user_id = $this->validateRememberMeCookie($_COOKIE['remember_me']);
+            if ($user_id && $this->userModel->findById($user_id)) {
+                $_SESSION['user'] = $this->userModel->toArray();
+                $_SESSION['user']['branch_name'] = $this->userModel->getBranchName();
                 return true;
+            }
+        }
+        
+        return false;
+    }
+
+    // Lấy thông tin user hiện tại
+    public function getCurrentUser() {
+        if ($this->isLoggedIn()) {
+            return $_SESSION['user'];
+        }
+        return null;
+    }
+
+    // Tạo remember me cookie
+    private function setRememberMeCookie() {
+        $token = bin2hex(random_bytes(32));
+        $expires = time() + (30 * 24 * 60 * 60); // 30 ngày
+        
+        setcookie('remember_me', $token, $expires, '/');
+        
+        // Lưu token vào session (đơn giản hóa)
+        $_SESSION['remember_tokens'][$_SESSION['user']['id']] = $token;
+    }
+
+    // Validate remember me cookie
+    private function validateRememberMeCookie($token) {
+        // Kiểm tra token (đơn giản hóa)
+        if (isset($_SESSION['remember_tokens'])) {
+            foreach ($_SESSION['remember_tokens'] as $user_id => $stored_token) {
+                if ($stored_token === $token) {
+                    return $user_id;
+                }
             }
         }
         return false;
     }
 
-    // Middleware yêu cầu đăng nhập
+    // Middleware để yêu cầu đăng nhập
     public function requireAuth() {
         if (!$this->isLoggedIn()) {
-            $_SESSION['error_message'] = 'Vui lòng đăng nhập để tiếp tục.';
-            $this->redirect('index.php?page=auth&action=login');
+            $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
+            $_SESSION['error'] = 'Vui lòng đăng nhập để tiếp tục.';
+            $this->redirect('?page=auth&action=login');
             exit;
+        }
+    }
+
+    // Middleware để yêu cầu quyền admin
+    public function requireAdmin() {
+        $this->requireAuth();
+        $user = $this->getCurrentUser();
+        if ($user['role'] !== 'admin') {
+            $_SESSION['error'] = 'Bạn không có quyền truy cập vào trang này.';
+            $this->redirect('?page=home');
+            exit;
+        }
+    }
+
+    // Đổi mật khẩu
+    public function changePassword() {
+        $this->requireAuth();
+        
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $_SESSION['error'] = 'Phương thức không được phép.';
+            $this->redirect('?page=profile');
+            return;
+        }
+
+        $current_password = $_POST['current_password'] ?? '';
+        $new_password = $_POST['new_password'] ?? '';
+        $confirm_password = $_POST['confirm_password'] ?? '';
+
+        // Validate input
+        $errors = [];
+        
+        if (empty($current_password)) {
+            $errors[] = 'Vui lòng nhập mật khẩu hiện tại.';
+        }
+
+        if (empty($new_password)) {
+            $errors[] = 'Vui lòng nhập mật khẩu mới.';
+        } elseif (strlen($new_password) < 6) {
+            $errors[] = 'Mật khẩu mới phải có ít nhất 6 ký tự.';
+        }
+
+        if ($new_password !== $confirm_password) {
+            $errors[] = 'Xác nhận mật khẩu không khớp.';
+        }
+
+        // Kiểm tra mật khẩu hiện tại
+        $user = $this->getCurrentUser();
+        $this->userModel->findById($user['id']);
+        if (!$this->userModel->verifyPassword($current_password)) {
+            $errors[] = 'Mật khẩu hiện tại không chính xác.';
+        }
+
+        if (!empty($errors)) {
+            $_SESSION['errors'] = $errors;
+            $this->redirect('?page=profile&action=changePassword');
+            return;
+        }
+
+        // Cập nhật mật khẩu
+        if ($this->userModel->updatePasswordHash($new_password)) {
+            $_SESSION['success'] = 'Đổi mật khẩu thành công!';
+            $this->redirect('?page=profile');
+        } else {
+            $_SESSION['error'] = 'Có lỗi xảy ra khi đổi mật khẩu. Vui lòng thử lại.';
+            $this->redirect('?page=profile&action=changePassword');
         }
     }
 }
