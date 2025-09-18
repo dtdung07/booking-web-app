@@ -197,9 +197,9 @@ $confirmedBookings = $dashboardData['confirmedBookings'] ?? 0;
                     Đơn đặt bàn
                 </a>
             </li>
-             <li class="nav-item">
-                <a class="nav-link" href="index.php?page=menu">
-                    <i class="fas fa-add me-2"></i>
+            <li class="nav-item">
+                <a class="nav-link <?php echo $section === 'create_booking' ? 'active' : ''; ?>" href="index.php?page=nhanvien&action=dashboard&section=create_booking">
+                    <i class="fas fa-calendar-check me-2"></i>
                     Tạo đơn
                 </a>
             </li>

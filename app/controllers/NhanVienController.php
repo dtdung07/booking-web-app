@@ -81,19 +81,7 @@ class NhanVienController extends BaseController
         exit;
     }
 
-    // Xem danh sách đặt bàn (nếu có)
-    public function bookings()
-    {
-        $this->authController->requireNhanVien();
-        
-        $currentUser = $_SESSION['user'];
-        
-        // TODO: Implement booking management for staff
-        // For now, just show a placeholder page
-        
-        include __DIR__ . '/../views/nhanvien/bookings.php';
-        exit;
-    }
+
 
     // Cập nhật trạng thái đơn đặt bàn
     public function updateBookingStatus()
@@ -271,6 +259,11 @@ class NhanVienController extends BaseController
         // Truyền dữ liệu cho view
         include __DIR__ . '/../views/nhanvien/booking_detail.php';
         exit;
+    }
+
+
+    private function create_bill(){
+        include __DIR__ . '/../views/nhanvien/create_bill.php';
     }
 
     // Lấy thống kê dashboard
