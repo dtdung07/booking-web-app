@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thực đơn - Quán Nhậu Tự Do</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #fff;
+      font-family: Arial, sans-serif;
+    }
+    .navbar {
+      background-color: #004225;
+    }
+    .navbar a {
+      color: white !important;
+      font-weight: bold;
+    }
+    .hero {
+      background-color: #004225;
+      color: white;
+      padding: 60px 20px;
+      text-align: center;
+    }
+    .category-bar {
+      background-color: #ff9d00;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+    .category-bar a {
+      display: inline-block;
+      padding: 10px 20px;
+      color: white;
+      font-weight: bold;
+      text-decoration: none;
+    }
+    .category-bar a.active {
+      border-bottom: 3px solid #fff;
+    }
+    .menu-card img {
+      width: 100%;
+      border-radius: 10px;
+    }
+    .menu-card {
+      border: none;
+      text-align: center;
+    }
+    .price {
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: #004225;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<nav class="navbar navbar-expand-lg px-4">
+  <a class="navbar-brand text-white" href="#">🍻 Quán Nhậu Tự Do</a>
+  <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navMenu">
+    <ul class="navbar-nav ms-auto">
+      <li class="nav-item"><a class="nav-link" href="#">Thực đơn</a></li>
+      <li class="nav-item"><a class="nav-link" href="#">Cơ sở</a></li>
+      <li class="nav-item"><a class="nav-link" href="#">Ưu đãi</a></li>
+      <li class="nav-item"><a class="nav-link" href="#">Liên hệ</a></li>
+      <li class="nav-item"><a class="btn btn-outline-warning ms-3" href="#">Đặt bàn</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- Hero section -->
+<div class="hero">
+  <h1>Thực đơn</h1>
+  <p>Thăng hoa vị giác với 300+ món nhậu đặc sắc, lẩu nướng, hải sản<br>
+  được chuẩn bị từ những đầu bếp chuyên nghiệp hàng đầu.</p>
+</div>
+
+<!-- Thanh danh mục -->
+<div class="category-bar text-center">
+  <a href="#" class="active">Tất cả</a>
+  <a href="#">Combo</a>
+  <a href="#">Món mới</a>
+  <a href="#">Món nhậu</a>
+  <a href="#">Dê tươi</a>
+  <a href="#">Đồ nướng</a>
+  <a href="#">Thiết bàn</a>
+  <a href="#">Rau xanh</a>
+  <a href="#">Lẩu</a>
+  <a href="#">Hải sản</a>
+  <a href="#">Cá các món</a>
+  <a href="#">Món ăn chơi</a>
+  <a href="#">Salad - Nộm</a>
+</div>
+
+<!-- Search -->
+<div class="container my-4">
+  <div class="row">
+    <div class="col-md-6 mx-auto">
+      <div class="input-group">
+        <input type="text" class="form-control" placeholder="Tìm kiếm món ăn">
+        <button class="btn btn-success">🔍</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Danh sách món ăn -->
+<div class="container my-5">
+  <h3 class="mb-4">Combo</h3>
+  <div class="row g-4">
+    <div class="col-md-3">
+      <div class="card menu-card">
+        <img src="https://via.placeholder.com/300x200.png?text=Combo+1" alt="Combo 1">
+        <div class="card-body">
+          <h5 class="card-title">Combo 1</h5>
+          <p class="price">1,104,000 VNĐ</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card menu-card">
+        <img src="https://via.placeholder.com/300x200.png?text=Combo+2" alt="Combo 2">
+        <div class="card-body">
+          <h5 class="card-title">Combo 2</h5>
+          <p class="price">1,324,000 VNĐ</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card menu-card">
+        <img src="https://via.placeholder.com/300x200.png?text=Combo+3" alt="Combo 3">
+        <div class="card-body">
+          <h5 class="card-title">Combo 3</h5>
+          <p class="price">1,392,000 VNĐ</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card menu-card">
+        <img src="https://via.placeholder.com/300x200.png?text=Combo+4" alt="Combo 4">
+        <div class="card-body">
+          <h5 class="card-title">Combo 4</h5>
+          <p class="price">1,483,000 VNĐ</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
