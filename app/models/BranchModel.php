@@ -58,16 +58,26 @@ class BranchModel {
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(1, $id);
         $stmt->execute();
+
         
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         
         if($row) {
+        error_log("Executing query: " . $query . " with ID: " . $id);
+
             $this->MaCoSo = $row['MaCoSo'];
             $this->TenCoSo = $row['TenCoSo'];
             $this->DiaChi = $row['DiaChi'];
             $this->DienThoai = $row['DienThoai'];
             $this->AnhUrl = $row['AnhUrl'];
-            return true;
+            
+            return [
+                'MaCoSo' => $this->MaCoSo,
+                'TenCoSo' => $this->TenCoSo,
+                'DiaChi' => $this->DiaChi,
+                'DienThoai' => $this->DienThoai,
+                'AnhUrl' => $this->AnhUrl
+            ];
         }
         return false;
     }

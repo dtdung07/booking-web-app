@@ -65,6 +65,10 @@ switch ($request) {
         $controller = new AdminController();
         break;
         
+    case 'nhanvien':
+        $controller = new NhanVienController();
+        break;
+    
     default:
         $controller = new HomeController();
         $action = 'notFound';
