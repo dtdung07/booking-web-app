@@ -1,5 +1,10 @@
 <?php
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 include __DIR__ . "/connect.php";
+
+// Xử lý cập nhật trạng thái bàn sẽ được xử lý trong status.php
 
 // Xử lý các action
 if(isset($_GET['action'])){
@@ -58,12 +63,16 @@ include __DIR__ . "/create.php";
                 case 'update':
                     include __DIR__ . "/update.php";
                     break;
+                case 'status':
+                    // Hiển thị trang quản lý trạng thái bàn
+                    include __DIR__ . "/status.php";
+                    break;
                 default:
                     include "view.php";
                     break;
             }
         } else {
-            // Mặc định hiển thị danh sách món ăn khi không có tham số action
+            // Mặc định hiển thị danh sách bàn khi không có tham số action
             include __DIR__ . "/view.php";
         }
     ?>
