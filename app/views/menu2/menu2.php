@@ -223,7 +223,10 @@
             <div id="menu2-billItemsContainer" class="menu2-bill-items"></div>
         </section>
         <footer class="menu2-bill-footer">
-            <button id="menu2-proceedToBookingBtn" class="menu2-cta-button">ĐẶT BÀN VỚI THỰC ĐƠN NÀY</button>
+           <div style="display: flex; gap: 10px;">
+             <button id="menu2-proceedBookingOnsite" class="menu2-cta-button" style="border: 2px solid var(--colorYellow); color: black; background: white;">ĐẶT Tại Bàn</button>
+            <button id="menu2-proceedToBookingBtn" class="menu2-cta-button">ĐẶT Online</button>
+           </div>
             <p class="menu2-footer-note">Hoặc gọi <span>*1986</span> để đặt bàn</p>
         </footer>
     </div>

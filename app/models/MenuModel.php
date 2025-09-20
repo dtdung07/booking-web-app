@@ -57,7 +57,6 @@ class MenuModel {
      */
     public function findMenuItemsGroupedByCategory($maCoSo) {
         $menuItems = $this->findMenuItemsByCoSoAndCategory($maCoSo, 'all');
-        
         // Nhóm các món theo danh mục
         $groupedItems = [];
         foreach ($menuItems as $item) {
@@ -70,5 +69,38 @@ class MenuModel {
         
         return $groupedItems;
     }
+
+    /**
+     * Tìm kiếm món ăn theo tên và mã cơ sở
+     */
+public function searchMenuItems($maCoSo, $tenMon = '') {
+    $sql = "SELECT m.MaMon, m.TenMon, m.MoTa, m.HinhAnhURL, mc.Gia, dm.TenDM, dm.MaDM
+            FROM menu_coso mc
+            JOIN monan m ON mc.MaMon = m.MaMon
+            JOIN danhmuc dm ON m.MaDM = dm.MaDM
+            WHERE mc.MaCoSo = :maCoSo AND mc.TinhTrang = 'con_hang'";
+    
+    $params = [':maCoSo' => $maCoSo];
+    
+    // Thêm điều kiện tìm kiếm theo tên món nếu có
+    if (!empty($tenMon)) {
+        $sql .= " AND m.TenMon LIKE :tenMon";
+        $params[':tenMon'] = '%' . $tenMon . '%';
+    }
+    
+    $sql .= " ORDER BY m.TenMon"; // Vẫn giữ lại sắp xếp
+    
+    $stmt = $this->db->prepare($sql);
+    
+    // Bind parameters
+    foreach ($params as $key => $value) {
+        $stmt->bindValue($key, $value);
+    }
+    
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC); // Chỉ trả về mảng kết quả
+}
+
+
 }
 ?>

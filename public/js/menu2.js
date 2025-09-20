@@ -50,6 +50,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const dpNextMonthBtn = document.getElementById('menu2-dp-next-month');
     const dpTodayBtn = document.getElementById('menu2-dp-today-btn');
     const dpCloseBtn = document.getElementById('menu2-dp-close-btn');
+
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
@@ -272,6 +273,8 @@ document.addEventListener('DOMContentLoaded', function () {
         closeBillModal();
         showBookingForm();
     });
+
+
 
     // === HỆ THỐNG 3: LOGIC CALENDAR (GIỮ NGUYÊN, VÌ ĐÃ TỐT) ===
     // ... (Toàn bộ code calendar của bạn có thể giữ nguyên ở đây) ...

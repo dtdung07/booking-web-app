@@ -11,12 +11,11 @@ class BookingModel
     public $MaCoSo;
     public $ThoiGianBatDau;
     public $ThoiGianKetThuc;
-    public $SoLuongKhach;
+    public $SoLuongKH;
     public $TrangThai;
     public $GhiChu;
     public $ThoiGianTao;
     public $MaNV_XacNhan;
-    public $TongTien;
 
     public function __construct($db)
     {
@@ -40,12 +39,11 @@ class BookingModel
                 $this->MaCoSo = $row['MaCoSo'];
                 $this->ThoiGianBatDau = $row['ThoiGianBatDau'];
                 $this->ThoiGianKetThuc = $row['ThoiGianKetThuc'];
-                $this->SoLuongKhach = $row['SoLuongKhach'];
+                $this->SoLuongKH = $row['SoLuongKH'];
                 $this->TrangThai = $row['TrangThai'];
                 $this->GhiChu = $row['GhiChu'];
                 $this->ThoiGianTao = $row['ThoiGianTao'];
                 $this->MaNV_XacNhan = $row['MaNV_XacNhan'];
-                $this->TongTien = $row['TongTien'];
                 return true;
             }
             return false;
@@ -231,37 +229,48 @@ class BookingModel
     }
 
     // Cập nhật trạng thái đơn đặt bàn
-    public function updateStatus($maDon, $status, $maNVXacNhan = null, $ghiChu = null)
-    {
-        try {
-            $query = "UPDATE " . $this->table . " SET TrangThai = :status";
-            $params = [':status' => $status, ':maDon' => $maDon];
+public function updateStatus($maDon, $maCoSo, $status, $maNVXacNhan = null, $ghiChu = null)
+{
+    try {
+        // Xây dựng câu lệnh query
+        $query = "UPDATE " . $this->table . " SET TrangThai = :status";
+        $params = [
+            ':status' => $status,
+            ':maDon' => $maDon,
+            ':maCoSo' => $maCoSo // Thêm MaCoSo vào tham số
+        ];
 
-            if ($maNVXacNhan !== null) {
-                $query .= ", MaNV_XacNhan = :maNVXacNhan";
-                $params[':maNVXacNhan'] = $maNVXacNhan;
-            }
-
-            if ($ghiChu !== null) {
-                $query .= ", GhiChu = CONCAT(IFNULL(GhiChu, ''), :ghiChu)";
-                $params[':ghiChu'] = "\n[" . date('d/m/Y H:i') . "] " . $ghiChu;
-            }
-
-            $query .= " WHERE MaDon = :maDon";
-
-            $stmt = $this->conn->prepare($query);
-            
-            foreach ($params as $key => $value) {
-                $stmt->bindValue($key, $value);
-            }
-
-            return $stmt->execute();
-
-        } catch (Exception $e) {
-            error_log("Error in BookingModel::updateStatus: " . $e->getMessage());
-            return false;
+        if ($maNVXacNhan !== null) {
+            $query .= ", MaNV_XacNhan = :maNVXacNhan";
+            $params[':maNVXacNhan'] = $maNVXacNhan;
         }
+
+        if (!empty($ghiChu)) {
+            // Thêm ghi chú mới vào ghi chú cũ
+            $query .= ", GhiChu = CONCAT(IFNULL(GhiChu, ''), :ghiChu)";
+            $params[':ghiChu'] = "\n[Lý do - " . date('d/m/Y H:i') . "]: " . $ghiChu;
+        }
+
+        // THAY ĐỔI QUAN TRỌNG NHẤT: Thêm MaCoSo vào mệnh đề WHERE
+        $query .= " WHERE MaDon = :maDon AND MaCoSo = :maCoSo";
+
+        $stmt = $this->conn->prepare($query);
+        
+        // Bind các tham số
+        foreach ($params as $key => &$value) {
+            $stmt->bindParam($key, $value);
+        }
+
+        $stmt->execute();
+
+        // Trả về số dòng bị ảnh hưởng. Nếu là 0, tức là không update được (do sai MaDon hoặc sai MaCoSo)
+        return $stmt->rowCount();
+
+    } catch (Exception $e) {
+        error_log("Error in BookingModel::updateStatus: " . $e->getMessage());
+        return false; // Trả về false nếu có lỗi exception
     }
+}
 
     // Lấy chi tiết đơn đặt bàn với thông tin khách hàng và bàn
     public function getBookingDetail($maDon, $maCoSo = null)
@@ -303,27 +312,82 @@ class BookingModel
         }
     }
 
-    // Lấy món ăn đã đặt cho một đơn
-    public function getBookingMenuItems($maDon)
-    {
-        try {
-            $query = "SELECT m.TenMon, m.DonGia, dm.SoLuong, (m.DonGia * dm.SoLuong) as ThanhTien
-                     FROM dondatban_mon dm
-                     JOIN monan m ON dm.MaMon = m.MaMon
-                     WHERE dm.MaDon = :maDon
-                     ORDER BY m.TenMon";
-            
-            $stmt = $this->conn->prepare($query);
-            $stmt->bindValue(':maDon', $maDon);
-            $stmt->execute();
-            
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+   // LẤY DANH SÁCH MÓN ĂN cho một đơn đặt bàn.
+public function getMenuItemsForBooking($maDon, $maCoSo)
+{
+    try {
+        $query = "SELECT 
+                    m.TenMon, 
+                    dm.DonGia, /* Lấy giá đã lưu tại thời điểm đặt */
+                    dm.SoLuong, 
+                    (dm.DonGia * dm.SoLuong) as ThanhTien
+                FROM chitietdondatban dm
+                JOIN monan m ON dm.MaMon = m.MaMon
+                WHERE dm.MaDon = :maDon
+                ORDER BY m.TenMon";
 
-        } catch (Exception $e) {
-            error_log("Error in BookingModel::getBookingMenuItems: " . $e->getMessage());
-            return [];
-        }
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':maDon', $maDon);
+        $stmt->execute();
+        
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    } catch (Exception $e) {
+        error_log("Error in BookingModel::getMenuItemsForBooking: " . $e->getMessage());
+        return false;
     }
+}
+
+// Tạo đơn đặt bàn tại quán
+public function createAtStoreOrder($maKH, $maCoSo, $maNV, $cartItems, $ghiChu = '')
+{
+    // Bắt đầu transaction
+    $this->conn->beginTransaction();
+
+    try {
+        // 1. Tạo bản ghi trong bảng `dondatban`
+        $query = "INSERT INTO " . $this->table . " (MaKH, MaCoSo, MaNV_XacNhan, ThoiGianBatDau, ThoiGianTao, TrangThai,SoLuongKH, GhiChu) 
+                  VALUES (:maKH, :maCoSo, :maNV, NOW(), CONVERT_TZ(NOW(), '+00:00', '+07:00'), 'da_xac_nhan',1, :ghiChu)";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':maKH', $maKH);
+        $stmt->bindParam(':maCoSo', $maCoSo);
+        $stmt->bindParam(':maNV', $maNV);
+        $stmt->bindParam(':ghiChu', $ghiChu);
+        $stmt->execute();
+        
+        $maDon = $this->conn->lastInsertId();
+
+        // 2. Thêm các món ăn vào bảng `chitietdondatban`
+        $insertItemQuery = "INSERT INTO chitietdondatban (MaDon, MaMon, SoLuong, DonGia) 
+                            VALUES (:maDon, :maMon, :soLuong, 
+                                (SELECT Gia FROM menu_coso WHERE MaMon = :maMon AND MaCoSo = :maCoSo)
+                            )";
+        $itemStmt = $this->conn->prepare($insertItemQuery);
+
+        foreach ($cartItems as $item) {
+            $itemStmt->bindParam(':maDon', $maDon);
+            $itemStmt->bindParam(':maMon', $item['id']);
+            $itemStmt->bindParam(':soLuong', $item['quantity']);
+            $itemStmt->bindParam(':maCoSo', $maCoSo);
+            
+            if (!$itemStmt->execute()) {
+                throw new Exception('Không thể thêm món ăn vào đơn hàng.');
+            }
+        }
+
+        $this->conn->commit();
+        return $maDon;
+    } catch (Exception $e) {
+        $this->conn->rollBack();
+        error_log("Error in BookingModel::createAtStoreOrder: " . $e->getMessage());
+        return false;
+    }
+}
+
+
+
 
     // Chuyển object thành array
     public function toArray()
@@ -334,12 +398,11 @@ class BookingModel
             'MaCoSo' => $this->MaCoSo,
             'ThoiGianBatDau' => $this->ThoiGianBatDau,
             'ThoiGianKetThuc' => $this->ThoiGianKetThuc,
-            'SoLuongKhach' => $this->SoLuongKhach,
+            'SoLuongKH' => $this->SoLuongKH,
             'TrangThai' => $this->TrangThai,
             'GhiChu' => $this->GhiChu,
             'ThoiGianTao' => $this->ThoiGianTao,
-            'MaNV_XacNhan' => $this->MaNV_XacNhan,
-            'TongTien' => $this->TongTien
+            'MaNV_XacNhan' => $this->MaNV_XacNhan
         ];
     }
 }

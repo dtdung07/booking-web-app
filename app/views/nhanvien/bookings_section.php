@@ -311,7 +311,7 @@ tr:hover {
             
             <button type="submit" class="filter-btn">
                 <i class="fas fa-search"></i>
-                Lọc
+                Tìm
             </button>
         </div>
     </form>
@@ -321,9 +321,7 @@ tr:hover {
 <div class="bookings-table">
     <div class="table-header">
         <h3 class="table-title">Danh sách đơn đặt bàn</h3>
-        <div class="table-stats">
-            Tổng: <?php echo number_format($totalBookings); ?> đơn
-        </div>
+       
     </div>
     
     <div class="table-container">
