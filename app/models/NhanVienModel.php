@@ -60,7 +60,6 @@ class NhanVienModel
             $this->ChucVu = $row['ChucVu'];
             return true;
         }
-        
         return false;
     }
 

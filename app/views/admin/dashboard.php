@@ -7,9 +7,9 @@ if (!isset($_SESSION['user']) || $_SESSION['user']['ChucVu'] !== 'admin') {
 }
 
 // Kết nối database để lấy thống kê (sử dụng mysqli)
-$host = 'db';
-$user = 'bookinguser';
-$pass = 'bookingpass';
+$host = 'localhost';
+$user = 'root';
+$pass = '';
 $database = 'booking_restaurant';
 $port = 3306; // Port mặc định của MySQL
 

@@ -18,7 +18,7 @@ $section = $_GET['section'] ?? 'overview';
 // Lấy dữ liệu dashboard
 $coSoInfo = $dashboardData['coSoInfo'];
 $todayBookings = $dashboardData['todayBookings'] ?? 0;
-$todayNewBookings = $dashboardData['todayBookings'] ?? 0;
+$todayNewBookings = $dashboardData['todayNewBookings'] ?? 0;
 $pendingBookings = $dashboardData['pendingBookings'] ?? 0;
 $confirmedBookings = $dashboardData['confirmedBookings'] ?? 0;
 ?>
@@ -37,6 +37,9 @@ $confirmedBookings = $dashboardData['confirmedBookings'] ?? 0;
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
+    <!-- CSS Constants -->
+    <link rel="stylesheet" href="public/css/constants.css">
+    
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
@@ -49,6 +52,8 @@ $confirmedBookings = $dashboardData['confirmedBookings'] ?? 0;
             --colorLinkGreen: #1B4E30;
             --colorGrey: #D9D9D9;
         }
+
+        
         
         .sidebar {
             position: fixed;
@@ -210,7 +215,7 @@ $confirmedBookings = $dashboardData['confirmedBookings'] ?? 0;
                 </a>
             </li>
            
-            <li class="nav-item mt-3">
+            <li class="nav-item">
                 <a class="nav-link" href="index.php">
                     <i class="fas fa-home me-2"></i>
                     Về trang chủ
@@ -321,7 +326,7 @@ $confirmedBookings = $dashboardData['confirmedBookings'] ?? 0;
                                     </div>
                                     <div>
                                         <h6 class="text-muted mb-1">Đặt bàn trước</h6>
-                                        <h3 class="mb-0"><?php echo number_format($todayBookings); ?></h3>
+                                        <h3 class="mb-0"><?php echo number_format($pendingBookings); ?></h3>
                                     </div>
                                 </div>
                             </div>
@@ -362,7 +367,7 @@ $confirmedBookings = $dashboardData['confirmedBookings'] ?? 0;
                             <div class="text-center">
                                 <i class="fas fa-map-marker-alt fa-2x mb-2" style="color: var(--colorPrimary);"></i>
                                 <h6>Xem cơ sở</h6>
-                                <small class="text-muted">Thông tin các cơ sở nhà hàng</small>
+                                <small class="text-muted">Thông tin các nhà hàng</small>
                             </div>
                         </a>
                     </div>
@@ -381,7 +386,9 @@ $confirmedBookings = $dashboardData['confirmedBookings'] ?? 0;
             <?php elseif ($section === 'bookings'): ?>
                 <!-- Bookings Content -->
                 <?php include 'bookings_section.php'; ?>
-
+            <?php elseif ($section === 'create_booking'): ?>
+                <!-- Create Booking Content -->
+                <?php include 'create_bill.php'; ?>
             <?php endif; ?>
         </div>
     </main>

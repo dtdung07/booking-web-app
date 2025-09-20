@@ -1,7 +1,6 @@
 <?php
 // File này hiển thị chi tiết đơn đặt bàn
 // Biến $booking và $menuItems đã được truyền từ controller
-
 // Include helper functions
 require_once __DIR__ . '/NhanVienHelper.php';
 
@@ -15,7 +14,7 @@ if (!isset($booking) || !$booking) {
 $tongTien = 0;
 if (isset($menuItems) && !empty($menuItems)) {
     foreach ($menuItems as $item) {
-        $tongTien += $item['SoLuong'] * $item['Gia'];
+        $tongTien += $item['SoLuong'] * $item['DonGia'];
     }
 }
 ?>
@@ -455,8 +454,8 @@ if (isset($menuItems) && !empty($menuItems)) {
                                         <td><?php echo $index + 1; ?></td>
                                         <td><?php echo htmlspecialchars($item['TenMon'] ?? 'Món ăn #' . $item['MaMon']); ?></td>
                                         <td><?php echo number_format($item['SoLuong']); ?></td>
-                                        <td class="price-highlight"><?php echo NhanVienHelper::formatCurrency($item['Gia']); ?></td>
-                                        <td class="price-highlight"><?php echo NhanVienHelper::formatCurrency($item['SoLuong'] * $item['Gia']); ?></td>
+                                        <td class="price-highlight"><?php echo NhanVienHelper::formatCurrency($item['DonGia']); ?></td>
+                                        <td class="price-highlight"><?php echo NhanVienHelper::formatCurrency($item['SoLuong'] * $item['DonGia']); ?></td>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>

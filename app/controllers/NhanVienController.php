@@ -4,6 +4,7 @@ require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../models/NhanVienModel.php'; 
 require_once __DIR__ . '/../models/BookingModel.php'; 
 require_once __DIR__ . '/../models/BranchModel.php'; 
+require_once __DIR__ . '/../models/MenuModel.php'; 
 require_once __DIR__ . '/../../includes/BaseController.php'; 
 require_once __DIR__ . '/AuthController.php'; 
 
@@ -12,6 +13,7 @@ class NhanVienController extends BaseController
     private $nhanVienModel;
     private $bookingModel;
     private $branchModel;
+    private $menuModel;
     private $authController;
     private $db;
 
@@ -22,6 +24,7 @@ class NhanVienController extends BaseController
         $this->nhanVienModel = new NhanVienModel($this->db);
         $this->bookingModel = new BookingModel($this->db);
         $this->branchModel = new BranchModel($this->db);
+        $this->menuModel = new MenuModel($this->db);
         $this->authController = new AuthController();
         
         if (session_status() === PHP_SESSION_NONE) {
@@ -43,6 +46,7 @@ class NhanVienController extends BaseController
         
         // Xử lý section hiển thị
         $section = $_GET['section'] ?? 'overview';
+        error_log("run Section: " . $section);
         
         switch ($section) {
             case 'bookings':
@@ -85,186 +89,112 @@ class NhanVienController extends BaseController
 
     // Cập nhật trạng thái đơn đặt bàn
     public function updateBookingStatus()
-    {
-        $this->authController->requireNhanVien();
-        
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            $_SESSION['error_message'] = 'Phương thức không hợp lệ.';
-            $this->redirect('index.php?page=nhanvien&action=dashboard&section=bookings');
-            return;
-        }
-
-        $maDon = $_POST['maDon'] ?? '';
-        $status = $_POST['status'] ?? '';
-        $reason = $_POST['reason'] ?? '';
-
-        if (empty($maDon) || empty($status)) {
-            $_SESSION['error_message'] = 'Thiếu thông tin cần thiết.';
-            $this->redirect('index.php?page=nhanvien&action=dashboard&section=bookings');
-            return;
-        }
-
-        // Kiểm tra trạng thái hợp lệ
-        $validStatuses = ['cho_xac_nhan', 'da_xac_nhan', 'da_huy', 'hoan_thanh'];
-        if (!in_array($status, $validStatuses)) {
-            $_SESSION['error_message'] = 'Trạng thái không hợp lệ.';
-            $this->redirect('index.php?page=nhanvien&action=dashboard&section=bookings');
-            return;
-        }
-
-        // Cập nhật database
-        try {
-            $database = new Database();
-            $conn = $database->getConnection();
-            
-            $currentUser = $_SESSION['user'];
-            
-            // Kiểm tra đơn đặt bàn có thuộc cơ sở của nhân viên không
-            $checkQuery = "SELECT MaDon FROM dondatban WHERE MaDon = ? AND MaCoSo = ?";
-            $checkStmt = $conn->prepare($checkQuery);
-            $checkStmt->bindParam(1, $maDon);
-            $checkStmt->bindParam(2, $currentUser['MaCoSo']);
-            $checkStmt->execute();
-            
-            if ($checkStmt->rowCount() === 0) {
-                $_SESSION['error_message'] = 'Không tìm thấy đơn đặt bàn hoặc bạn không có quyền cập nhật.';
-                $this->redirect('index.php?page=nhanvien&action=dashboard&section=bookings');
-                return;
-            }
-
-            // Cập nhật trạng thái
-            $updateQuery = "UPDATE dondatban SET TrangThai = ?, MaNV_XacNhan = ?";
-            $params = [$status, $currentUser['MaNV']];
-            
-            // Thêm ghi chú nếu có lý do hủy
-            if (!empty($reason)) {
-                $updateQuery .= ", GhiChu = CONCAT(IFNULL(GhiChu, ''), '\n[Lý do: " . date('d/m/Y H:i') . "] " . $reason . "')";
-            }
-            
-            $updateQuery .= " WHERE MaDon = ?";
-            $params[] = $maDon;
-
-            $updateStmt = $conn->prepare($updateQuery);
-            
-            for ($i = 0; $i < count($params); $i++) {
-                $updateStmt->bindParam($i + 1, $params[$i]);
-            }
-            
-            if ($updateStmt->execute()) {
-                // Thông báo thành công
-                switch ($status) {
-                    case 'da_xac_nhan':
-                        $_SESSION['success_message'] = "Đã xác nhận đơn đặt bàn #{$maDon} thành công!";
-                        break;
-                    case 'da_huy':
-                        $_SESSION['success_message'] = "Đã hủy đơn đặt bàn #{$maDon}!";
-                        break;
-                    case 'hoan_thanh':
-                        $_SESSION['success_message'] = "Đã đánh dấu đơn đặt bàn #{$maDon} hoàn thành!";
-                        break;
-                    default:
-                        $_SESSION['success_message'] = "Cập nhật trạng thái đơn đặt bàn #{$maDon} thành công!";
-                }
-            } else {
-                $_SESSION['error_message'] = 'Có lỗi xảy ra khi cập nhật trạng thái.';
-            }
-        } catch (Exception $e) {
-            error_log("Error updating booking status: " . $e->getMessage());
-            $_SESSION['error_message'] = 'Có lỗi xảy ra. Vui lòng thử lại.';
-        }
-
-        // Kiểm tra redirect về trang detail
-        // if (isset($_POST['redirect_to_detail']) && $_POST['redirect_to_detail'] == '1') {
-        //     $this->redirect('index.php?page=nhanvien&action=viewBookingDetail&id=' . $maDon);
-        // } else {
-        //     $this->redirect('index.php?page=nhanvien&action=dashboard&section=bookings');
-        // }
+{
+    $this->authController->requireNhanVien();
+    
+    // 1. Validation (Giữ nguyên, đây là nhiệm vụ của Controller)
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        $_SESSION['error_message'] = 'Phương thức không hợp lệ.';
+        $this->redirect('index.php?page=nhanvien&action=dashboard&section=bookings');
+        return;
     }
+    
+    $maDon = $_POST['maDon'] ?? '';
+    $status = $_POST['status'] ?? '';
+    $reason = $_POST['reason'] ?? '';
+
+    if (empty($maDon) || empty($status)) {
+        $_SESSION['error_message'] = 'Thiếu thông tin cần thiết.';
+        $this->redirect('index.php?page=nhanvien&action=dashboard&section=bookings');
+        return;
+    }
+
+    $validStatuses = ['cho_xac_nhan', 'da_xac_nhan', 'da_huy', 'hoan_thanh'];
+    if (!in_array($status, $validStatuses)) {
+        $_SESSION['error_message'] = 'Trạng thái không hợp lệ.';
+        $this->redirect('index.php?page=nhanvien&action=dashboard&section=bookings');
+        return;
+    }
+
+    // 2. Tương tác với Model (Gọn gàng hơn rất nhiều)
+    try {
+        $currentUser = $_SESSION['user'];
+        
+        // Gọi phương thức duy nhất trong Model
+        $affectedRows = $this->bookingModel->updateStatus(
+            $maDon,
+            $currentUser['MaCoSo'],
+            $status,
+            $currentUser['MaNV'],
+            $reason
+        );
+
+        // 3. Xử lý kết quả trả về từ Model
+        if ($affectedRows > 0) {
+            // Cập nhật thành công (affectedRows = 1)
+            $_SESSION['success_message'] = "Cập nhật trạng thái đơn #{$maDon} thành công!";
+        } else if ($affectedRows === 0) {
+            // Không có dòng nào được cập nhật => không tìm thấy đơn hoặc không có quyền
+            $_SESSION['error_message'] = 'Không tìm thấy đơn đặt bàn hoặc bạn không có quyền cập nhật.';
+        } else {
+            // $affectedRows là false, có lỗi exception xảy ra ở Model
+            $_SESSION['error_message'] = 'Có lỗi hệ thống xảy ra khi cập nhật trạng thái.';
+        }
+
+    } catch (Exception $e) {
+        error_log("Error in NhanVienController::updateBookingStatus: " . $e->getMessage());
+        $_SESSION['error_message'] = 'Có lỗi xảy ra. Vui lòng thử lại.';
+    }
+
+    // 4. Redirect (Giữ nguyên)
+    $this->redirect('index.php?page=nhanvien&action=dashboard&section=bookings');
+}
 
     // Xem chi tiết đơn đặt bàn
-    public function viewBookingDetail()
-    {
-    error_log("\033[31mviewBookingDetail called----------------------------\033[0m");
 
-        $this->authController->requireNhanVien();
+public function viewBookingDetail()
+{
+    $this->authController->requireNhanVien();
+    
+    // 1. Validation & Lấy thông tin đầu vào
+    $maDon = $_GET['id'] ?? '';
+    if (empty($maDon)) {
+        $_SESSION['error_message'] = 'Mã đơn đặt bàn không hợp lệ.';
+        $this->redirect('index.php?page=nhanvien&action=dashboard&section=bookings');
+        return;
+    }
+
+    try {
+        $currentUser = $_SESSION['user'];
         
-        $maDon = $_GET['id'] ?? '';
+        // 2. Gọi Model để lấy dữ liệu (KHÔNG CÒN SQL Ở ĐÂY)
+        // Lấy thông tin chính của đơn đặt bàn
+        $booking = $this->bookingModel->getBookingDetail($maDon, $currentUser['MaCoSo']);
         
-        if (empty($maDon)) {
-            error_log("--------------------------------Mã đơn trống-------------");
-            $_SESSION['error_message'] = 'Không tìm thấy đơn đặt bàn.';
+        // 3. Kiểm tra kết quả và quyền truy cập
+        if (!$booking) {
+            $_SESSION['error_message'] = 'Không tìm thấy đơn đặt bàn hoặc bạn không có quyền xem.';
             $this->redirect('index.php?page=nhanvien&action=dashboard&section=bookings');
             return;
         }
 
-        try {
-            $database = new Database();
-            $conn = $database->getConnection();
-            $currentUser = $_SESSION['user'];
-            
-            // Lấy thông tin chi tiết đơn đặt bàn
-            $query = "SELECT d.*, kh.TenKH, kh.SDT, kh.Email as EmailKH,
-                             GROUP_CONCAT(CONCAT(b.TenBan, ' (', b.SucChua, ' người)') SEPARATOR ', ') as DanhSachBan,
-                             nv.TenNhanVien as NhanVienXacNhan,
-                             cs.TenCoSo, cs.DiaChi as DiaChiCoSo
-                      FROM dondatban d 
-                      LEFT JOIN khachhang kh ON d.MaKH = kh.MaKH
-                      LEFT JOIN dondatban_ban db ON d.MaDon = db.MaDon
-                      LEFT JOIN ban b ON db.MaBan = b.MaBan
-                      LEFT JOIN nhanvien nv ON d.MaNV_XacNhan = nv.MaNV
-                      LEFT JOIN coso cs ON d.MaCoSo = cs.MaCoSo
-                      WHERE d.MaDon = ? AND d.MaCoSo = ?
-                      GROUP BY d.MaDon";
-            
-            $stmt = $conn->prepare($query);
-            $stmt->bindParam(1, $maDon);
-            $stmt->bindParam(2, $currentUser['MaCoSo']);
-            $stmt->execute();
-            
-            $booking = $stmt->fetch(PDO::FETCH_ASSOC);
-            
-            if (!$booking) {
-                $_SESSION['error_message'] = 'Không tìm thấy đơn đặt bàn hoặc bạn không có quyền xem.';
-                $this->redirect('index.php?page=nhanvien&action=dashboard&section=bookings');
-                return;
-            }
+        // Lấy danh sách món ăn liên quan
+        $menuItems = $this->bookingModel->getMenuItemsForBooking($maDon, $currentUser['MaCoSo']);
 
-            // Lấy thông tin món ăn đã đặt
-            $menuQuery = "SELECT 
-                    m.TenMon, 
-                    mc.Gia, 
-                    dm.SoLuong, 
-                    (mc.Gia * dm.SoLuong) as ThanhTien
-                FROM chitietdondatban dm
-                JOIN monan m ON dm.MaMon = m.MaMon
-                JOIN menu_coso mc ON m.MaMon = mc.MaMon AND mc.MaCoSo = ?
-                WHERE dm.MaDon = ?
-                ORDER BY m.TenMon;
-                ";
-            
-            $menuStmt = $conn->prepare($menuQuery);
-            $menuStmt->bindParam(1, $currentUser['MaCoSo']);
-            $menuStmt->bindParam(2, $maDon);
-            $menuStmt->execute();
-            
-            $menuItems = $menuStmt->fetchAll(PDO::FETCH_ASSOC);
-            
-        } catch (Exception $e) {
-            error_log("Error loading booking detail: " . $e->getMessage());
-            $_SESSION['error_message'] = 'Có lỗi xảy ra khi tải thông tin đơn đặt bàn.';
-            $this->redirect('index.php?page=nhanvien&action=dashboard&section=bookings');
-            return;
-        }
-
-        // Truyền dữ liệu cho view
-        include __DIR__ . '/../views/nhanvien/booking_detail.php';
-        exit;
+    } catch (Exception $e) {
+        error_log("Error loading booking detail in Controller: " . $e->getMessage());
+        $_SESSION['error_message'] = 'Có lỗi hệ thống xảy ra khi tải thông tin đơn đặt bàn.';
+        $this->redirect('index.php?page=nhanvien&action=dashboard&section=bookings');
+        return;
     }
 
+    // 4. Truyền dữ liệu cho View để hiển thị
+    include __DIR__ . '/../views/nhanvien/booking_detail.php';
+    exit;
+}
 
-    private function create_bill(){
-        include __DIR__ . '/../views/nhanvien/create_bill.php';
-    }
+
+
 
     // Lấy thống kê dashboard
     private function getDashboardStatistics($maCoSo)
@@ -365,4 +295,146 @@ class NhanVienController extends BaseController
             return null;
         }
     }
+
+// Tìm kiếm món ăn trong menu
+    public function searchMenu()
+    {
+        error_log("\033[31msearchMenu called----------------------------\033[0m");
+        // Kiểm tra quyền truy cập
+        $this->authController->requireNhanVien();
+        
+        // Đảm bảo đây là AJAX request
+        if (!isset($_SERVER['HTTP_X_REQUESTED_WITH']) || 
+            strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) !== 'xmlhttprequest') {
+            http_response_code(400);
+            echo json_encode(['error' => 'Chỉ chấp nhận AJAX request']);
+            return;
+        }
+        
+        try {
+            $currentUser = $_SESSION['user'];
+            $maCoSo = $currentUser['MaCoSo'];
+            
+            // Lấy tham số tìm kiếm
+            $tenMon = $_GET['tenMon'] ?? '';
+            
+            // Validate input
+            $tenMon = trim($tenMon);
+            if (strlen($tenMon) > 100) {
+                throw new Exception('Tên món ăn quá dài');
+            }
+            
+            // Tìm kiếm món ăn
+            $menuItems = $this->menuModel->searchMenuItems($maCoSo, $tenMon);
+            
+            // Chuẩn bị response
+            $response = [
+                'success' => true,
+                'data' => [
+                    'items' => $menuItems,
+                ],
+                'query' => [
+                    'tenMon' => $tenMon,
+                    'maCoSo' => $maCoSo
+                ]
+            ];
+            
+            header('Content-Type: application/json');
+            echo json_encode($response, JSON_UNESCAPED_UNICODE);
+            exit; // Quan trọng: dừng execution sau khi trả về JSON
+            
+        } catch (Exception $e) {
+            error_log("Error in searchMenu: ------------4----------" . $e->getMessage());
+            http_response_code(500);
+            echo json_encode([
+                'success' => false,
+                'error' => 'Có lỗi xảy ra khi tìm kiếm: ' . $e->getMessage()
+            ], JSON_UNESCAPED_UNICODE);
+            exit; // Quan trọng: dừng execution sau khi trả về JSON
+        }
+    }
+
+// Tạo đơn tại quán
+public function createOrder()
+{
+    // Kiểm tra quyền truy cập
+    $this->authController->requireNhanVien();
+
+    // Kiểm tra phương thức POST
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        http_response_code(405);
+        echo json_encode([
+            'success' => false,
+            'error'   => 'Chỉ chấp nhận phương thức POST'
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    // Đảm bảo đây là AJAX request
+    if (!isset($_SERVER['HTTP_X_REQUESTED_WITH']) ||
+        strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) !== 'xmlhttprequest') {
+        http_response_code(400);
+        echo json_encode([
+            'success' => false,
+            'error'   => 'Chỉ chấp nhận AJAX request'
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    try {
+        // 1. Lấy dữ liệu JSON từ request body
+        $input = file_get_contents('php://input');
+        $data  = json_decode($input, true);
+
+        if (!$data || empty($data['cartItems'])) {
+            throw new Exception('Dữ liệu không hợp lệ hoặc giỏ hàng trống');
+        }
+
+        $cartItems    = $data['cartItems'];
+        $customerInfo = $data['customerInfo'] ?? [];
+
+        // 2. Dùng giá trị mặc định nếu không có thông tin khách hàng
+        $customerName  = trim($customerInfo['name']  ?? 'Khách hàng tại quán');
+        $customerPhone = trim($customerInfo['phone'] ?? '');
+        $customerEmail = trim($customerInfo['email'] ?? '');
+        $notes         = trim($customerInfo['notes'] ?? '');
+
+        $currentUser = $_SESSION['user'];
+
+        // 3. Gọi Model để xử lý nghiệp vụ
+        // $khachHangModel = new KhachHangModel($this->db);
+        $maKH = 2;
+        $maDon = $this->bookingModel->createAtStoreOrder(
+            $maKH,
+            $currentUser['MaCoSo'],
+            $currentUser['MaNV'],
+            $cartItems,
+            $notes
+        );
+
+        // 4. Trả về response
+        if ($maDon) {
+            http_response_code(201); // 201 Created
+            echo json_encode([
+                'success' => true,
+                'data'    => [
+                    'maDon'   => $maDon,
+                    'message' => 'Tạo đơn hàng thành công!'
+                ]
+            ], JSON_UNESCAPED_UNICODE);
+        } else {
+            throw new Exception('Không thể tạo đơn hàng. Vui lòng thử lại.');
+        }
+    } catch (Exception $e) {
+        // Xử lý lỗi phát sinh
+        http_response_code(500);
+        echo json_encode([
+            'success' => false,
+            'error'   => $e->getMessage()
+        ], JSON_UNESCAPED_UNICODE);
+    }
+
+    exit;
+}
+
 }
