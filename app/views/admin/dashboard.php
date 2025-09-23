@@ -1,8 +1,8 @@
 <?php
 // Kết nối database để lấy thống kê (sử dụng mysqli)
-$host = 'localhost';
+$host = 'db';
 $user = 'root';
-$pass = '';
+$pass = 'rootpassword';
 $database = 'booking_restaurant';
 $port = '3306';
 

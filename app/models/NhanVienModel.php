@@ -7,7 +7,6 @@ class NhanVienModel
 {
     private $conn;
     private $table_name = "nhanvien";
-
     // Các thuộc tính của nhân viên
     public $MaNV;
     public $MaCoSo;
@@ -241,7 +240,6 @@ class NhanVienModel
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(1, $MaCoSo);
         $stmt->execute();
-        
         return $stmt;
     }
 

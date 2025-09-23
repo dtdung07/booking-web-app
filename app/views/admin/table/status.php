@@ -6,7 +6,7 @@ include __DIR__ . "/connect.php";
 
 // Xử lý cập nhật trạng thái bàn
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['maBan']) && isset($_POST['trangThai'])) {
-    require_once $_SERVER['DOCUMENT_ROOT'] . '/booking-web-app/app/models/TableStatusManager.php';
+    require_once $_SERVER['DOCUMENT_ROOT'] . '/app/models/TableStatusManager.php';
     
     $maBan = (int)$_POST['maBan'];
     $thoiGianBatDau = $_POST['thoiGianBatDau'];
@@ -35,7 +35,7 @@ $thoiGianKetThuc = date('Y-m-d H:i', strtotime('+2 hours'));
 $banList = [];
 
 // Lấy danh sách cơ sở
-require_once $_SERVER['DOCUMENT_ROOT'] . '/booking-web-app/app/models/TableStatusManager.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/app/models/TableStatusManager.php';
 $listCoSo = TableStatusManager::layDanhSachCoSo();
 
 // Lấy tham số từ URL

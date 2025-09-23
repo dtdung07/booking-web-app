@@ -7,9 +7,9 @@ class TableStatusManager {
      * @return mysqli
      */
     private static function getConnection() {
-        $host = 'localhost';
+        $host = 'db';
         $user = 'root';
-        $pass = '';
+        $pass = 'rootpassword';
         $database = 'booking_restaurant';
         $port = '3306';
 
@@ -191,6 +191,75 @@ class TableStatusManager {
         }
         
         return $coSoList;
+    }
+
+    /**
+     * Lấy thông tin cơ sở theo mã cơ sở
+     * @param int $maCoSo Mã cơ sở
+     * @return array|null Thông tin cơ sở
+     */
+    public static function layThongTinCoSo($maCoSo) {
+        $conn = self::getConnection();
+        
+        $sql = "SELECT * FROM coso WHERE MaCoSo = ?";
+        $stmt = mysqli_prepare($conn, $sql);
+        mysqli_stmt_bind_param($stmt, "i", $maCoSo);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+        
+        return mysqli_fetch_assoc($result);
+    }
+
+    /**
+     * Lấy thông tin cơ bản của bàn
+     * @param int $maBan Mã bàn
+     * @return array|null Thông tin bàn
+     */
+    public static function layThongTinBan($maBan) {
+        $conn = self::getConnection();
+        
+        $sql = "SELECT b.*, c.TenCoSo 
+                FROM ban b 
+                JOIN coso c ON b.MaCoSo = c.MaCoSo 
+                WHERE b.MaBan = ?";
+        $stmt = mysqli_prepare($conn, $sql);
+        mysqli_stmt_bind_param($stmt, "i", $maBan);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+        
+        return mysqli_fetch_assoc($result);
+    }
+
+    /**
+     * Lấy thông tin chi tiết của bàn bao gồm trạng thái hiện tại
+     * @param int $maBan Mã bàn
+     * @return array|null Thông tin bàn chi tiết
+     */
+    public static function layThongTinBanChiTiet($maBan) {
+        $conn = self::getConnection();
+        
+        $sql = "SELECT b.*, c.TenCoSo,
+                CASE
+                    WHEN EXISTS (
+                        SELECT 1
+                        FROM dondatban_ban dbb
+                        JOIN dondatban dd ON dbb.MaDon = dd.MaDon
+                        WHERE dbb.MaBan = b.MaBan
+                        AND dd.TrangThai IN ('cho_xac_nhan', 'da_xac_nhan')
+                        AND dd.ThoiGianBatDau <= NOW()
+                        AND DATE_ADD(dd.ThoiGianBatDau, INTERVAL 2 HOUR) > NOW()
+                    ) THEN 'da_dat'
+                    ELSE 'trong'
+                END as TrangThaiHienTai
+                FROM ban b 
+                JOIN coso c ON b.MaCoSo = c.MaCoSo 
+                WHERE b.MaBan = ?";
+        $stmt = mysqli_prepare($conn, $sql);
+        mysqli_stmt_bind_param($stmt, "i", $maBan);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+        
+        return mysqli_fetch_assoc($result);
     }
 }
 ?>

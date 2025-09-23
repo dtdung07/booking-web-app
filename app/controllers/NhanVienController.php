@@ -437,4 +437,37 @@ public function createOrder()
     exit;
 }
 
+    /**
+     * Quản lý trạng thái bàn cho nhân viên
+     */
+    public function table_status()
+    {
+        // Sử dụng TableStatusController để xử lý
+        require_once __DIR__ . '/TableStatusController.php';
+        $tableStatusController = new TableStatusController();
+        $tableStatusController->index();
+    }
+
+    /**
+     * Cập nhật trạng thái bàn
+     */
+    public function update_table_status()
+    {
+        // Sử dụng TableStatusController để xử lý
+        require_once __DIR__ . '/TableStatusController.php';
+        $tableStatusController = new TableStatusController();
+        $tableStatusController->updateStatus();
+    }
+
+    /**
+     * Lấy chi tiết bàn (AJAX)
+     */
+    public function get_table_details()
+    {
+        // Sử dụng TableStatusController để xử lý
+        require_once __DIR__ . '/TableStatusController.php';
+        $tableStatusController = new TableStatusController();
+        $tableStatusController->getTableDetails();
+    }
+
 }

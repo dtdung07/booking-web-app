@@ -1,20 +1,22 @@
 <?php
 class Database {
-    private $host = "localhost";
+    private $host = "db";
     private $db_name = "booking_restaurant";
     private $username = "root";
-    private $password = "";
+    private $password = "rootpassword";
     public $conn;
     public function getConnection() {
-        $this->conn = null;
-        try {
-            $this->conn = new PDO("mysql:host=" . $this->host . ";dbname=" . $this->db_name . ";charset=utf8", $this->username, $this->password);
-            $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            $this->conn->exec("SET time_zone = '+07:00'");
-        } catch(PDOException $exception) {
-            echo "Lỗi kết nối: " . $exception->getMessage();
-        }
-        return $this->conn;
+    $this->conn = null;
+
+    $this->conn = new mysqli($this->host, $this->username, $this->password, $this->db_name);
+
+    if ($this->conn->connect_error) {
+        die("Kết nối thất bại: " . $this->conn->connect_error);
     }
+    $this->conn->set_charset("utf8");
+    
+    return $this->conn;
+}
+
 }
 ?>
