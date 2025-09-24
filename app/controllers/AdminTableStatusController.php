@@ -42,7 +42,7 @@ class AdminTableStatusController extends BaseController
         ]);
     }
     
-    public function updateStatus() 
+    public function updateStatus()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $maBan = (int)$_POST['maBan'];

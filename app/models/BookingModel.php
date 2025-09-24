@@ -26,12 +26,13 @@ class BookingModel
     public function getById($maDon)
     {
         try {
-            $query = "SELECT * FROM " . $this->table . " WHERE MaDon = :maDon";
-            $stmt = $this->conn->prepare($query);
-            $stmt->bindParam(':maDon', $maDon);
-            $stmt->execute();
+            $query = "SELECT * FROM " . $this->table . " WHERE MaDon = ?";
+            $stmt = mysqli_prepare($this->conn, $query);
+            mysqli_stmt_bind_param($stmt, "i", $maDon);
+            mysqli_stmt_execute($stmt);
 
-            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            $result = mysqli_stmt_get_result($stmt);
+            $row = mysqli_fetch_assoc($result);
 
             if ($row) {
                 $this->MaDon = $row['MaDon'];
@@ -57,11 +58,12 @@ class BookingModel
     public function countBookingsByBranch($maCoSo)
     {
         try {
-            $query = "SELECT COUNT(*) as total FROM " . $this->table . " WHERE MaCoSo = :maCoSo";
-            $stmt = $this->conn->prepare($query);
-            $stmt->bindParam(':maCoSo', $maCoSo);
-            $stmt->execute();
-            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            $query = "SELECT COUNT(*) as total FROM " . $this->table . " WHERE MaCoSo = ?";
+            $stmt = mysqli_prepare($this->conn, $query);
+            mysqli_stmt_bind_param($stmt, "i", $maCoSo);
+            mysqli_stmt_execute($stmt);
+            $result_set = mysqli_stmt_get_result($stmt);
+            $result = mysqli_fetch_assoc($result_set);
             return $result['total'];
         } catch (Exception $e) {
             error_log("Error in BookingModel::countBookingsByBranch: " . $e->getMessage());
@@ -75,12 +77,12 @@ class BookingModel
         try {
             $today = date('Y-m-d');
             $query = "SELECT COUNT(*) as total FROM " . $this->table . " 
-                     WHERE MaCoSo = :maCoSo AND DATE(ThoiGianTao) = :today";
-            $stmt = $this->conn->prepare($query);
-            $stmt->bindParam(':maCoSo', $maCoSo);
-            $stmt->bindParam(':today', $today);
-            $stmt->execute();
-            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+                     WHERE MaCoSo = ? AND DATE(ThoiGianTao) = ?";
+            $stmt = mysqli_prepare($this->conn, $query);
+            mysqli_stmt_bind_param($stmt, "is", $maCoSo, $today);
+            mysqli_stmt_execute($stmt);
+            $result_set = mysqli_stmt_get_result($stmt);
+            $result = mysqli_fetch_assoc($result_set);
             return $result['total'];
         } catch (Exception $e) {
             error_log("Error in BookingModel::countTodayBookingsByBranch: " . $e->getMessage());
@@ -93,11 +95,12 @@ class BookingModel
     {
         try {
             $query = "SELECT COUNT(*) as total FROM " . $this->table . " 
-                     WHERE MaCoSo = :maCoSo AND TrangThai = 'cho_xac_nhan'";
-            $stmt = $this->conn->prepare($query);
-            $stmt->bindParam(':maCoSo', $maCoSo);
-            $stmt->execute();
-            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+                     WHERE MaCoSo = ? AND TrangThai = 'cho_xac_nhan'";
+            $stmt = mysqli_prepare($this->conn, $query);
+            mysqli_stmt_bind_param($stmt, "i", $maCoSo);
+            mysqli_stmt_execute($stmt);
+            $result_set = mysqli_stmt_get_result($stmt);
+            $result = mysqli_fetch_assoc($result_set);
             return $result['total'];
         } catch (Exception $e) {
             error_log("Error in BookingModel::countPendingBookingsByBranch: " . $e->getMessage());
@@ -110,11 +113,12 @@ class BookingModel
     {
         try {
             $query = "SELECT COUNT(*) as total FROM " . $this->table . " 
-                     WHERE MaCoSo = :maCoSo AND TrangThai = 'da_xac_nhan'";
-            $stmt = $this->conn->prepare($query);
-            $stmt->bindParam(':maCoSo', $maCoSo);
-            $stmt->execute();
-            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+                     WHERE MaCoSo = ? AND TrangThai = 'da_xac_nhan'";
+            $stmt = mysqli_prepare($this->conn, $query);
+            mysqli_stmt_bind_param($stmt, "i", $maCoSo);
+            mysqli_stmt_execute($stmt);
+            $result_set = mysqli_stmt_get_result($stmt);
+            $result = mysqli_fetch_assoc($result_set);
             return $result['total'];
         } catch (Exception $e) {
             error_log("Error in BookingModel::countConfirmedBookingsByBranch: " . $e->getMessage());
@@ -126,13 +130,15 @@ class BookingModel
     public function getBookingsByBranch($maCoSo, $limit = 10, $offset = 0, $statusFilter = 'all', $timeFilter = 'hom_nay', $searchKeyword = '')
     {
         try {
-            $whereConditions = ["d.MaCoSo = :maCoSo"];
-            $params = [':maCoSo' => $maCoSo];
+            $whereConditions = ["d.MaCoSo = ?"];
+            $params = [$maCoSo];
+            $types = "i";
 
             // Filter theo trạng thái
             if ($statusFilter !== 'all') {
-                $whereConditions[] = "d.TrangThai = :statusFilter";
-                $params[':statusFilter'] = $statusFilter;
+                $whereConditions[] = "d.TrangThai = ?";
+                $params[] = $statusFilter;
+                $types .= "s";
             }
 
             // Filter theo thời gian
@@ -144,8 +150,12 @@ class BookingModel
 
             // Search keyword
             if (!empty($searchKeyword)) {
-                $whereConditions[] = "(kh.TenKH LIKE :search OR kh.SDT LIKE :search OR d.MaDon LIKE :search)";
-                $params[':search'] = "%$searchKeyword%";
+                $whereConditions[] = "(kh.TenKH LIKE ? OR kh.SDT LIKE ? OR d.MaDon LIKE ?)";
+                $searchTerm = "%$searchKeyword%";
+                $params[] = $searchTerm;
+                $params[] = $searchTerm;
+                $params[] = $searchTerm;
+                $types .= "sss";
             }
 
             $whereClause = implode(" AND ", $whereConditions);
@@ -159,19 +169,24 @@ class BookingModel
                       WHERE $whereClause
                       GROUP BY d.MaDon
                       ORDER BY d.ThoiGianTao DESC 
-                      LIMIT :limit OFFSET :offset";
+                      LIMIT ? OFFSET ?";
 
-            $stmt = $this->conn->prepare($query);
+            // Thêm limit và offset vào params
+            $params[] = $limit;
+            $params[] = $offset;
+            $types .= "ii";
+
+            $stmt = mysqli_prepare($this->conn, $query);
+            mysqli_stmt_bind_param($stmt, $types, ...$params);
+            mysqli_stmt_execute($stmt);
+            $result = mysqli_stmt_get_result($stmt);
             
-            // Bind parameters
-            foreach ($params as $key => $value) {
-                $stmt->bindValue($key, $value);
+            $bookings = [];
+            while ($row = mysqli_fetch_assoc($result)) {
+                $bookings[] = $row;
             }
-            $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
-            $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
-
-            $stmt->execute();
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            return $bookings;
 
         } catch (Exception $e) {
             error_log("Error in BookingModel::getBookingsByBranch: " . $e->getMessage());
@@ -183,13 +198,15 @@ class BookingModel
     public function countBookingsByBranchWithFilter($maCoSo, $statusFilter = 'all', $timeFilter = 'hom_nay', $searchKeyword = '')
     {
         try {
-            $whereConditions = ["d.MaCoSo = :maCoSo"];
-            $params = [':maCoSo' => $maCoSo];
+            $whereConditions = ["d.MaCoSo = ?"];
+            $params = [$maCoSo];
+            $types = "i";
 
             // Filter theo trạng thái
             if ($statusFilter !== 'all') {
-                $whereConditions[] = "d.TrangThai = :statusFilter";
-                $params[':statusFilter'] = $statusFilter;
+                $whereConditions[] = "d.TrangThai = ?";
+                $params[] = $statusFilter;
+                $types .= "s";
             }
 
             // Filter theo thời gian
@@ -201,8 +218,12 @@ class BookingModel
 
             // Search keyword
             if (!empty($searchKeyword)) {
-                $whereConditions[] = "(kh.TenKH LIKE :search OR kh.SDT LIKE :search OR d.MaDon LIKE :search)";
-                $params[':search'] = "%$searchKeyword%";
+                $whereConditions[] = "(kh.TenKH LIKE ? OR kh.SDT LIKE ? OR d.MaDon LIKE ?)";
+                $searchTerm = "%$searchKeyword%";
+                $params[] = $searchTerm;
+                $params[] = $searchTerm;
+                $params[] = $searchTerm;
+                $types .= "sss";
             }
 
             $whereClause = implode(" AND ", $whereConditions);
@@ -211,15 +232,11 @@ class BookingModel
                      LEFT JOIN khachhang kh ON d.MaKH = kh.MaKH 
                      WHERE $whereClause";
 
-            $stmt = $this->conn->prepare($query);
-            
-            // Bind parameters
-            foreach ($params as $key => $value) {
-                $stmt->bindValue($key, $value);
-            }
-
-            $stmt->execute();
-            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            $stmt = mysqli_prepare($this->conn, $query);
+            mysqli_stmt_bind_param($stmt, $types, ...$params);
+            mysqli_stmt_execute($stmt);
+            $result_set = mysqli_stmt_get_result($stmt);
+            $result = mysqli_fetch_assoc($result_set);
             return $result['total'];
 
         } catch (Exception $e) {
@@ -233,38 +250,36 @@ public function updateStatus($maDon, $maCoSo, $status, $maNVXacNhan = null, $ghi
 {
     try {
         // Xây dựng câu lệnh query
-        $query = "UPDATE " . $this->table . " SET TrangThai = :status";
-        $params = [
-            ':status' => $status,
-            ':maDon' => $maDon,
-            ':maCoSo' => $maCoSo // Thêm MaCoSo vào tham số
-        ];
+        $query = "UPDATE " . $this->table . " SET TrangThai = ?";
+        $params = [$status];
+        $types = "s";
 
         if ($maNVXacNhan !== null) {
-            $query .= ", MaNV_XacNhan = :maNVXacNhan";
-            $params[':maNVXacNhan'] = $maNVXacNhan;
+            $query .= ", MaNV_XacNhan = ?";
+            $params[] = $maNVXacNhan;
+            $types .= "i";
         }
 
         if (!empty($ghiChu)) {
             // Thêm ghi chú mới vào ghi chú cũ
-            $query .= ", GhiChu = CONCAT(IFNULL(GhiChu, ''), :ghiChu)";
-            $params[':ghiChu'] = "\n[Lý do - " . date('d/m/Y H:i') . "]: " . $ghiChu;
+            $query .= ", GhiChu = CONCAT(IFNULL(GhiChu, ''), ?)";
+            $ghiChuFormatted = "\n[Lý do - " . date('d/m/Y H:i') . "]: " . $ghiChu;
+            $params[] = $ghiChuFormatted;
+            $types .= "s";
         }
 
         // THAY ĐỔI QUAN TRỌNG NHẤT: Thêm MaCoSo vào mệnh đề WHERE
-        $query .= " WHERE MaDon = :maDon AND MaCoSo = :maCoSo";
+        $query .= " WHERE MaDon = ? AND MaCoSo = ?";
+        $params[] = $maDon;
+        $params[] = $maCoSo;
+        $types .= "ii";
 
-        $stmt = $this->conn->prepare($query);
-        
-        // Bind các tham số
-        foreach ($params as $key => &$value) {
-            $stmt->bindParam($key, $value);
-        }
-
-        $stmt->execute();
+        $stmt = mysqli_prepare($this->conn, $query);
+        mysqli_stmt_bind_param($stmt, $types, ...$params);
+        $result = mysqli_stmt_execute($stmt);
 
         // Trả về số dòng bị ảnh hưởng. Nếu là 0, tức là không update được (do sai MaDon hoặc sai MaCoSo)
-        return $stmt->rowCount();
+        return mysqli_stmt_affected_rows($stmt);
 
     } catch (Exception $e) {
         error_log("Error in BookingModel::updateStatus: " . $e->getMessage());
@@ -286,25 +301,25 @@ public function updateStatus($maDon, $maCoSo, $status, $maNVXacNhan = null, $ghi
                       LEFT JOIN ban b ON db.MaBan = b.MaBan
                       LEFT JOIN nhanvien nv ON d.MaNV_XacNhan = nv.MaNV
                       LEFT JOIN coso cs ON d.MaCoSo = cs.MaCoSo
-                      WHERE d.MaDon = :maDon";
+                      WHERE d.MaDon = ?";
             
-            $params = [':maDon' => $maDon];
+            $params = [$maDon];
+            $types = "i";
 
             if ($maCoSo !== null) {
-                $query .= " AND d.MaCoSo = :maCoSo";
-                $params[':maCoSo'] = $maCoSo;
+                $query .= " AND d.MaCoSo = ?";
+                $params[] = $maCoSo;
+                $types .= "i";
             }
 
             $query .= " GROUP BY d.MaDon";
 
-            $stmt = $this->conn->prepare($query);
+            $stmt = mysqli_prepare($this->conn, $query);
+            mysqli_stmt_bind_param($stmt, $types, ...$params);
+            mysqli_stmt_execute($stmt);
+            $result = mysqli_stmt_get_result($stmt);
             
-            foreach ($params as $key => $value) {
-                $stmt->bindValue($key, $value);
-            }
-
-            $stmt->execute();
-            return $stmt->fetch(PDO::FETCH_ASSOC);
+            return mysqli_fetch_assoc($result);
 
         } catch (Exception $e) {
             error_log("Error in BookingModel::getBookingDetail: " . $e->getMessage());
@@ -323,15 +338,20 @@ public function getMenuItemsForBooking($maDon, $maCoSo)
                     (dm.DonGia * dm.SoLuong) as ThanhTien
                 FROM chitietdondatban dm
                 JOIN monan m ON dm.MaMon = m.MaMon
-                WHERE dm.MaDon = :maDon
+                WHERE dm.MaDon = ?
                 ORDER BY m.TenMon";
 
-
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(':maDon', $maDon);
-        $stmt->execute();
+        $stmt = mysqli_prepare($this->conn, $query);
+        mysqli_stmt_bind_param($stmt, "i", $maDon);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
         
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $menuItems = [];
+        while ($row = mysqli_fetch_assoc($result)) {
+            $menuItems[] = $row;
+        }
+        
+        return $menuItems;
 
     } catch (Exception $e) {
         error_log("Error in BookingModel::getMenuItemsForBooking: " . $e->getMessage());
@@ -343,44 +363,38 @@ public function getMenuItemsForBooking($maDon, $maCoSo)
 public function createAtStoreOrder($maKH, $maCoSo, $maNV, $cartItems, $ghiChu = '')
 {
     // Bắt đầu transaction
-    $this->conn->beginTransaction();
+    mysqli_begin_transaction($this->conn);
 
     try {
         // 1. Tạo bản ghi trong bảng `dondatban`
         $query = "INSERT INTO " . $this->table . " (MaKH, MaCoSo, MaNV_XacNhan, ThoiGianBatDau, ThoiGianTao, TrangThai,SoLuongKH, GhiChu) 
-                  VALUES (:maKH, :maCoSo, :maNV, NOW(), CONVERT_TZ(NOW(), '+00:00', '+07:00'), 'da_xac_nhan',1, :ghiChu)";
+                  VALUES (?, ?, ?, NOW(), CONVERT_TZ(NOW(), '+00:00', '+07:00'), 'da_xac_nhan',1, ?)";
         
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(':maKH', $maKH);
-        $stmt->bindParam(':maCoSo', $maCoSo);
-        $stmt->bindParam(':maNV', $maNV);
-        $stmt->bindParam(':ghiChu', $ghiChu);
-        $stmt->execute();
+        $stmt = mysqli_prepare($this->conn, $query);
+        mysqli_stmt_bind_param($stmt, "iiis", $maKH, $maCoSo, $maNV, $ghiChu);
+        mysqli_stmt_execute($stmt);
         
-        $maDon = $this->conn->lastInsertId();
+        $maDon = mysqli_insert_id($this->conn);
 
         // 2. Thêm các món ăn vào bảng `chitietdondatban`
         $insertItemQuery = "INSERT INTO chitietdondatban (MaDon, MaMon, SoLuong, DonGia) 
-                            VALUES (:maDon, :maMon, :soLuong, 
-                                (SELECT Gia FROM menu_coso WHERE MaMon = :maMon AND MaCoSo = :maCoSo)
+                            VALUES (?, ?, ?, 
+                                (SELECT Gia FROM menu_coso WHERE MaMon = ? AND MaCoSo = ?)
                             )";
-        $itemStmt = $this->conn->prepare($insertItemQuery);
+        $itemStmt = mysqli_prepare($this->conn, $insertItemQuery);
 
         foreach ($cartItems as $item) {
-            $itemStmt->bindParam(':maDon', $maDon);
-            $itemStmt->bindParam(':maMon', $item['id']);
-            $itemStmt->bindParam(':soLuong', $item['quantity']);
-            $itemStmt->bindParam(':maCoSo', $maCoSo);
+            mysqli_stmt_bind_param($itemStmt, "iiiii", $maDon, $item['id'], $item['quantity'], $item['id'], $maCoSo);
             
-            if (!$itemStmt->execute()) {
+            if (!mysqli_stmt_execute($itemStmt)) {
                 throw new Exception('Không thể thêm món ăn vào đơn hàng.');
             }
         }
 
-        $this->conn->commit();
+        mysqli_commit($this->conn);
         return $maDon;
     } catch (Exception $e) {
-        $this->conn->rollBack();
+        mysqli_rollback($this->conn);
         error_log("Error in BookingModel::createAtStoreOrder: " . $e->getMessage());
         return false;
     }

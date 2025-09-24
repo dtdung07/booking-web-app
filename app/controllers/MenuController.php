@@ -110,8 +110,11 @@ class MenuController extends BaseController
     private function getBranches() 
     {
         $sql = "SELECT MaCoSo, TenCoSo, DiaChi FROM coso WHERE TenCoSo != '' ORDER BY MaCoSo ASC";
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $result = mysqli_query($this->db, $sql);
+        $branches = [];
+        while ($row = mysqli_fetch_assoc($result)) {
+            $branches[] = $row;
+        }
+        return $branches;
     }
 }
