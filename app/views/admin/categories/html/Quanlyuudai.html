@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Quản lý Ưu đãi - Quán Lẩu Tự Do</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        background: #fff5f0;
+      }
+      header {
+        background: linear-gradient(90deg, #ff512f, #dd2476);
+        padding: 20px;
+        text-align: center;
+        color: white;
+        font-size: 24px;
+        font-weight: bold;
+        letter-spacing: 1px;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 30px auto;
+        padding: 0 20px;
+      }
+      .btn {
+        padding: 8px 14px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+      }
+      .btn-add {
+        background: #28a745;
+        color: white;
+        margin-bottom: 20px;
+      }
+      .btn-delete {
+        background: #dc3545;
+        color: white;
+      }
+      .btn-toggle {
+        background: #ffc107;
+        color: black;
+      }
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+      }
+      .card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        position: relative;
+        transition: transform 0.2s;
+      }
+      .card:hover {
+        transform: translateY(-5px);
+      }
+      .card h3 {
+        margin: 0;
+        color: #e63946;
+      }
+      .card p {
+        margin: 8px 0;
+        color: #555;
+        font-size: 14px;
+      }
+      .card span {
+        font-size: 13px;
+        display: block;
+        margin: 4px 0;
+      }
+      .status {
+        font-weight: bold;
+      }
+      .status.active {
+        color: green;
+      }
+      .status.inactive {
+        color: red;
+      }
+      .actions {
+        margin-top: 10px;
+      }
+      .form-popup {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: #fff;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        z-index: 1000;
+        width: 350px;
+      }
+      .form-popup input,
+      .form-popup textarea {
+        width: 100%;
+        padding: 8px;
+        margin: 6px 0;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+      }
+      .overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.4);
+        z-index: 999;
+      }
+    </style>
+  </head>
+  <body>
+    <header>🍲 Quản lý Ưu đãi - Quán Lẩu Tự Do</header>
+    <div class="container">
+      <button class="btn btn-add" onclick="openForm()">+ Thêm Ưu đãi</button>
+      <div class="cards" id="promoCards">
+        <!-- Ưu đãi mẫu -->
+        <div class="card">
+          <h3>Giảm 20% nhóm 4 người</h3>
+          <p>Áp dụng cho hóa đơn từ 4 người trở lên.</p>
+          <span>Mã: <b>LTT20</b></span>
+          <span>Thời gian: 01/09 - 31/10</span>
+          <span class="status active">Đang hoạt động</span>
+          <div class="actions">
+            <button class="btn btn-delete" onclick="deleteCard(this)">
+              Xóa
+            </button>
+            <button class="btn btn-toggle" onclick="toggleStatus(this)">
+              Tắt
+            </button>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Giảm 50k đơn >300k</h3>
+          <p>Áp dụng khi đặt bàn online.</p>
+          <span>Mã: <b>LTT50K</b></span>
+          <span>Thời gian: 15/08 - 31/12</span>
+          <span class="status active">Đang hoạt động</span>
+          <div class="actions">
+            <button class="btn btn-delete" onclick="deleteCard(this)">
+              Xóa
+            </button>
+            <button class="btn btn-toggle" onclick="toggleStatus(this)">
+              Tắt
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form -->
+    <div class="overlay" id="overlay"></div>
+    <div class="form-popup" id="promoForm">
+      <h3>Thêm Ưu đãi</h3>
+      <input type="text" id="title" placeholder="Tiêu đề" />
+      <textarea id="desc" placeholder="Mô tả"></textarea>
+      <input type="text" id="code" placeholder="Mã ưu đãi" />
+      <input
+        type="text"
+        id="date"
+        placeholder="Thời gian (vd: 01/10 - 31/12)"
+      />
+      <button class="btn btn-add" onclick="addPromo()">Lưu</button>
+      <button class="btn btn-delete" onclick="closeForm()">Hủy</button>
+    </div>
+
+    <script>
+      function openForm() {
+        document.getElementById("promoForm").style.display = "block";
+        document.getElementById("overlay").style.display = "block";
+      }
+      function closeForm() {
+        document.getElementById("promoForm").style.display = "none";
+        document.getElementById("overlay").style.display = "none";
+      }
+      function addPromo() {
+        const title = document.getElementById("title").value;
+        const desc = document.getElementById("desc").value;
+        const code = document.getElementById("code").value;
+        const date = document.getElementById("date").value;
+
+        if (!title || !code) {
+          alert("Vui lòng nhập đầy đủ thông tin!");
+          return;
+        }
+
+        const card = document.createElement("div");
+        card.className = "card";
+        card.innerHTML = `
+        <h3>${title}</h3>
+        <p>${desc}</p>
+        <span>Mã: <b>${code}</b></span>
+        <span>Thời gian: ${date}</span>
+        <span class=\"status active\">Đang hoạt động</span>
+        <div class=\"actions\">
+          <button class=\"btn btn-delete\" onclick=\"deleteCard(this)\">Xóa</button>
+          <button class=\"btn btn-toggle\" onclick=\"toggleStatus(this)\">Tắt</button>
+        </div>
+      `;
+        document.getElementById("promoCards").appendChild(card);
+        closeForm();
+      }
+      function deleteCard(btn) {
+        if (confirm("Bạn có chắc muốn xóa ưu đãi này?")) {
+          btn.closest(".card").remove();
+        }
+      }
+      function toggleStatus(btn) {
+        const card = btn.closest(".card");
+        const status = card.querySelector(".status");
+        if (status.classList.contains("active")) {
+          status.textContent = "Ngưng";
+          status.classList.remove("active");
+          status.classList.add("inactive");
+          btn.textContent = "Bật";
+        } else {
+          status.textContent = "Đang hoạt động";
+          status.classList.remove("inactive");
+          status.classList.add("active");
+          btn.textContent = "Tắt";
+        }
+      }
+    </script>
+  </body>
+</html>
