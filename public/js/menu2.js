@@ -122,6 +122,9 @@ document.addEventListener('DOMContentLoaded', function () {
             shoppingCart[itemId] = { name: itemName, price: parseFloat(itemPrice), quantity: quantity };
         }
         updateAllUI();
+
+        // Lưu vào cookies
+        saveCartToCookies();
     }
 
     // --- Các hàm Mở/Đóng Modal ---
@@ -235,16 +238,8 @@ document.addEventListener('DOMContentLoaded', function () {
         closeItemModal();
     });
 
-    stickyCartWidget.addEventListener('click', openBillModal);
-    billCloseBtn.addEventListener('click', closeBillModal);
-
-    billClearAllBtn.addEventListener('click', function (e) {
-        e.preventDefault();
-        if (confirm('Bạn có chắc chắn muốn xoá tất cả các món trong giỏ hàng tạm?')) {
-            Object.keys(shoppingCart).forEach(key => delete shoppingCart[key]);
-            updateAllUI();
-        }
-    });
+    // Note: sticky cart widget, bill close button và clear all button
+    // được xử lý bởi global-cart-manager.js
 
     billItemsContainer.addEventListener('click', function (e) {
         const actionTarget = e.target.closest('[data-action]');
@@ -267,6 +262,9 @@ document.addEventListener('DOMContentLoaded', function () {
             delete shoppingCart[itemId];
         }
         updateAllUI();
+
+        // Lưu vào cookies sau mỗi thay đổi
+        saveCartToCookies();
     });
 
     proceedToBookingBtn.addEventListener('click', function () {
@@ -369,6 +367,9 @@ document.addEventListener('DOMContentLoaded', function () {
         if (event.target == dpOverlay) closeDatePickerModal();
         if (event.target == bookingOverlay) closeBookingForm();
     });
+
+    // === KHÔI PHỤC GIỎ HÀNG TỪ COOKIES SAU KHI TẤT CẢ FUNCTIONS ĐÃ ĐƯỢC ĐỊNH NGHĨA ===
+    loadCartFromCookies();
 
 }); // --- KẾT THÚC DOMCONTENTLOADED ---
 
@@ -504,13 +505,41 @@ function escapeHtml(text) {
     return String(text).replace(/[&<>"']/g, function (m) { return map[m]; });
 }
 
-function escapeHtml(text) {
-    const map = {
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#039;'
-    };
-    return String(text).replace(/[&<>"']/g, function (m) { return map[m]; });
+// === HÀM HELPER CHO COOKIES ===
+function saveCartToCookies() {
+    if (typeof window.CartCookies !== 'undefined') {
+        window.CartCookies.saveCart(shoppingCart);
+
+        // Cập nhật global cart display trên tất cả các trang
+        if (typeof window.updateGlobalCart === 'function') {
+            window.updateGlobalCart();
+        }
+    }
+}
+
+function loadCartFromCookies() {
+    if (typeof window.CartCookies !== 'undefined') {
+        const savedCart = window.CartCookies.loadCart();
+        if (savedCart && Object.keys(savedCart).length > 0) {
+            // Khôi phục dữ liệu vào biến global
+            Object.keys(savedCart).forEach(itemId => {
+                shoppingCart[itemId] = savedCart[itemId];
+            });
+
+            // Cập nhật UI sau khi khôi phục
+            updateAllUI();
+            console.log('Cart restored from cookies:', savedCart);
+        }
+    }
+}
+
+function clearCartFromCookies() {
+    if (typeof window.CartCookies !== 'undefined') {
+        window.CartCookies.clearCart();
+
+        // Cập nhật global cart display
+        if (typeof window.updateGlobalCart === 'function') {
+            window.updateGlobalCart();
+        }
+    }
 }
