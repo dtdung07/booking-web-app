@@ -11,6 +11,7 @@ config/
 # Ignore logs
 *.log
 logs/
+sepay/
 
 # Ignore temporary files
 *.tmp

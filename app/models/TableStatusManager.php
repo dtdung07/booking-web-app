@@ -1,0 +1,196 @@
+<?php
+
+class TableStatusManager {
+    
+    /**
+     * Lấy kết nối database
+     * @return mysqli
+     */
+    private static function getConnection() {
+        $host = 'localhost';
+        $user = 'root';
+        $pass = '';
+        $database = 'booking_restaurant';
+        $port = '3306';
+
+        $conn = mysqli_connect($host, $user, $pass, $database, $port);
+        if (!$conn) {
+            die("Connection failed: " . mysqli_connect_error());
+        }
+        mysqli_set_charset($conn, "utf8");
+        
+        return $conn;
+    }
+    
+    /**
+     * Kiểm tra trạng thái bàn trong khoảng thời gian cụ thể
+     * @param int $maBan Mã bàn
+     * @param string $thoiGianBatDau Thời gian bắt đầu (Y-m-d H:i:s)
+     * @param string $thoiGianKetThuc Thời gian kết thúc (Y-m-d H:i:s)
+     * @return string 'trong' hoặc 'da_dat'
+     */
+    public static function kiemTraTrangThaiBan($maBan, $thoiGianBatDau, $thoiGianKetThuc) {
+        $conn = self::getConnection();
+
+        $sql = "SELECT COUNT(*) as so_don_dat
+                FROM dondatban_ban dbb
+                JOIN dondatban dd ON dbb.MaDon = dd.MaDon
+                WHERE dbb.MaBan = ?
+                AND dd.TrangThai IN ('cho_xac_nhan', 'da_xac_nhan')
+                AND (
+                    (dd.ThoiGianBatDau <= ? AND DATE_ADD(dd.ThoiGianBatDau, INTERVAL 2 HOUR) > ?) OR
+                    (dd.ThoiGianBatDau < ? AND DATE_ADD(dd.ThoiGianBatDau, INTERVAL 2 HOUR) >= ?) OR
+                    (dd.ThoiGianBatDau >= ? AND DATE_ADD(dd.ThoiGianBatDau, INTERVAL 2 HOUR) <= ?)
+                )";
+
+        $stmt = mysqli_prepare($conn, $sql);
+        mysqli_stmt_bind_param($stmt, "issssss",
+            $maBan, $thoiGianBatDau, $thoiGianBatDau,
+            $thoiGianKetThuc, $thoiGianKetThuc,
+            $thoiGianBatDau, $thoiGianKetThuc
+        );
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+        $row = mysqli_fetch_assoc($result);
+
+        return $row['so_don_dat'] > 0 ? 'da_dat' : 'trong';
+    }
+
+    /**
+     * Lấy danh sách bàn theo cơ sở với trạng thái theo thời gian
+     * @param int $maCoSo Mã cơ sở
+     * @param string $thoiGianBatDau Thời gian bắt đầu
+     * @param string $thoiGianKetThuc Thời gian kết thúc
+     * @return array Danh sách bàn với trạng thái
+     */
+    public static function layBanTheoCoSo($maCoSo, $thoiGianBatDau, $thoiGianKetThuc) {
+        $conn = self::getConnection();
+
+        $sql = "SELECT b.*,
+                CASE
+                    WHEN EXISTS (
+                        SELECT 1
+                        FROM dondatban_ban dbb
+                        JOIN dondatban dd ON dbb.MaDon = dd.MaDon
+                        WHERE dbb.MaBan = b.MaBan
+                        AND dd.TrangThai IN ('cho_xac_nhan', 'da_xac_nhan')
+                        AND (
+                            (dd.ThoiGianBatDau <= ? AND DATE_ADD(dd.ThoiGianBatDau, INTERVAL 2 HOUR) > ?) OR
+                            (dd.ThoiGianBatDau < ? AND DATE_ADD(dd.ThoiGianBatDau, INTERVAL 2 HOUR) >= ?) OR
+                            (dd.ThoiGianBatDau >= ? AND DATE_ADD(dd.ThoiGianBatDau, INTERVAL 2 HOUR) <= ?)
+                        )
+                    ) THEN 'da_dat'
+                    ELSE 'trong'
+                END as TrangThai
+                FROM ban b
+                WHERE b.MaCoSo = ?
+                ORDER BY b.MaBan";
+
+        $stmt = mysqli_prepare($conn, $sql);
+        mysqli_stmt_bind_param($stmt, "ssssssi",
+            $thoiGianBatDau, $thoiGianBatDau,
+            $thoiGianKetThuc, $thoiGianKetThuc,
+            $thoiGianBatDau, $thoiGianKetThuc,
+            $maCoSo
+        );
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+
+        $banList = [];
+        while ($row = mysqli_fetch_assoc($result)) {
+            $banList[] = $row;
+        }
+
+        return $banList;
+    }
+
+    /**
+     * Cập nhật trạng thái bàn thủ công (cho admin)
+     * @param int $maBan Mã bàn
+     * @param string $thoiGianBatDau Thời gian bắt đầu
+     * @param string $thoiGianKetThuc Thời gian kết thúc
+     * @param string $trangThai Trạng thái mới ('trong' hoặc 'da_dat')
+     * @return bool
+     */
+    public static function capNhatTrangThaiBan($maBan, $thoiGianBatDau, $thoiGianKetThuc, $trangThai) {
+        $conn = self::getConnection();
+
+        if ($trangThai == 'da_dat') {
+            // Lấy MaCoSo từ bàn
+            $sqlGetCoSo = "SELECT MaCoSo FROM ban WHERE MaBan = ?";
+            $stmtGetCoSo = mysqli_prepare($conn, $sqlGetCoSo);
+            mysqli_stmt_bind_param($stmtGetCoSo, "i", $maBan);
+            mysqli_stmt_execute($stmtGetCoSo);
+            $result = mysqli_stmt_get_result($stmtGetCoSo);
+            $ban = mysqli_fetch_assoc($result);
+            $maCoSo = $ban['MaCoSo'];
+
+            // Tạo hoặc lấy khách hàng giả cho admin
+            $maKH = self::getOrCreateAdminCustomer($conn);
+
+            // Tạo đơn đặt bàn giả để đánh dấu bàn đã đặt
+            $sql = "INSERT INTO dondatban (MaKH, MaCoSo, SoLuongKH, ThoiGianBatDau, TrangThai, GhiChu) 
+                    VALUES (?, ?, 1, ?, 'da_xac_nhan', 'Admin đánh dấu bàn đã đặt')";
+            $stmt = mysqli_prepare($conn, $sql);
+            mysqli_stmt_bind_param($stmt, "iis", $maKH, $maCoSo, $thoiGianBatDau);
+            mysqli_stmt_execute($stmt);
+            $maDon = mysqli_insert_id($conn);
+
+            // Thêm bàn vào đơn đặt
+            $sql2 = "INSERT INTO dondatban_ban (MaDon, MaBan) VALUES (?, ?)";
+            $stmt2 = mysqli_prepare($conn, $sql2);
+            mysqli_stmt_bind_param($stmt2, "ii", $maDon, $maBan);
+            return mysqli_stmt_execute($stmt2);
+        } else {
+            // Xóa các đơn đặt bàn giả trong khoảng thời gian này
+            $sql = "DELETE dd FROM dondatban dd
+                    JOIN dondatban_ban dbb ON dd.MaDon = dbb.MaDon
+                    WHERE dbb.MaBan = ? 
+                    AND dd.ThoiGianBatDau = ?
+                    AND dd.GhiChu = 'Admin đánh dấu bàn đã đặt'";
+            $stmt = mysqli_prepare($conn, $sql);
+            mysqli_stmt_bind_param($stmt, "is", $maBan, $thoiGianBatDau);
+            return mysqli_stmt_execute($stmt);
+        }
+    }
+
+    /**
+     * Tạo hoặc lấy khách hàng giả cho admin
+     * @param mysqli $conn Kết nối database
+     * @return int MaKH của khách hàng admin
+     */
+    private static function getOrCreateAdminCustomer($conn) {
+        // Kiểm tra xem đã có khách hàng admin chưa
+        $sql = "SELECT MaKH FROM khachhang WHERE TenKH = 'Admin System' AND Email = 'admin@system.local'";
+        $result = mysqli_query($conn, $sql);
+        
+        if (mysqli_num_rows($result) > 0) {
+            $row = mysqli_fetch_assoc($result);
+            return $row['MaKH'];
+        } else {
+            // Tạo khách hàng admin mới
+            $sql = "INSERT INTO khachhang (TenKH, Email, SDT) VALUES ('Admin System', 'admin@system.local', '0000000000')";
+            mysqli_query($conn, $sql);
+            return mysqli_insert_id($conn);
+        }
+    }
+
+    /**
+     * Lấy danh sách cơ sở
+     * @return array
+     */
+    public static function layDanhSachCoSo() {
+        $conn = self::getConnection();
+        
+        $sql = "SELECT * FROM coso ORDER BY TenCoSo";
+        $result = mysqli_query($conn, $sql);
+        
+        $coSoList = [];
+        while ($row = mysqli_fetch_assoc($result)) {
+            $coSoList[] = $row;
+        }
+        
+        return $coSoList;
+    }
+}
+?>

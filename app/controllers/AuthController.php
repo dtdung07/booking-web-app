@@ -23,7 +23,16 @@ class AuthController extends BaseController
     public function login()
     {
         if ($this->isLoggedIn()) {
-            $this->redirect('index.php?page=admin&action=dashboard');
+            // Chuyển hướng dựa trên vai trò
+            $user = $_SESSION['user'];
+            if ($user['ChucVu'] === 'admin') {
+                $this->redirect('index.php?page=admin&action=dashboard');
+            } else if ($user['ChucVu'] === 'nhan_vien') {
+                $this->redirect('index.php?page=nhanvien&action=dashboard');
+            } else {
+                // Logout nếu vai trò không hợp lệ
+                $this->logout();
+            }
             return;
         }
         include __DIR__ . '/../../login.php';
@@ -70,7 +79,16 @@ class AuthController extends BaseController
                 setcookie('remember_user', $nhanVienData['MaNV'], $expires, '/');
             }
             
-            $this->redirect('index.php?page=admin&action=dashboard');
+            // Phân quyền dựa trên ChucVu
+            if ($nhanVienData['ChucVu'] === 'admin') {
+                $this->redirect('index.php?page=admin&action=dashboard');
+            } else if ($nhanVienData['ChucVu'] === 'nhan_vien') {
+                $this->redirect('index.php?page=nhanvien&action=dashboard');
+            } else {
+                // Trường hợp không xác định được vai trò
+                $_SESSION['error_message'] = 'Vai trò không hợp lệ. Vui lòng liên hệ quản trị viên.';
+                $this->redirect('index.php?page=auth&action=login');
+            }
             return;
         }
         
@@ -118,5 +136,41 @@ class AuthController extends BaseController
             $this->redirect('index.php?page=auth&action=login');
             exit;
         }
+    }
+
+    // Middleware yêu cầu quyền admin
+    public function requireAdmin() {
+        $this->requireAuth();
+        
+        if (!isset($_SESSION['user']) || $_SESSION['user']['ChucVu'] !== 'admin') {
+            $_SESSION['error_message'] = 'Bạn không có quyền truy cập trang này.';
+            $this->redirect('index.php?page=auth&action=login');
+            exit;
+        }
+    }
+
+    // Middleware yêu cầu quyền nhân viên
+    public function requireNhanVien() {
+        $this->requireAuth();
+        
+        if (!isset($_SESSION['user']) || $_SESSION['user']['ChucVu'] !== 'nhan_vien') {
+            $_SESSION['error_message'] = 'Bạn không có quyền truy cập trang này.';
+            $this->redirect('index.php?page=auth&action=login');
+            exit;
+        }
+    }
+
+    // Kiểm tra xem user có phải admin không
+    public function isAdmin() {
+        return $this->isLoggedIn() && 
+               isset($_SESSION['user']) && 
+               $_SESSION['user']['ChucVu'] === 'admin';
+    }
+
+    // Kiểm tra xem user có phải nhân viên không
+    public function isNhanVien() {
+        return $this->isLoggedIn() && 
+               isset($_SESSION['user']) && 
+               $_SESSION['user']['ChucVu'] === 'nhan_vien';
     }
 }
