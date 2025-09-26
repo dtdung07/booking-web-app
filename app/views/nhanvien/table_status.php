@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['maBan']) && isset($_P
     $banInfo = TableStatusManager::layThongTinBan($maBan);
     
     if ($banInfo && $banInfo['MaCoSo'] == $nhanVien['MaCoSo']) {
-        $result = TableStatusManager::capNhatTrangThaiBan($maBan, $thoiGianBatDau, $thoiGianKetThuc, $trangThai);
+        $result = TableStatusManager::capNhatTrangThaiBan($maBan, $trangThai);
         
         if ($result) {
             $_SESSION['success_message'] = 'Cập nhật trạng thái bàn thành công!';
@@ -29,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['maBan']) && isset($_P
     }
     
     // Sử dụng JavaScript redirect thay vì PHP header
-    echo '<script>window.location.href = "?page=nhanvien&action=dashboard&section=table_status&thoiGianBatDau=' . urlencode($thoiGianBatDau) . '&thoiGianKetThuc=' . urlencode($thoiGianKetThuc) . '";</script>';
+    echo '<script>window.location.href = "?page=nhanvien&action=dashboard&section=table_status";</script>';
     exit;
 }
 
@@ -47,7 +47,7 @@ $thongTinCoSo = TableStatusManager::layThongTinCoSo($maCoSo);
 $tenCoSo = $thongTinCoSo['TenCoSo'] ?? '';
 
 // Lấy danh sách bàn với trạng thái
-$banList = TableStatusManager::layBanTheoCoSo($maCoSo, $thoiGianBatDau, $thoiGianKetThuc);
+$banList = TableStatusManager::layBanTheoCoSo($maCoSo);
 ?>
 
 <style>
@@ -200,14 +200,14 @@ $banList = TableStatusManager::layBanTheoCoSo($maCoSo, $thoiGianBatDau, $thoiGia
                                 <?php if($ban['TrangThai'] == 'trong'): ?>
                                     <!-- Bàn trống - hiển thị nút đánh dấu đã đặt -->
                                     <button class="btn btn-outline-warning btn-sm" 
-                                            onclick="updateTableStatus(<?=$ban['MaBan']?>, 'da_dat', '<?=$thoiGianBatDau?>', '<?=$thoiGianKetThuc?>')"
+                                            onclick="updateTableStatus(<?=$ban['MaBan']?>, 'da_dat')"
                                             title="Đánh dấu bàn đã đặt">
                                         <i class="fas fa-user-plus"></i> Đánh dấu đã đặt
                                     </button>
                                 <?php else: ?>
                                     <!-- Bàn đã đặt - hiển thị nút đánh dấu trống -->
                                     <button class="btn btn-outline-success btn-sm" 
-                                            onclick="updateTableStatus(<?=$ban['MaBan']?>, 'trong', '<?=$thoiGianBatDau?>', '<?=$thoiGianKetThuc?>')"
+                                            onclick="updateTableStatus(<?=$ban['MaBan']?>, 'trong')"
                                             title="Đánh dấu bàn trống">
                                         <i class="fas fa-user-minus"></i> Đánh dấu trống
                                     </button>
@@ -284,9 +284,9 @@ $banList = TableStatusManager::layBanTheoCoSo($maCoSo, $thoiGianBatDau, $thoiGia
 </form>
 
 <script>
-function updateTableStatus(maBan, trangThai, thoiGianBatDau, thoiGianKetThuc, maCoSo) {
+function updateTableStatus(maBan, trangThai) {
     const action = trangThai === 'trong' ? 'đánh dấu trống' : 'đánh dấu đã đặt';
-    const message = `Bạn có chắc chắn muốn ${action} bàn này?\n\nThời gian: ${thoiGianBatDau} - ${thoiGianKetThuc}`;
+    const message = `Bạn có chắc chắn muốn ${action} bàn này?`;
     
     if (confirm(message)) {
         // Hiển thị loading
@@ -296,10 +296,7 @@ function updateTableStatus(maBan, trangThai, thoiGianBatDau, thoiGianKetThuc, ma
         button.disabled = true;
         
         document.getElementById('updateMaBan').value = maBan;
-        document.getElementById('updateThoiGianBatDau').value = thoiGianBatDau;
-        document.getElementById('updateThoiGianKetThuc').value = thoiGianKetThuc;
         document.getElementById('updateTrangThai').value = trangThai;
-        document.getElementById('updateMaCoSo').value = maCoSo;
         document.getElementById('updateStatusForm').submit();
     }
 }

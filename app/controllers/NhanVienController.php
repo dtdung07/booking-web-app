@@ -5,6 +5,7 @@ require_once __DIR__ . '/../models/NhanVienModel.php';
 require_once __DIR__ . '/../models/BookingModel.php'; 
 require_once __DIR__ . '/../models/BranchModel.php'; 
 require_once __DIR__ . '/../models/MenuModel.php'; 
+require_once __DIR__ . '/../models/TableModel.php'; 
 require_once __DIR__ . '/../../includes/BaseController.php'; 
 require_once __DIR__ . '/AuthController.php'; 
 
@@ -14,6 +15,7 @@ class NhanVienController extends BaseController
     private $bookingModel;
     private $branchModel;
     private $menuModel;
+    private $tableModel;
     private $authController;
     private $db;
 
@@ -25,6 +27,7 @@ class NhanVienController extends BaseController
         $this->bookingModel = new BookingModel($this->db);
         $this->branchModel = new BranchModel($this->db);
         $this->menuModel = new MenuModel($this->db);
+        $this->tableModel = new TableModel($this->db);
         $this->authController = new AuthController();
         
         if (session_status() === PHP_SESSION_NONE) {
@@ -392,24 +395,35 @@ public function createOrder()
 
         $cartItems    = $data['cartItems'];
         $customerInfo = $data['customerInfo'] ?? [];
+        $bookingInfo  = $data['bookingInfo'] ?? [];
 
         // 2. Dùng giá trị mặc định nếu không có thông tin khách hàng
-        $customerName  = trim($customerInfo['name']  ?? 'Khách hàng tại quán');
-        $customerPhone = trim($customerInfo['phone'] ?? '');
-        $customerEmail = trim($customerInfo['email'] ?? '');
-        $notes         = trim($customerInfo['notes'] ?? '');
+        $customerName     = trim($customerInfo['name']  ?? 'Khách hàng tại quán');
+        $customerPhone    = trim($customerInfo['phone'] ?? '');
+        $customerEmail    = trim($customerInfo['email'] ?? '');
+        $notes            = trim($customerInfo['notes'] ?? '');
+        
+        // 3. Thông tin đặt bàn
+        $bookingDate      = $bookingInfo['date'] ?? '';
+        $bookingTime      = $bookingInfo['time'] ?? '';
+        $numberOfGuests   = $bookingInfo['guests'] ?? 1;
+        $selectedTables   = $bookingInfo['selectedTables'] ?? [];
 
         $currentUser = $_SESSION['user'];
 
-        // 3. Gọi Model để xử lý nghiệp vụ
+        // 4. Gọi Model để xử lý nghiệp vụ
         // $khachHangModel = new KhachHangModel($this->db);
         $maKH = 2;
-        $maDon = $this->bookingModel->createAtStoreOrder(
+        $maDon = $this->bookingModel->createBookingWithTables(
             $maKH,
             $currentUser['MaCoSo'],
             $currentUser['MaNV'],
             $cartItems,
-            $notes
+            $notes,
+            $bookingDate,
+            $bookingTime,
+            $numberOfGuests,
+            $selectedTables
         );
 
         // 4. Trả về response
@@ -468,6 +482,43 @@ public function createOrder()
         require_once __DIR__ . '/TableStatusController.php';
         $tableStatusController = new TableStatusController();
         $tableStatusController->getTableDetails();
+    }
+
+    /**
+     * Lấy danh sách bàn chưa từng được đặt (AJAX)
+     */
+    public function getAvailableTables()
+    {
+        header('Content-Type: application/json');
+        
+        try {
+            // Kiểm tra quyền truy cập
+            $this->authController->requireNhanVien();
+            
+            $currentUser = $_SESSION['user'];
+            $maCoSo = $currentUser['MaCoSo'];
+            
+            // Lấy danh sách bàn chưa từng được đặt (không có trong dondatban_ban)
+            $availableTables = $this->tableModel->getUnbookedTablesByBranch($maCoSo);
+            
+            echo json_encode([
+                'success' => true,
+                'data' => [
+                    'tables' => $availableTables,
+                    'total' => count($availableTables),
+                    'params' => [
+                        'maCoSo' => $maCoSo
+                    ]
+                ]
+            ]);
+            
+        } catch (Exception $e) {
+            error_log("Error in getAvailableTables: " . $e->getMessage());
+            echo json_encode([
+                'success' => false,
+                'error' => 'Có lỗi xảy ra khi lấy danh sách bàn: ' . $e->getMessage()
+            ]);
+        }
     }
 
 }

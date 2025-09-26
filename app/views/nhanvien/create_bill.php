@@ -331,16 +331,20 @@ $searchKeyword = $_GET['search'] ?? '';
     #sticky-cart-widget {
 position: fixed;
 top: 50%;
-right: 0px;                 /* bám mép phải */
-left: auto !important;    /* NGẮT mọi left cũ gây kéo dãn */
+right: 0px;
+left: auto !important;
 transform: translateY(-50%);
-display: inline-flex;     /* co theo nội dung */
+display: inline-flex;
 background: #1B4E30;
 color: #fff;
 border-radius: 8px 0 0 8px;
 box-shadow: 0 4px 15px rgba(0,0,0,.2);
-cursor: pointer; overflow: hidden; opacity: 0; transition: opacity 0.3s ease, transform 0.3s ease;
+cursor: pointer; 
+overflow: hidden; 
+opacity: 0; 
+transition: opacity 0.3s ease, transform 0.3s ease;
 padding: 12px 16px;
+z-index: 999;
 }
 
 #sticky-cart-widget.show {
@@ -665,7 +669,410 @@ padding: 12px 16px;
         cursor: not-allowed;
     }
 
+    /* === CSS CHO BOOKING FORM NV (Đồng nhất với menu2-bookingOverlay) === */
+    .nv-booking-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: var(--z-index-overlay, 1200);
+    }
 
+    .nv-booking-overlay.show {
+        display: flex; 
+        opacity: 1;  
+    }
+
+    .nv-booking-form-container {
+        background-color: white;
+        width: 90%;
+        max-width: 600px;
+        min-width: 500px;
+        border-radius: 12px;
+        max-height: 90vh;
+        position: relative;
+        animation: fadeIn 0.3s ease-out;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: scale(0.9); }
+        to { opacity: 1; transform: scale(1); }
+    }
+
+    .nv-form-header {
+        background-color: #f39c12;
+        color: white;
+        padding: 20px 30px;
+        border-radius: 12px 12px 0 0;
+        flex-shrink: 0;
+    }
+
+    .nv-form-title {
+        font-size: 1.8rem;
+        font-weight: bold;
+        color: white;
+        margin: 0;
+        text-align: center;
+    }
+
+    .nv-form-body {
+        flex: 1;
+        overflow-y: auto;
+        padding: 30px;
+        min-height: 0;
+        scroll-behavior: smooth;
+    }
+
+    .nv-form-body::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .nv-form-body::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 6px;
+    }
+
+    .nv-form-body::-webkit-scrollbar-thumb {
+        background: #c1c1c1;
+        border-radius: 6px;
+    }
+
+    .nv-form-body::-webkit-scrollbar-thumb:hover {
+        background: #a8a8a8;
+    }
+
+    .nv-form-footer {
+        background-color: #f8f9fa;
+        padding: 20px 30px;
+        border-top: 1px solid #e9ecef;
+        border-radius: 0 0 12px 12px;
+        flex-shrink: 0;
+    }
+
+    .nv-form-section-title {
+        font-size: 1rem;
+        font-weight: 500;
+        color: #495057;
+        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding-bottom: 10px;
+    }
+
+    .nv-form-section-title i {
+        color: #f39c12;
+        font-size: 1.1rem;
+    }
+
+    .nv-form-group {
+        margin-bottom: 22px;
+    }
+
+    .nv-form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 0.8rem;
+        color: #868e96;
+    }
+
+    .nv-form-row {
+        display: grid;
+        grid-template-columns: 1fr 1.3fr 1fr;
+        gap: 20px;
+        align-items: end;
+    }
+
+    .nv-form-input, .nv-form-select, .nv-form-textarea {
+        width: 100%;
+        padding: 8px 16px;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        font-size: 0.81rem;
+        color: #495057;
+        background-color: #fff;
+        box-sizing: border-box;
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+
+    .nv-form-textarea {
+        width: 100%;
+        height: 80px;
+        padding: 8px 16px;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        font-size: 0.81rem;
+        color: #495057;
+        background-color: #fff;
+        box-sizing: border-box;
+        font-weight: 500;
+    }
+
+    .nv-form-row .nv-form-select,
+    .nv-form-row .nv-input-with-icon,
+    .nv-form-row .nv-quantity-selector {
+        height: 35px;
+        box-sizing: border-box;
+    }
+
+    .nv-form-row .nv-input-with-icon .nv-form-input {
+        height: 100%;
+    }
+
+    .nv-form-input:focus, .nv-form-select:focus, .nv-form-textarea:focus {
+        outline: none;
+        border-color: #f39c12;
+    }
+
+    .nv-form-input::placeholder, .nv-form-textarea::placeholder {
+        color: #adb5bd;
+        font-weight: 400;
+    }
+
+    .nv-form-select {
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23f39c12' stroke-linecap='round' stroke-linejoin='round' stroke-width='2.5' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 16px center;
+        background-size: 1.1em;
+        cursor: pointer;
+    }
+
+    .nv-input-with-icon {
+        position: relative;
+    }
+
+    .nv-input-with-icon i {
+        position: absolute;
+        right: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #f39c12;
+        pointer-events: none;
+        font-size: 1.1rem;
+    }
+
+    .nv-input-with-icon .nv-form-input {
+        padding-right: 45px;
+        cursor: pointer;
+    }
+
+    .nv-quantity-selector {
+        display: flex;
+        align-items: center;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        background-color: #fff;
+        overflow: hidden;
+        justify-content: flex-start;
+    }
+
+    .nv-quantity-selector button {
+        background-color: transparent;
+        border: none;
+        font-size: 1.1rem;
+        font-weight: bold;
+        cursor: pointer;
+        line-height: 1;
+        color: #495057;
+        width: 30px;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .nv-quantity-display {
+        font-size: 0.81rem;
+        font-weight: 500;
+        border-left: 1px solid #e9ecef;
+        border-right: 1px solid #e9ecef;
+        min-width: 40px;
+        text-align: center;
+        flex-grow: 1;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .nv-quantity-input {
+        border: none;
+        outline: none;
+        text-align: center;
+        font-size: 0.9rem;
+        font-weight: 500;
+        border-left: 1px solid #e9ecef;
+        border-right: 1px solid #e9ecef;
+        min-width: 50px;
+        flex-grow: 1;
+        height: 35px;
+        background-color: transparent;
+    }
+
+    .nv-quantity-input:focus {
+        background-color: #f8f9fa;
+    }
+
+    .nv-form-actions {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 15px;
+        margin: 0;
+    }
+
+    .nv-btn {
+        padding: 10px 20px;
+        font-size: 0.9rem;
+        border-radius: 30px;
+        cursor: pointer;
+        border: none;
+        text-transform: uppercase;
+    }
+
+    .nv-btn-secondary {
+        background-color: transparent;
+        color: #6c757d;
+    }
+
+    .nv-btn-primary {
+        background-color: #f39c12;
+        color: black;
+    }
+
+    .nv-btn-primary:hover {
+        background-color: #e67e22;
+    }
+
+    .nv-btn-primary:disabled {
+        background-color: #bdc3c7;
+        cursor: not-allowed;
+    }
+
+    /* === CSS CHO PHẦN CHỌN BÀN === */
+    .nv-tables-loading {
+        text-align: center;
+        padding: 20px;
+        color: #6c757d;
+    }
+
+    .nv-tables-loading i {
+        margin-right: 8px;
+        font-size: 1.1rem;
+    }
+
+    .nv-tables-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+        margin-top: 10px;
+    }
+
+    .nv-table-item {
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        padding: 20px;
+        background: #fff;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        position: relative;
+        text-align: center;
+        min-height: 100px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .nv-table-item:hover {
+        border-color: #f39c12;
+        box-shadow: 0 2px 8px rgba(243, 156, 18, 0.1);
+    }
+
+    .nv-table-item.selected {
+        border-color: #f39c12;
+        background: #fef9e7;
+        box-shadow: 0 4px 12px rgba(243, 156, 18, 0.3);
+        transform: translateY(-2px);
+    }
+
+    .nv-table-item.selected::after {
+        content: '✓';
+        position: absolute;
+        top: 8px;
+        right: 12px;
+        background: #f39c12;
+        color: white;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        font-weight: bold;
+    }
+
+    .nv-table-info {
+        width: 100%;
+    }
+
+    .nv-table-name {
+        font-weight: 600;
+        font-size: 1.1rem;
+        color: #333;
+        margin-bottom: 8px;
+    }
+
+    .nv-table-capacity {
+        font-size: 0.9rem;
+        color: #6c757d;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+    }
+
+    .nv-table-capacity i {
+        color: #f39c12;
+    }
+
+    .nv-tables-empty {
+        text-align: center;
+        padding: 30px;
+        color: #6c757d;
+    }
+
+    .nv-tables-empty i {
+        font-size: 2rem;
+        margin-bottom: 10px;
+        color: #dee2e6;
+    }
+
+    .nv-tables-error {
+        text-align: center;
+        padding: 20px;
+        color: #dc3545;
+        background: #f8d7da;
+        border: 1px solid #f5c6cb;
+        border-radius: 8px;
+    }
+
+    .nv-tables-error i {
+        margin-right: 8px;
+    }
 
 @media (max-width: 768px) {
     .filter-row {
@@ -688,6 +1095,68 @@ padding: 12px 16px;
     
     th, td {
         padding: 0.75rem 0.5rem;
+    }
+
+    /* Responsive cho booking form */
+    .nv-booking-form-container {
+        width: 95%;
+        min-width: auto;
+        max-height: 95vh;
+    }
+
+    .nv-form-header {
+        padding: 15px 20px;
+    }
+
+    .nv-form-title {
+        font-size: 1.5rem;
+    }
+
+    .nv-form-body {
+        padding: 20px;
+    }
+
+    .nv-form-footer {
+        padding: 15px 20px;
+    }
+
+    .nv-form-row {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .nv-form-row .nv-form-select,
+    .nv-form-row .nv-input-with-icon,
+    .nv-form-row .nv-quantity-selector {
+        height: auto;
+        min-height: 35px;
+    }
+
+    .nv-form-actions {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .nv-btn {
+        width: 100%;
+        text-align: center;
+    }
+
+    .nv-tables-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .nv-table-item {
+        padding: 15px;
+        min-height: 80px;
+    }
+
+    .nv-table-name {
+        font-size: 1rem;
+    }
+
+    .nv-table-capacity {
+        font-size: 0.8rem;
     }
     
 }
@@ -738,6 +1207,16 @@ padding: 12px 16px;
         <i class="fas fa-search" style="font-size: 3rem; margin-bottom: 1rem; color: #cbd5e1;"></i>
         <h3>Hãy tìm kiếm món ăn</h3>
         <p>Nhập tên món ăn vào ô tìm kiếm để bắt đầu</p>
+        <!-- Test buttons -->
+        <button onclick="testAddToCart()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #21A256; color: white; border: none; border-radius: 6px; cursor: pointer; margin-right: 10px;">
+            Test - Thêm món giả vào giỏ hàng
+        </button>
+        <button onclick="testOpenBillModal()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #f39c12; color: white; border: none; border-radius: 6px; cursor: pointer; margin-right: 10px;">
+            Test - Mở Bill Modal
+        </button>
+        <button onclick="testShowBookingForm()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #dc3545; color: white; border: none; border-radius: 6px; cursor: pointer;">
+            Test - Mở Booking Form
+        </button>
     </div>
 </div>
 
@@ -771,57 +1250,70 @@ padding: 12px 16px;
     </div>
 </div>
 
-<div id="menu2-bookingOverlay" class="menu2-booking-overlay">
-    <div class="menu2-booking-form-container">
-        <h1 class="menu2-form-title">Đặt bàn</h1>
-        <form id="menu2-bookingForm">
-            <div class="menu2-form-section">
-                <h3 class="menu2-form-section-title"><i class="fas fa-user"></i>Thông tin của bạn</h3>
-                <div class="menu2-form-group">
-                    <input type="text" class="menu2-form-input" placeholder="Tên của bạn" required>
-                </div>
-                <div class="menu2-form-group">
-                    <input type="tel" class="menu2-form-input" placeholder="Số điện thoại" required>
-                </div>
-            </div>
+<div id="booking-info-nv" class="nv-booking-overlay">
+    <div class="nv-booking-form-container">
+        <!-- Header cố định -->
+        <div class="nv-form-header">
+            <h1 class="nv-form-title">Đặt bàn</h1>
+        </div>
 
-            <div class="menu2-form-section">
-                <h3 class="menu2-form-section-title"><i class="fas fa-calendar-check"></i>Thông tin đặt bàn</h3>
-                <div class="menu2-form-row">
-                    <div class="menu2-form-group">
-                        <label>Số lượng người</label>
-                        <div class="menu2-quantity-selector">
-                            <button type="button" data-action="decrease-guests">-</button>
-                            <div class="menu2-quantity-display" id="menu2-booking-guests-display">1</div>
-                            <button type="button" data-action="increase-guests">+</button>
-                        </div>
+        <!-- Body có scroll -->
+        <div class="nv-form-body">
+            <form id="nv-bookingForm">
+                <div class="nv-form-section">
+                    <h3 class="nv-form-section-title"><i class="fas fa-user"></i>Thông tin khách hàng</h3>
+                    <div class="nv-form-group">
+                        <input type="text" class="nv-form-input" placeholder="Tên khách (tuỳ chọn)">
                     </div>
-                    <div class="menu2-form-group">
-                        <label for="menu2-date-display-input">Chọn ngày</label>
-                        <div class="menu2-input-with-icon">
-                            <input type="text" class="menu2-form-input" id="menu2-date-display-input" readonly>
-                            <i class="fas fa-calendar-alt"></i>
-                        </div>
-                    </div>
-                    <div class="menu2-form-group">
-                        <label>Chọn giờ</label>
-                        <select class="menu2-form-select" required>
-                            <option value="" selected disabled>Chọn giờ</option>
-                            <option value="17:00">17:00</option>
-                            <option value="17:30">17:30</option>
-                            <option value="18:00">18:00</option>
-                            <option value="21:00">21:00</option>
-                        </select>
+                    <div class="nv-form-group">
+                        <input type="tel" class="nv-form-input" placeholder="Số điện thoại (tuỳ chọn)">
                     </div>
                 </div>
+
+                <div class="nv-form-section">
+                    <h3 class="nv-form-section-title"><i class="fas fa-calendar-check"></i>Thông tin đặt bàn</h3>
+                    <div class="nv-form-row">
+                        <div class="nv-form-group">
+                            <label>Số lượng người</label>
+                            <div class="nv-quantity-selector">
+                                <button type="button" data-action="decrease-guests">-</button>
+                                <input type="number" class="nv-quantity-input" id="nv-booking-guests-input" value="1" min="1" max="20">
+                                <button type="button" data-action="increase-guests">+</button>
+                            </div>
+                        </div>
+                        <div class="nv-form-group">
+                            <label for="nv-date-display-input">Ngày đặt bàn</label>
+                            <div class="nv-input-with-icon">
+                               <input type="datetime-local" name="thoiGianBatDau" class="form-control" id="currentDateTime" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="nv-form-group">
+                    <label>Ghi chú</label>
+                    <textarea class="nv-form-textarea" placeholder="Ghi chú thêm..."></textarea>
+                </div>
+
+                <div class="nv-form-section">
+                    <h3 class="nv-form-section-title"><i class="fas fa-chair"></i>Chọn bàn</h3>
+                    <div id="nv-available-tables-container">
+                        <div class="nv-tables-loading">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <span>Đang tải danh sách bàn...</span>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Footer cố định -->
+        <div class="nv-form-footer">
+            <div class="nv-form-actions">
+                <button type="button" class="nv-btn nv-btn-secondary" data-action="close-booking-form">Đóng</button>
+                <button type="submit" class="nv-btn nv-btn-primary" id="nv-booking-submit-btn">Đặt bàn</button>
             </div>
-            <textarea class="menu2-form-textarea" placeholder="Ghi chú"></textarea>
-            
-            <div class="menu2-form-actions">
-                <button type="button" class="menu2-btn menu2-btn-secondary" data-action="close-booking-form">Đóng</button>
-                <button type="submit" class="menu2-btn menu2-btn-primary">Đặt bàn ngay</button>
-            </div>
-        </form>
+        </div>
     </div>
 </div>
 
@@ -861,6 +1353,24 @@ padding: 12px 16px;
 </div>
 
 <script>
+
+     // Lấy đối tượng input
+    const datetimeInput = document.getElementById('currentDateTime');
+
+    // Tạo một đối tượng Date mới
+    const now = new Date();
+
+    // Định dạng ngày giờ theo chuẩn "YYYY-MM-DDTHH:mm" mà input type="datetime-local" yêu cầu
+    const year = now.getFullYear();
+    const month = (now.getMonth() + 1).toString().padStart(2, '0');
+    const day = now.getDate().toString().padStart(2, '0');
+    const hours = now.getHours().toString().padStart(2, '0');
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+
+    const formattedDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+
+    // Gán giá trị đã được định dạng vào input
+    datetimeInput.value = formattedDateTime;
 // JavaScript functions cho các thao tác đơn đặt bàn
 function viewBookingDetail(maDon) {
     // Chuyển hướng đến trang chi tiết
@@ -946,7 +1456,76 @@ function formatPrice(price) {
     return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 }
 
+function setCurrentDateAndTime() {
+    const now = new Date();
+    
+    // Format date (dd/mm/yyyy)
+    const day = now.getDate().toString().padStart(2, '0');
+    const month = (now.getMonth() + 1).toString().padStart(2, '0');
+    const year = now.getFullYear();
+    const dateString = `${day}/${month}/${year}`;
+    
+    // Format time (HH:mm)
+    const hours = now.getHours().toString().padStart(2, '0');
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+    const timeString = `${hours}:${minutes}`;
+    
+    // Set values
+    const dateInput = document.getElementById('nv-date-display-input');
+    const timeInput = document.getElementById('nv-time-display-input');
+    
+    if (dateInput) dateInput.value = dateString;
+    if (timeInput) timeInput.value = timeString;
+}
+
+function setupQuantityControls() {
+    const quantityInput = document.getElementById('nv-booking-guests-input');
+    const decreaseBtn = document.querySelector('[data-action="decrease-guests"]');
+    const increaseBtn = document.querySelector('[data-action="increase-guests"]');
+    
+    if (!quantityInput || !decreaseBtn || !increaseBtn) return;
+    
+    // Xử lý nút giảm
+    decreaseBtn.addEventListener('click', function() {
+        const currentValue = parseInt(quantityInput.value) || 1;
+        if (currentValue > 1) {
+            quantityInput.value = currentValue - 1;
+        }
+    });
+    
+    // Xử lý nút tăng
+    increaseBtn.addEventListener('click', function() {
+        const currentValue = parseInt(quantityInput.value) || 1;
+        if (currentValue < 20) {
+            quantityInput.value = currentValue + 1;
+        }
+    });
+    
+    // Xử lý input từ bàn phím
+    quantityInput.addEventListener('input', function() {
+        let value = parseInt(this.value);
+        if (isNaN(value) || value < 1) {
+            this.value = 1;
+        } else if (value > 20) {
+            this.value = 20;
+        }
+    });
+    
+    // Xử lý blur để đảm bảo có giá trị
+    quantityInput.addEventListener('blur', function() {
+        if (!this.value || parseInt(this.value) < 1) {
+            this.value = 1;
+        }
+    });
+}
+
 document.addEventListener('DOMContentLoaded', function () {
+    
+    // Set ngày và giờ hiện tại
+    setCurrentDateAndTime();
+    
+    // Setup quantity controls
+    setupQuantityControls();
     
     const stickyCartWidget = document.getElementById('sticky-cart-widget');
     const cartCountDisplay = document.getElementById('cart-item-count');
@@ -970,17 +1549,26 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     
     function updateCartWidgetUI() {
+        console.log('updateCartWidgetUI called - totalCartQuantity:', totalCartQuantity);
+        console.log('stickyCartWidget element:', stickyCartWidget);
+        console.log('cartCountDisplay element:', cartCountDisplay);
+        console.log('cartPriceDisplay element:', cartPriceDisplay);
+        
         if (totalCartQuantity > 0) {
             cartCountDisplay.textContent = `${totalCartQuantity} món tạm tính`;
             cartPriceDisplay.textContent = formatPrice(totalCartPrice) + 'đ';
             stickyCartWidget.classList.add('show');
+            console.log('Added show class to sticky cart widget');
+            console.log('Widget classes after adding show:', stickyCartWidget.className);
         } else {
             stickyCartWidget.classList.remove('show');
+            console.log('Removed show class from sticky cart widget');
         }
     }
     
     function updateAllUI() {
         recalculateCartTotals();
+        console.log('After recalculate - totalCartQuantity:', totalCartQuantity, 'totalCartPrice:', totalCartPrice);
         updateCartWidgetUI();
         // Kiểm tra xem modal bill có đang mở không trước khi update
         const billOverlay = document.getElementById('create-bill');
@@ -995,8 +1583,20 @@ document.addEventListener('DOMContentLoaded', function () {
         } else {
             shoppingCart[itemId] = { name: itemName, price: parseFloat(itemPrice), quantity: quantity };
         }
+        console.log('Added to cart:', itemId, itemName, 'Total quantity:', totalCartQuantity);
         updateAllUI();
     }
+
+    // Expose test functions globally
+    window.testAddToCartGlobal = function() {
+        console.log('Adding test item to cart...');
+        addToCart('test1', 'Món test', 50000, 1);
+    };
+
+    window.testOpenBillModalGlobal = function() {
+        console.log('Opening bill modal...');
+        showBillModal();
+    };
     
     // === HÀM MỞ MODAL BILL ===
     function openBillModal() {
@@ -1056,13 +1656,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    function hideBillModal() {
-        const billOverlay = document.getElementById('create-bill');
-        if (billOverlay) {
-            billOverlay.classList.remove('show');
-            document.body.style.overflow = ''; // Cho phép scroll lại
-        }
-    }
+    // hideBillModal đã được chuyển ra ngoài DOMContentLoaded
 
     // === HÀM XỬ LÝ THAY ĐỔI SỐ LƯỢNG TRONG MODAL ===
     function increaseQuantity(itemId) {
@@ -1186,21 +1780,498 @@ document.addEventListener('DOMContentLoaded', function () {
     
     stickyCartWidget.addEventListener('click', openBillModal);
     
-    // Xử lý nút "Tạo đơn"
+    // Xử lý nút "Tạo đơn" - hiển thị form booking
     const proceedToBookingBtn = document.getElementById('bill-proceedToBookingBtn');
+    console.log('proceedToBookingBtn found:', proceedToBookingBtn);
+    
     if (proceedToBookingBtn) {
-        proceedToBookingBtn.addEventListener('click', function() {
-            if (totalCartQuantity > 0) {
-                handleCreateOrderDirect();
-            } else {
-                alert('Giỏ hàng trống! Vui lòng thêm món ăn trước khi tạo đơn.');
-            }
+        proceedToBookingBtn.addEventListener('click', function(e) {
+            console.log('Tạo đơn button clicked!');
+            console.log('totalCartQuantity:', totalCartQuantity);
+            
+            // Test: Luôn hiển thị form booking để debug
+            console.log('Calling showBookingForm...');
+            showBookingForm();
+            
+            // Original logic (commented for testing)
+            // if (totalCartQuantity > 0) {
+            //     console.log('Calling showBookingForm...');
+            //     showBookingForm();
+            // } else {
+            //     alert('Giỏ hàng trống! Vui lòng thêm món ăn trước khi tạo đơn.');
+            // }
+        });
+    } else {
+        console.error('bill-proceedToBookingBtn element not found!');
+    }
+
+    // Xử lý form booking submit - tạo đơn thực sự
+    const bookingForm = document.getElementById('nv-bookingForm');
+    const bookingSubmitBtn = document.getElementById('nv-booking-submit-btn');
+    console.log('bookingForm:', bookingForm);
+    console.log('bookingSubmitBtn:', bookingSubmitBtn);
+    if (bookingForm && bookingSubmitBtn) {
+        // Xử lý click nút submit (nằm ngoài form)
+        bookingSubmitBtn.addEventListener('click', function(e) {
+            console.log('Booking submit button clicked!');
+            e.preventDefault();
+            handleCreateOrderWithBookingInfo();
+        });
+        
+        // Xử lý submit form (backup)
+        bookingForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            handleCreateOrderWithBookingInfo();
         });
     }
     
 });
 
-// === CHỨC NĂNG TẠO ĐƠN TRỰC TIẾP ===
+// === HÀM HELPER CHUNG ===
+function hideBillModal() {
+    const billOverlay = document.getElementById('create-bill');
+    if (billOverlay) {
+        billOverlay.classList.remove('show');
+        document.body.style.overflow = ''; // Cho phép scroll lại
+    }
+}
+
+// === TEST FUNCTIONS ===
+function testAddToCart() {
+    console.log('Test button clicked');
+    // Tìm function addToCart trong scope của DOMContentLoaded
+    if (typeof window.testAddToCartGlobal === 'function') {
+        window.testAddToCartGlobal();
+    } else {
+        console.error('testAddToCartGlobal not found');
+    }
+}
+
+function testOpenBillModal() {
+    console.log('Test open bill modal clicked');
+    if (typeof window.testOpenBillModalGlobal === 'function') {
+        window.testOpenBillModalGlobal();
+    } else {
+        console.error('testOpenBillModalGlobal not found');
+    }
+}
+
+function testShowBookingForm() {
+    console.log('Direct test showBookingForm');
+    showBookingForm();
+}
+
+// === CÁC HÀM XỬ LÝ BOOKING FORM ===
+function showBookingForm() {
+    console.log('showBookingForm called');
+    const bookingOverlay = document.getElementById('booking-info-nv');
+    console.log('bookingOverlay found:', bookingOverlay);
+    
+    if (bookingOverlay) {
+        // Đóng bill modal trước khi mở booking form
+        hideBillModal();
+        
+        // Hiển thị booking form
+        bookingOverlay.classList.add('show');
+        document.body.style.overflow = 'hidden';
+        console.log('Booking form should be visible now');
+        
+        // Load danh sách bàn nếu có đủ thông tin
+        setTimeout(() => {
+            loadAvailableTables();
+        }, 100);
+        
+        // Focus vào input đầu tiên
+        const firstInput = bookingOverlay.querySelector('input[type="text"]');
+        if (firstInput) {
+            setTimeout(() => firstInput.focus(), 300);
+        }
+    } else {
+        console.error('booking-info-nv element not found!');
+    }
+}
+
+function hideBookingForm() {
+    const bookingOverlay = document.getElementById('booking-info-nv');
+    if (bookingOverlay) {
+        bookingOverlay.classList.remove('show');
+        document.body.style.overflow = '';
+    }
+}
+
+// Xử lý sự kiện đóng booking form
+document.addEventListener('click', function(e) {
+    if (e.target.closest('[data-action="close-booking-form"]')) {
+        e.preventDefault();
+        hideBookingForm();
+    }
+    
+    // Đóng khi click vào overlay
+    const bookingOverlay = document.getElementById('booking-info-nv');
+    if (bookingOverlay && e.target === bookingOverlay) {
+        hideBookingForm();
+    }
+});
+
+// Xử lý số lượng khách đã được chuyển sang setupQuantityControls()
+
+// Xử lý phím ESC để đóng booking form
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        const bookingOverlay = document.getElementById('booking-info-nv');
+        if (bookingOverlay && bookingOverlay.classList.contains('show')) {
+            hideBookingForm();
+        }
+    }
+});
+
+// === XỬ LÝ DATE PICKER CHO BOOKING FORM ===
+document.addEventListener('DOMContentLoaded', function() {
+    const dateInput = document.getElementById('nv-date-display-input');
+    if (dateInput) {
+        // Set ngày mặc định là ngày mai
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        dateInput.value = formatDateForDisplay(tomorrow);
+        
+        // Xử lý click vào input để mở date picker native
+        dateInput.addEventListener('click', function() {
+            // Tạo input date ẩn để mở native date picker
+            const hiddenDateInput = document.createElement('input');
+            hiddenDateInput.type = 'date';
+            hiddenDateInput.style.position = 'absolute';
+            hiddenDateInput.style.left = '-9999px';
+            hiddenDateInput.min = formatDateForInput(new Date()); // Không cho chọn ngày trong quá khứ
+            
+            // Set ngày hiện tại của input
+            const currentDate = parseDateFromDisplay(dateInput.value);
+            if (currentDate) {
+                hiddenDateInput.value = formatDateForInput(currentDate);
+            }
+            
+            document.body.appendChild(hiddenDateInput);
+            
+            hiddenDateInput.addEventListener('change', function() {
+                if (this.value) {
+                    const selectedDate = new Date(this.value);
+                    dateInput.value = formatDateForDisplay(selectedDate);
+                    // Không cần load lại danh sách bàn vì hiển thị tất cả bàn
+                }
+                document.body.removeChild(this);
+            });
+            
+            hiddenDateInput.click();
+        });
+    }
+
+    // Không cần xử lý thay đổi giờ và số lượng khách vì hiển thị tất cả bàn
+});
+
+function formatDateForDisplay(date) {
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+}
+
+function formatDateForInput(date) {
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+function parseDateFromDisplay(dateStr) {
+    const parts = dateStr.split('/');
+    if (parts.length === 3) {
+        const day = parseInt(parts[0]);
+        const month = parseInt(parts[1]) - 1; // Month is 0-indexed
+        const year = parseInt(parts[2]);
+        return new Date(year, month, day);
+    }
+    return null;
+}
+
+// === XỬ LÝ DANH SÁCH BÀN CHƯA TỪNG ĐƯỢC ĐẶT ===
+async function loadAvailableTables() {
+    const tablesContainer = document.getElementById('nv-available-tables-container');
+    
+    if (!tablesContainer) {
+        return;
+    }
+    
+    // Hiển thị loading
+    tablesContainer.innerHTML = `
+        <div class="nv-tables-loading">
+            <i class="fas fa-spinner fa-spin"></i>
+            <span>Đang tải danh sách bàn...</span>
+        </div>
+    `;
+    
+    try {
+        const response = await fetch(`index.php?page=nhanvien&action=getAvailableTables`, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            renderAvailableTables(data.data.tables);
+        } else {
+            showTablesError(data.error || 'Có lỗi xảy ra khi tải danh sách bàn');
+        }
+        
+    } catch (error) {
+        console.error('Error loading available tables:', error);
+        showTablesError('Không thể kết nối đến server. Vui lòng thử lại!');
+    }
+}
+
+function renderAvailableTables(tables) {
+    const tablesContainer = document.getElementById('nv-available-tables-container');
+    
+    if (!tables || tables.length === 0) {
+        tablesContainer.innerHTML = `
+            <div class="nv-tables-empty">
+                <i class="fas fa-chair"></i>
+                <h4>Không có bàn khả dụng</h4>
+                <p>Tất cả các bàn của cơ sở đã từng được đặt. Chỉ hiển thị các bàn chưa từng có đơn đặt bàn.</p>
+            </div>
+        `;
+        return;
+    }
+    
+    const tablesGrid = document.createElement('div');
+    tablesGrid.className = 'nv-tables-grid';
+    
+    tables.forEach(table => {
+        const tableItem = document.createElement('div');
+        tableItem.className = 'nv-table-item';
+        tableItem.dataset.tableId = table.MaBan;
+        tableItem.dataset.tableName = table.TenBan;
+        tableItem.dataset.selected = 'false';
+        
+        tableItem.innerHTML = `
+            <div class="nv-table-info">
+                <div class="nv-table-name">${table.TenBan}</div>
+                <div class="nv-table-capacity">
+                    <i class="fas fa-users"></i>
+                    <span>Tối đa ${table.SucChua} người</span>
+                </div>
+            </div>
+        `;
+        
+        // Xử lý click vào table item
+        tableItem.addEventListener('click', function() {
+            handleTableSelection(this);
+        });
+        
+        tablesGrid.appendChild(tableItem);
+    });
+    
+    tablesContainer.innerHTML = '';
+    tablesContainer.appendChild(tablesGrid);
+}
+
+function handleTableSelection(tableItem) {
+    const isSelected = tableItem.dataset.selected === 'true';
+    const tableId = tableItem.dataset.tableId;
+    const tableName = tableItem.dataset.tableName;
+    
+    if (!isSelected) {
+        // Chọn bàn
+        tableItem.dataset.selected = 'true';
+        tableItem.classList.add('selected');
+        addSelectedTableDisplay(tableId, tableName);
+    } else {
+        // Bỏ chọn bàn
+        tableItem.dataset.selected = 'false';
+        tableItem.classList.remove('selected');
+        removeSelectedTableDisplay(tableId);
+    }
+    
+    // Cập nhật counter
+    updateSelectedTablesCount();
+}
+
+function updateSelectedTablesCount() {
+    const selectedTables = document.querySelectorAll('.nv-table-item[data-selected="true"]');
+    const count = selectedTables.length;
+    console.log(`Đã chọn ${count} bàn`);
+}
+
+function addSelectedTableDisplay(tableId, tableName) {
+    // Tạo display element cho bàn đã chọn (nếu cần hiển thị)
+    console.log(`Đã chọn bàn: ${tableName} (ID: ${tableId})`);
+}
+
+function removeSelectedTableDisplay(tableId) {
+    // Xóa display element của bàn (nếu cần hiển thị)
+    console.log(`Bỏ chọn bàn ID: ${tableId}`);
+}
+
+function showTablesError(message) {
+    const tablesContainer = document.getElementById('nv-available-tables-container');
+    tablesContainer.innerHTML = `
+        <div class="nv-tables-error">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span>${message}</span>
+        </div>
+    `;
+}
+
+function getSelectedTables() {
+    const selectedTables = document.querySelectorAll('.nv-table-item[data-selected="true"]');
+    const tablesList = [];
+    
+    selectedTables.forEach(tableItem => {
+        tablesList.push({
+            maBan: tableItem.dataset.tableId,
+            tenBan: tableItem.dataset.tableName
+        });
+    });
+    
+    return tablesList;
+}
+
+// === CHỨC NĂNG TẠO ĐƠN VỚI THÔNG TIN BOOKING ===
+async function handleCreateOrderWithBookingInfo() {
+    console.log('handleCreateOrderWithBookingInfo called');
+    console.log('totalCartQuantity:', totalCartQuantity);
+    
+    // Kiểm tra giỏ hàng không trống
+    if (totalCartQuantity === 0) {
+        alert('Giỏ hàng trống! Vui lòng thêm món ăn trước khi tạo đơn.');
+        return;
+    }
+    
+    // Lấy thông tin từ form
+    const form = document.getElementById('nv-bookingForm');
+    const formData = new FormData(form);
+    
+    // Validate form data
+    const customerName = form.querySelector('input[type="text"]').value.trim();
+    const customerPhone = form.querySelector('input[type="tel"]').value.trim();
+    const currentDateTime = document.getElementById('currentDateTime').value.trim();
+    const guests = parseInt(document.getElementById('nv-booking-guests-input').value);
+    const notes = form.querySelector('textarea').value.trim();
+    
+    // Tách ngày và giờ từ datetime-local input
+    const selectedDate = currentDateTime ? currentDateTime.split('T')[0] : '';
+    const selectedTime = currentDateTime ? currentDateTime.split('T')[1] : '';
+    
+    // Validate required fields (chỉ kiểm tra thời gian nếu có chọn bàn)
+    const selectedTables = getSelectedTables();
+    
+    if (selectedTables.length > 0 && !currentDateTime) {
+        alert('Vui lòng chọn ngày và giờ đặt bàn khi đã chọn bàn!');
+        return;
+    }
+    
+    // Chuẩn bị dữ liệu giỏ hàng
+    const cartItems = [];
+    for (const itemId in shoppingCart) {
+        const item = shoppingCart[itemId];
+        cartItems.push({
+            id: itemId,
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity
+        });
+    }
+    
+    // Chuẩn bị dữ liệu gửi lên server
+    const orderData = {
+        customerInfo: {
+            name: customerName || 'Khách tại quán',
+            phone: customerPhone || '',
+            email: '',
+            notes: notes || 'Đặt bàn tại quán'
+        },
+        bookingInfo: {
+            date: selectedDate,
+            time: selectedTime,
+            guests: guests,
+            selectedTables: selectedTables
+        },
+        cartItems: cartItems
+    };
+    
+    // Hiển thị loading trên nút submit
+    const submitBtn = document.getElementById('nv-booking-submit-btn');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang tạo đơn...';
+    submitBtn.disabled = true;
+    
+    try {
+        // Gửi request tạo đơn
+        const response = await fetch('index.php?page=nhanvien&action=createOrder', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify(orderData)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            // Thành công
+            alert(`Tạo đơn đặt bàn thành công! Mã đơn: ${result.data.maDon}`);
+            
+            // Reset giỏ hàng
+            Object.keys(shoppingCart).forEach(key => delete shoppingCart[key]);
+            totalCartQuantity = 0;
+            totalCartPrice = 0;
+            
+            // Cập nhật UI
+            const stickyCartWidget = document.getElementById('sticky-cart-widget');
+            if (stickyCartWidget) {
+                stickyCartWidget.classList.remove('show');
+            }
+            
+            // Đóng các modal/form
+            hideBookingForm();
+            
+            // Reset form
+            form.reset();
+            const guestsInput = document.getElementById('nv-booking-guests-input');
+            if (guestsInput) {
+                guestsInput.value = '1';
+            }
+            
+            // Reset ngày giờ hiện tại
+            setCurrentDateAndTime();
+            
+            // Có thể chuyển hướng đến trang chi tiết đơn
+            if (confirm('Bạn có muốn xem chi tiết đơn đặt bàn vừa tạo không?')) {
+                window.location.href = `index.php?page=nhanvien&action=viewBookingDetail&id=${result.data.maDon}`;
+            }
+            
+        } else {
+            // Lỗi từ server
+            alert('Có lỗi xảy ra: ' + (result.error || 'Không thể tạo đơn đặt bàn'));
+        }
+        
+    } catch (error) {
+        console.error('Error creating order:', error);
+        alert('Có lỗi xảy ra khi tạo đơn. Vui lòng thử lại!');
+    } finally {
+        // Khôi phục nút submit
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    }
+}
+
+// === CHỨC NĂNG TẠO ĐƠN TRỰC TIẾP (GIỮ LẠI ĐỂ TƯƠNG THÍCH) ===
 async function handleCreateOrderDirect() {
     // Kiểm tra giỏ hàng không trống
     if (totalCartQuantity === 0) {
@@ -1225,16 +2296,60 @@ async function handleCreateOrderDirect() {
         });
     }
     
-    // Chuẩn bị dữ liệu gửi lên server (không cần thông tin khách hàng)
+    // Lấy thông tin từ form nv-bookingForm (nếu có)
+    const form = document.getElementById('nv-bookingForm');
+    let customerInfo = {
+        name: 'Khách hàng tại quán',
+        phone: '',
+        email: '',
+        notes: 'Đặt món tại quán'
+    };
+    
+    let bookingInfo = null;
+    
+    // Nếu form tồn tại, lấy thông tin từ form
+    if (form) {
+        const customerName = form.querySelector('input[type="text"]')?.value.trim() || '';
+        const customerPhone = form.querySelector('input[type="tel"]')?.value.trim() || '';
+        const currentDateTime = document.getElementById('currentDateTime')?.value.trim() || '';
+        const guests = parseInt(document.getElementById('nv-booking-guests-input')?.value) || 1;
+        const notes = form.querySelector('textarea')?.value.trim() || '';
+        
+        // Nếu có thông tin khách hàng được nhập, sử dụng thông tin đó
+        if (customerName || customerPhone) {
+            customerInfo = {
+                name: customerName || 'Khách hàng tại quán',
+                phone: customerPhone,
+                email: '',
+                notes: notes || 'Đặt món tại quán'
+            };
+        }
+        
+        // Nếu có thông tin đặt bàn, thêm vào orderData
+        if (currentDateTime) {
+            const selectedDate = currentDateTime.split('T')[0] || '';
+            const selectedTime = currentDateTime.split('T')[1] || '';
+            const selectedTables = getSelectedTables();
+            
+            bookingInfo = {
+                date: selectedDate,
+                time: selectedTime,
+                guests: guests,
+                selectedTables: selectedTables
+            };
+        }
+    }
+    
+    // Chuẩn bị dữ liệu gửi lên server
     const orderData = {
-        customerInfo: {
-            name: 'Khách hàng tại quán',
-            phone: '',
-            email: '',
-            notes: 'Đặt món tại quán'
-        },
+        customerInfo: customerInfo,
         cartItems: cartItems
     };
+    
+    // Thêm thông tin booking nếu có
+    if (bookingInfo) {
+        orderData.bookingInfo = bookingInfo;
+    }
     
     // Hiển thị loading trên nút
     const proceedBtn = document.getElementById('bill-proceedToBookingBtn');

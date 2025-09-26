@@ -45,7 +45,7 @@ class MenuController extends BaseController
         $groupedMenuItems = $this->menuModel->findMenuItemsGroupedByCategory($maCoSo);
         
         // Script riêng cho menu2
-        $additional_scripts = '<script src="' . asset('js/menu2.js') . '"></script>';
+        // $additional_scripts = '<script src="' . asset('js/menu2.js') . '"></script>';
         
         // Truyền dữ liệu cho View
         $this->render('menu2/menu2', [
@@ -54,7 +54,7 @@ class MenuController extends BaseController
             'groupedMenuItems' => $groupedMenuItems,
             'selectedCategory' => $selectedCategory,
             'maCoSo' => $maCoSo,
-            'additional_scripts' => $additional_scripts
+            // 'additional_scripts' => $additional_scripts
         ]);
     }
     

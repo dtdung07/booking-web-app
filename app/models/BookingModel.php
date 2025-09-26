@@ -400,8 +400,78 @@ public function createAtStoreOrder($maKH, $maCoSo, $maNV, $cartItems, $ghiChu = 
     }
 }
 
+// Tạo đơn đặt bàn với thông tin bàn
+public function createBookingWithTables($maKH, $maCoSo, $maNV, $cartItems, $ghiChu = '', $bookingDate = '', $bookingTime = '', $numberOfGuests = 1, $selectedTables = [])
+{
+    // Bắt đầu transaction
+    mysqli_begin_transaction($this->conn);
 
+    try {
+        // 1. Chuẩn bị thời gian đặt bàn
+        $thoiGianBatDau = '';
+        if ($bookingDate && $bookingTime) {
+            // Chuyển đổi định dạng ngày từ dd/mm/yyyy sang yyyy-mm-dd
+            $dateArray = explode('/', $bookingDate);
+            if (count($dateArray) === 3) {
+                $formattedDate = $dateArray[2] . '-' . $dateArray[1] . '-' . $dateArray[0];
+                $thoiGianBatDau = $formattedDate . ' ' . $bookingTime . ':00';
+            }
+        }
+        
+        if (empty($thoiGianBatDau)) {
+            $thoiGianBatDau = date('Y-m-d H:i:s'); // Sử dụng thời gian hiện tại nếu không có
+        }
 
+        // 2. Tạo bản ghi trong bảng `dondatban`
+        $query = "INSERT INTO " . $this->table . " (MaKH, MaCoSo, MaNV_XacNhan, ThoiGianBatDau, ThoiGianTao, TrangThai, SoLuongKH, GhiChu) 
+                  VALUES (?, ?, ?, ?, CONVERT_TZ(NOW(), '+00:00', '+07:00'), 'da_xac_nhan', ?, ?)";
+        
+        $stmt = mysqli_prepare($this->conn, $query);
+        mysqli_stmt_bind_param($stmt, "iiisis", $maKH, $maCoSo, $maNV, $thoiGianBatDau, $numberOfGuests, $ghiChu);
+        mysqli_stmt_execute($stmt);
+        
+        $maDon = mysqli_insert_id($this->conn);
+
+        // 3. Thêm các món ăn vào bảng `chitietdondatban`
+        if (!empty($cartItems)) {
+            $insertItemQuery = "INSERT INTO chitietdondatban (MaDon, MaMon, SoLuong, DonGia) 
+                                VALUES (?, ?, ?, 
+                                    (SELECT Gia FROM menu_coso WHERE MaMon = ? AND MaCoSo = ?)
+                                )";
+            $itemStmt = mysqli_prepare($this->conn, $insertItemQuery);
+
+            foreach ($cartItems as $item) {
+                mysqli_stmt_bind_param($itemStmt, "iiiii", $maDon, $item['id'], $item['quantity'], $item['id'], $maCoSo);
+                
+                if (!mysqli_stmt_execute($itemStmt)) {
+                    throw new Exception('Không thể thêm món ăn vào đơn hàng.');
+                }
+            }
+        }
+
+        // 4. Thêm thông tin bàn vào bảng `dondatban_ban`
+        if (!empty($selectedTables)) {
+            $insertTableQuery = "INSERT INTO dondatban_ban (MaDon, MaBan) VALUES (?, ?)";
+            $tableStmt = mysqli_prepare($this->conn, $insertTableQuery);
+
+            foreach ($selectedTables as $table) {
+                $maBan = $table['maBan'];
+                mysqli_stmt_bind_param($tableStmt, "ii", $maDon, $maBan);
+                
+                if (!mysqli_stmt_execute($tableStmt)) {
+                    throw new Exception('Không thể thêm thông tin bàn vào đơn đặt bàn.');
+                }
+            }
+        }
+
+        mysqli_commit($this->conn);
+        return $maDon;
+    } catch (Exception $e) {
+        mysqli_rollback($this->conn);
+        error_log("Error in BookingModel::createBookingWithTables: " . $e->getMessage());
+        return false;
+    }
+}
 
     // Chuyển object thành array
     public function toArray()
