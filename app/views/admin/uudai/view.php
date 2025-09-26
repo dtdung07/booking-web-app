@@ -1,164 +1,309 @@
 <?php
-include __DIR__ . "/connect.php";
-
-// Include modal sửa danh mục
-include __DIR__ . "/update.php";
-
-// Cấu hình phân trang
-$recordsPerPage = 10; // Số bản ghi trên mỗi trang
-$page = isset($_GET['p']) ? max(1, (int)$_GET['p']) : 1;
-$offset = max(0, ($page - 1) * $recordsPerPage);
-
-// Đếm tổng số bản ghi
-$countSql = "SELECT COUNT(*) as total FROM `danhmuc` WHERE 1";
-$countResult = mysqli_query($conn, $countSql);
-$totalRecords = mysqli_fetch_array($countResult)['total'];
-$totalPages = ceil($totalRecords / $recordsPerPage);
-
-// Lấy dữ liệu danh mục với số lượng món ăn
-$sql = "SELECT dm.*, COUNT(ma.MaMon) as SoLuongMon 
-        FROM `danhmuc` dm 
-        LEFT JOIN `monan` ma ON dm.MaDM = ma.MaDM 
-        GROUP BY dm.MaDM 
-        ORDER BY dm.TenDM 
-        LIMIT $offset, $recordsPerPage";
-$result = mysqli_query($conn, $sql);
-$categories = [];
-while($row = mysqli_fetch_array($result)){
-    $categories[] = $row;
-}
+$title = "Quán Nhậu Tự Do - Quản lý Ưu đãi";
+$page_title = "Quản lý Ưu đãi";
 ?>
 
-<!-- Hiển thị danh sách danh mục -->
-<div class="card shadow p-4">
-    <h4 class="mb-3">Danh sách danh mục món ăn (<?php echo $totalRecords; ?> danh mục)</h4>
-    <table class="table table-bordered align-middle text-center" id="categoryTable">
-      <thead class="table-dark">
-        <tr>
-          <th width="5%">STT</th>
-          <th width="30%">Tên Danh Mục</th>
-          <th width="15%">Số Lượng Món</th>
-          <th width="50%">Hành Động</th>
-        </tr>
-      </thead>
-      <tbody>
-        <?php if (count($categories) > 0): ?>
-          <?php foreach ($categories as $index => $category): ?>
-            <tr>
-              <td><?php echo $offset + $index + 1; ?></td>
-              <td class="text-start fw-bold"><?php echo htmlspecialchars($category['TenDM']); ?></td>
-              <td>
-                <span class="badge bg-secondary"><?php echo $category['SoLuongMon']; ?> món</span>
-              </td>
-              <td>
-                <div class="d-flex justify-content-center gap-2" role="group">
-                  <button type="button" 
-                          class="btn btn-primary" 
-                          onclick="viewCategoryDetails('<?php echo $category['MaDM']; ?>', '<?php echo htmlspecialchars($category['TenDM'], ENT_QUOTES); ?>')">
-                    <i class="fas fa-eye"></i> Xem món
-                  </button>
-                  <button type="button" 
-                          class="btn btn-warning" 
-                          data-bs-toggle="modal" 
-                          data-bs-target="#updateCategoryModal"
-                          onclick="loadCategoryData(
-                            '<?php echo $category['MaDM']; ?>', 
-                            '<?php echo htmlspecialchars($category['TenDM'], ENT_QUOTES); ?>'
-                          )">
-                    <i class="fas fa-edit"></i> Sửa
-                  </button>
-                  <button type="button" 
-                          class="btn btn-danger"
-                          onclick="confirmDelete('<?php echo $category['MaDM']; ?>', '<?php echo htmlspecialchars($category['TenDM'], ENT_QUOTES); ?>', <?php echo $category['SoLuongMon']; ?>)">
-                    <i class="fas fa-trash"></i> Xóa
-                  </button>
+<link rel="stylesheet" href="<?= dirname(__DIR__,3) . '/public/css/pages/uudai.css'?>">
+
+<main class="uudai-page">
+    <div class="uudai-container">
+        <!-- Header -->
+        <div class="uudai-header">
+            <div class="header-info">
+                <h1><i class="fas fa-tags"></i> Quản lý Ưu đãi</h1>
+                <p>Quản lý các chương trình khuyến mãi và ưu đãi cho nhà hàng</p>
+            </div>
+            
+            <div class="header-actions">
+                <!-- Dropdown chọn cơ sở -->
+                <div class="branch-select-wrapper">
+                    <select id="branchSelect" class="branch-select">
+                        <?php if (isset($branches) && is_array($branches)): ?>
+                            <?php foreach ($branches as $branch): ?>
+                                <option value="<?= $branch['MaCoSo'] ?>" 
+                                    <?= $branch['MaCoSo'] == $maCoSo ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($branch['TenCoSo']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </select>
+                    <i class="fas fa-chevron-down"></i>
                 </div>
-              </td>
-            </tr>
-          <?php endforeach; ?>
-        <?php else: ?>
-          <tr>
-            <td colspan="4" class="text-center text-muted py-4">
-              <i class="fas fa-tags fa-2x mb-2"></i>
-              <br>
-              Chưa có danh mục nào trong hệ thống
-            </td>
-          </tr>
-        <?php endif; ?>
-      </tbody>
-    </table>
+                
+                <a href="?page=uudai_create&coso=<?= $maCoSo ?>" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Thêm Ưu đãi
+                </a>
+            </div>
+        </div>
 
-    <!-- Phân trang -->
-    <?php if ($totalPages > 1): ?>
-    <nav aria-label="Category pagination">
-      <ul class="pagination pagination-sm justify-content-center mt-3">
-        <!-- Nút Previous -->
-        <?php if ($page > 1): ?>
-          <li class="page-item">
-            <a class="page-link" href="?page=admin&section=categories&p=<?php echo $page - 1; ?>">
-              <i class="fas fa-chevron-left"></i> Trước
-            </a>
-          </li>
+        <!-- Thông báo -->
+        <?php if (isset($_SESSION['success'])): ?>
+            <div class="alert alert-success">
+                <i class="fas fa-check-circle"></i>
+                <?= $_SESSION['success']; unset($_SESSION['success']); ?>
+            </div>
         <?php endif; ?>
 
-        <!-- Các số trang -->
-        <?php
-        $start = max(1, $page - 2);
-        $end = min($totalPages, $page + 2);
-        
-        if ($start > 1) {
-          echo '<li class="page-item"><a class="page-link" href="?page=admin&section=categories&p=1">1</a></li>';
-          if ($start > 2) {
-            echo '<li class="page-item disabled"><span class="page-link">...</span></li>';
-          }
-        }
-        
-        for ($i = $start; $i <= $end; $i++):
-        ?>
-          <li class="page-item <?php echo $i == $page ? 'active' : ''; ?>">
-            <a class="page-link" href="?page=admin&section=categories&p=<?php echo $i; ?>"><?php echo $i; ?></a>
-          </li>
-        <?php 
-        endfor;
-        
-        if ($end < $totalPages) {
-          if ($end < $totalPages - 1) {
-            echo '<li class="page-item disabled"><span class="page-link">...</span></li>';
-          }
-          echo '<li class="page-item"><a class="page-link" href="?page=admin&section=categories&p=' . $totalPages . '">' . $totalPages . '</a></li>';
-        }
-        ?>
-
-        <!-- Nút Next -->
-        <?php if ($page < $totalPages): ?>
-          <li class="page-item">
-            <a class="page-link" href="?page=admin&section=categories&p=<?php echo $page + 1; ?>">
-              Sau <i class="fas fa-chevron-right"></i>
-            </a>
-          </li>
+        <?php if (isset($_SESSION['error'])): ?>
+            <div class="alert alert-error">
+                <i class="fas fa-exclamation-circle"></i>
+                <?= $_SESSION['error']; unset($_SESSION['error']); ?>
+            </div>
         <?php endif; ?>
-      </ul>
-    </nav>
-    <?php endif; ?>
+
+        <!-- Thống kê -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon total">
+                    <i class="fas fa-tags"></i>
+                </div>
+                <div class="stat-info">
+                    <h3><?= $stats['active'] + $stats['inactive'] ?></h3>
+                    <p>Tổng số ưu đãi</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon active">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-info">
+                    <h3><?= $stats['active'] ?></h3>
+                    <p>Đang hoạt động</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon inactive">
+                    <i class="fas fa-pause-circle"></i>
+                </div>
+                <div class="stat-info">
+                    <h3><?= $stats['inactive'] ?></h3>
+                    <p>Đã kết thúc</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Danh sách ưu đãi -->
+        <div class="uudai-list">
+            <div class="list-header">
+                <h2><i class="fas fa-list"></i> Danh sách Ưu đãi</h2>
+                <div class="list-actions">
+                    <input type="text" id="searchInput" placeholder="Tìm kiếm ưu đãi..." class="search-input">
+                </div>
+            </div>
+
+            <?php if (isset($uuDais) && count($uuDais) > 0): ?>
+                <div class="uudai-grid">
+                    <?php foreach ($uuDais as $uuDai): ?>
+                        <div class="uudai-card" data-status="<?= $uuDai['status'] ?>">
+                            <div class="uudai-header">
+                                <div class="uudai-code"><?= htmlspecialchars($uuDai['code']) ?></div>
+                                <span class="status-badge <?= $uuDai['status'] ?>">
+                                    <?= $uuDai['status'] == 'active' ? 'Đang hoạt động' : 'Đã kết thúc' ?>
+                                </span>
+                            </div>
+                            
+                            <div class="uudai-body">
+                                <h3 class="uudai-name"><?= htmlspecialchars($uuDai['name']) ?></h3>
+                                
+                                <div class="uudai-details">
+                                    <div class="detail-item">
+                                        <i class="fas fa-gift"></i>
+                                        <span>
+                                            <?php 
+                                            if ($uuDai['type'] == 'percentage') {
+                                                echo $uuDai['value'] . '% giảm giá';
+                                            } elseif ($uuDai['type'] == 'fixed') {
+                                                echo number_format($uuDai['value']) . 'đ giảm trực tiếp';
+                                            } else {
+                                                echo htmlspecialchars($uuDai['value']);
+                                            }
+                                            ?>
+                                        </span>
+                                    </div>
+                                    
+                                    <div class="detail-item">
+                                        <i class="fas fa-calendar"></i>
+                                        <span>
+                                            <?= date('d/m/Y', strtotime($uuDai['start_date'])) ?> - 
+                                            <?= date('d/m/Y', strtotime($uuDai['end_date'])) ?>
+                                        </span>
+                                    </div>
+                                    
+                                    <?php if (!empty($uuDai['description'])): ?>
+                                        <div class="detail-item">
+                                            <i class="fas fa-info-circle"></i>
+                                            <span><?= htmlspecialchars($uuDai['description']) ?></span>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                            
+                            <div class="uudai-footer">
+                                <div class="uudai-actions">
+                                    <a href="?page=uudai_edit&id=<?= $uuDai['id'] ?>" 
+                                       class="btn btn-warning btn-sm">
+                                        <i class="fas fa-edit"></i> Sửa
+                                    </a>
+                                    <button class="btn btn-danger btn-sm delete-btn" 
+                                            data-id="<?= $uuDai['id'] ?>" 
+                                            data-name="<?= htmlspecialchars($uuDai['name']) ?>">
+                                        <i class="fas fa-trash"></i> Xóa
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php else: ?>
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <i class="fas fa-tags"></i>
+                    </div>
+                    <h3>Chưa có ưu đãi nào</h3>
+                    <p>Hãy thêm ưu đãi đầu tiên để bắt đầu quản lý</p>
+                    <a href="?page=uudai_create&coso=<?= $maCoSo ?>" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Thêm Ưu đãi đầu tiên
+                    </a>
+                </div>
+            <?php endif; ?>
+        </div>
+    </div>
+</main>
+
+<!-- Modal xác nhận xóa -->
+<div id="deleteModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-exclamation-triangle"></i> Xác nhận xóa</h3>
+            <span class="close">&times;</span>
+        </div>
+        <div class="modal-body">
+            <p>Bạn có chắc chắn muốn xóa ưu đãi "<strong id="uuDaiName"></strong>"?</p>
+            <p class="text-warning">Hành động này không thể hoàn tác!</p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" id="cancelDelete">Hủy bỏ</button>
+            <button class="btn btn-danger" id="confirmDelete">Xóa ưu đãi</button>
+        </div>
+    </div>
 </div>
 
 <script>
-function confirmDelete(maDM, tenDM, soLuongMon) {
-    let message = `Bạn có chắc chắn muốn xóa danh mục "${tenDM}"?`;
-    
-    if (soLuongMon > 0) {
-        message += `\n\nCảnh báo: Danh mục này có ${soLuongMon} món ăn. Việc xóa danh mục sẽ ảnh hưởng đến các món ăn này!`;
+document.addEventListener('DOMContentLoaded', function() {
+    // Xử lý chọn cơ sở
+    const branchSelect = document.getElementById('branchSelect');
+    if (branchSelect) {
+        branchSelect.addEventListener('change', function() {
+            window.location.href = '?page=uudai&coso=' + this.value;
+        });
     }
-    
-    message += `\n\nHành động này không thể hoàn tác!`;
-    
-    if (confirm(message)) {
-        window.location.href = `?page=admin&section=categories&action=delete&MaDM=${maDM}`;
-    }
-}
 
-function viewCategoryDetails(maDM, tenDM) {
-    // Chuyển đến trang quản lý menu với filter theo danh mục
-    window.location.href = `?page=admin&section=menu&category=${maDM}`;
-}
+    // Xử lý tìm kiếm
+    const searchInput = document.getElementById('searchInput');
+    const uudaiCards = document.querySelectorAll('.uudai-card');
+    
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            
+            uudaiCards.forEach(function(card) {
+                const uudaiName = card.querySelector('.uudai-name').textContent.toLowerCase();
+                const uudaiCode = card.querySelector('.uudai-code').textContent.toLowerCase();
+                
+                if (uudaiName.includes(searchTerm) || uudaiCode.includes(searchTerm)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    }
+
+    // Xử lý xóa ưu đãi
+    const deleteButtons = document.querySelectorAll('.delete-btn');
+    const deleteModal = document.getElementById('deleteModal');
+    const uuDaiNameSpan = document.getElementById('uuDaiName');
+    const confirmDeleteBtn = document.getElementById('confirmDelete');
+    const cancelDeleteBtn = document.getElementById('cancelDelete');
+    const closeModal = document.querySelector('.close');
+
+    let currentUuDaiId = null;
+
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            currentUuDaiId = this.getAttribute('data-id');
+            const uuDaiName = this.getAttribute('data-name');
+            
+            uuDaiNameSpan.textContent = uuDaiName;
+            deleteModal.style.display = 'block';
+        });
+    });
+
+    // Xác nhận xóa
+    confirmDeleteBtn.addEventListener('click', function() {
+        if (currentUuDaiId) {
+            // Gửi yêu cầu xóa qua AJAX
+            const formData = new FormData();
+            formData.append('id', currentUuDaiId);
+            
+            fetch('?page=uudai_delete', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Reload trang sau khi xóa thành công
+                    window.location.reload();
+                } else {
+                    alert('Lỗi: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Có lỗi xảy ra khi xóa ưu đãi!');
+            });
+        }
+        deleteModal.style.display = 'none';
+    });
+
+    // Đóng modal
+    function closeDeleteModal() {
+        deleteModal.style.display = 'none';
+    }
+
+    closeModal.addEventListener('click', closeDeleteModal);
+    cancelDeleteBtn.addEventListener('click', closeDeleteModal);
+
+    // Đóng modal khi click bên ngoài
+    window.addEventListener('click', function(event) {
+        if (event.target === deleteModal) {
+            closeDeleteModal();
+        }
+    });
+
+    // Lọc theo trạng thái (nếu có)
+    const statusFilters = document.querySelectorAll('.status-filter');
+    if (statusFilters.length > 0) {
+        statusFilters.forEach(filter => {
+            filter.addEventListener('click', function() {
+                const status = this.getAttribute('data-status');
+                
+                uudaiCards.forEach(card => {
+                    if (status === 'all' || card.getAttribute('data-status') === status) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+                
+                // Cập nhật active class cho filter
+                statusFilters.forEach(f => f.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+    }
+});
 </script>
