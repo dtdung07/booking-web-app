@@ -1,38 +1,40 @@
 <?php
 include "connect.php"; // Kết nối CSDL
 
-// Kiểm tra xem các trường cần thiết cho Ưu đãi đã được gửi đi hay chưa
-if(
-    !empty($_POST['TenUuDai']) &&
-    !empty($_POST['GiaTri']) &&
-    !empty($_POST['NgayBatDau']) &&
-    !empty($_POST['NgayKetThuc']) &&
-    !empty($_POST['AnhUuDai']) &&
-    !empty($_POST['MoTaUuDai'])
-) {
-    // Lấy dữ liệu từ POST
-    $ten_uudai = mysqli_real_escape_string($conn, $_POST['TenUuDai']);
-    $gia_tri = mysqli_real_escape_string($conn, $_POST['GiaTri']);
-    $ngay_bat_dau = mysqli_real_escape_string($conn, $_POST['NgayBatDau']);
-    $ngay_ket_thuc = mysqli_real_escape_string($conn, $_POST['NgayKetThuc']);
-    $anh_uudai = mysqli_real_escape_string($conn, $_POST['AnhUuDai']);
-    $mo_ta = mysqli_real_escape_string($conn, $_POST['MoTaUuDai']);
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // Lấy dữ liệu từ form
+    $tieuDe = $_POST['TieuDe'] ?? '';
+    $noiDung = $_POST['NoiDung'] ?? '';
+    $phanTramGiam = $_POST['PhanTramGiam'] ?? 0;
+    $maApDung = $_POST['MaApDung'] ?? null;
+    $ngayBatDau = $_POST['NgayBatDau'] ?? '';
+    $ngayKetThuc = $_POST['NgayKetThuc'] ?? '';
 
-    // Câu lệnh SQL INSERT vào bảng 'uudai'
-    $sql = "INSERT INTO `uudai` (`TenUuDai`, `GiaTri`, `NgayBatDau`, `NgayKetThuc`, `AnhUuDai`, `MoTaUuDai`) 
-            VALUES ('$ten_uudai', '$gia_tri', '$ngay_bat_dau', '$ngay_ket_thuc', '$anh_uudai', '$mo_ta')";
-
-    // Thực thi câu lệnh
-    if (mysqli_query($conn, $sql)) {
-        // Chuyển hướng về trang quản lý Ưu đãi sau khi thêm thành công
-        header("location: ?page=admin&section=uudai");
-        exit(); // Dừng thực thi
+    // Validate dữ liệu (ví dụ đơn giản)
+    if (!empty($tieuDe) && !empty($noiDung) && !empty($ngayBatDau) && !empty($ngayKetThuc)) {
+        // Chuẩn bị câu lệnh SQL để chèn dữ liệu
+        $sql = "INSERT INTO uudai (TieuDe, NoiDung, PhanTramGiam, MaApDung, NgayBatDau, NgayKetThuc) VALUES (?, ?, ?, ?, ?, ?)";
+        
+        $stmt = $conn->prepare($sql);
+        
+        // Gán giá trị và thực thi
+        $stmt->bind_param("ssisss", $tieuDe, $noiDung, $phanTramGiam, $maApDung, $ngayBatDau, $ngayKetThuc);
+        
+        if ($stmt->execute()) {
+            // Thành công, chuyển hướng về trang danh sách
+            header("Location: ?page=admin&section=uudai&status=add_success");
+        } else {
+            // Lỗi, chuyển hướng với thông báo lỗi
+            header("Location: ?page=admin&section=uudai&status=add_failed");
+        }
+        $stmt->close();
     } else {
-        // Thông báo lỗi nếu thực thi thất bại
-        echo "Lỗi: " . $sql . "<br>" . mysqli_error($conn);
+        // Dữ liệu không hợp lệ
+        header("Location: ?page=admin&section=uudai&status=invalid_data");
     }
 } else {
-    // Thông báo nếu thiếu thông tin
-    echo "Vui lòng nhập đầy đủ thông tin cho Ưu đãi.";
+    // Không phải là POST request
+    header("Location: ?page=admin&section=uudai");
 }
+exit();
 ?>
