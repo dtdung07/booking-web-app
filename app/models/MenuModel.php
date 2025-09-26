@@ -14,13 +14,19 @@ class MenuModel {
                 FROM menu_coso mc
                 JOIN monan m ON mc.MaMon = m.MaMon
                 JOIN danhmuc dm ON m.MaDM = dm.MaDM
-                WHERE mc.MaCoSo = :maCoSo
+                WHERE mc.MaCoSo = ?
                 ORDER BY dm.MaDM";
                 
-        $stmt = $this->db->prepare($sql);
-        $stmt->bindParam(':maCoSo', $maCoSo);
-        $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $stmt = mysqli_prepare($this->db, $sql);
+        mysqli_stmt_bind_param($stmt, "i", $maCoSo);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+        
+        $categories = [];
+        while ($row = mysqli_fetch_assoc($result)) {
+            $categories[] = $row;
+        }
+        return $categories;
     }
 
     /**
@@ -32,24 +38,29 @@ class MenuModel {
                     FROM menu_coso mc
                     JOIN monan m ON mc.MaMon = m.MaMon
                     JOIN danhmuc dm ON m.MaDM = dm.MaDM
-                    WHERE mc.MaCoSo = :maCoSo AND mc.TinhTrang = 'con_hang'
+                    WHERE mc.MaCoSo = ? AND mc.TinhTrang = 'con_hang'
                     ORDER BY dm.MaDM, m.TenMon";
-            $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':maCoSo', $maCoSo);
+            $stmt = mysqli_prepare($this->db, $sql);
+            mysqli_stmt_bind_param($stmt, "i", $maCoSo);
         } else {
             $sql = "SELECT m.MaMon, m.TenMon, m.MoTa, m.HinhAnhURL, mc.Gia, dm.TenDM, dm.MaDM
                     FROM menu_coso mc
                     JOIN monan m ON mc.MaMon = m.MaMon
                     JOIN danhmuc dm ON m.MaDM = dm.MaDM
-                    WHERE mc.MaCoSo = :maCoSo AND dm.MaDM = :category AND mc.TinhTrang = 'con_hang'
+                    WHERE mc.MaCoSo = ? AND dm.MaDM = ? AND mc.TinhTrang = 'con_hang'
                     ORDER BY m.TenMon";
-            $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':maCoSo', $maCoSo);
-            $stmt->bindParam(':category', $selectedCategory);
+            $stmt = mysqli_prepare($this->db, $sql);
+            mysqli_stmt_bind_param($stmt, "ii", $maCoSo, $selectedCategory);
         }
         
-        $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+        
+        $menuItems = [];
+        while ($row = mysqli_fetch_assoc($result)) {
+            $menuItems[] = $row;
+        }
+        return $menuItems;
     }
 
     /**
@@ -78,27 +89,31 @@ public function searchMenuItems($maCoSo, $tenMon = '') {
             FROM menu_coso mc
             JOIN monan m ON mc.MaMon = m.MaMon
             JOIN danhmuc dm ON m.MaDM = dm.MaDM
-            WHERE mc.MaCoSo = :maCoSo AND mc.TinhTrang = 'con_hang'";
-    
-    $params = [':maCoSo' => $maCoSo];
+            WHERE mc.MaCoSo = ? AND mc.TinhTrang = 'con_hang'";
     
     // Thêm điều kiện tìm kiếm theo tên món nếu có
     if (!empty($tenMon)) {
-        $sql .= " AND m.TenMon LIKE :tenMon";
-        $params[':tenMon'] = '%' . $tenMon . '%';
+        $sql .= " AND m.TenMon LIKE ?";
+        $sql .= " ORDER BY m.TenMon";
+        
+        $stmt = mysqli_prepare($this->db, $sql);
+        $searchTerm = '%' . $tenMon . '%';
+        mysqli_stmt_bind_param($stmt, "is", $maCoSo, $searchTerm);
+    } else {
+        $sql .= " ORDER BY m.TenMon";
+        
+        $stmt = mysqli_prepare($this->db, $sql);
+        mysqli_stmt_bind_param($stmt, "i", $maCoSo);
     }
     
-    $sql .= " ORDER BY m.TenMon"; // Vẫn giữ lại sắp xếp
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
     
-    $stmt = $this->db->prepare($sql);
-    
-    // Bind parameters
-    foreach ($params as $key => $value) {
-        $stmt->bindValue($key, $value);
+    $menuItems = [];
+    while ($row = mysqli_fetch_assoc($result)) {
+        $menuItems[] = $row;
     }
-    
-    $stmt->execute();
-    return $stmt->fetchAll(PDO::FETCH_ASSOC); // Chỉ trả về mảng kết quả
+    return $menuItems;
 }
 
 

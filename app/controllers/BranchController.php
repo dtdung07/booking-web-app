@@ -20,7 +20,10 @@ class BranchController extends BaseController
         
         // Lấy dữ liệu cơ sở từ database
         $stmt = $this->coSo->getAll();
-        $branches_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $branches_data = [];
+        while ($row = mysqli_fetch_assoc($stmt)) {
+            $branches_data[] = $row;
+        }
         
         // Chuyển đổi dữ liệu database thành format hiển thị
         $branches = [];
@@ -80,7 +83,10 @@ class BranchController extends BaseController
             
             // Lấy dữ liệu cơ sở từ database
             $stmt = $this->coSo->getAll();
-            $branches_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $branches_data = [];
+            while ($row = mysqli_fetch_assoc($stmt)) {
+                $branches_data[] = $row;
+            }
             
             // Chuyển đổi dữ liệu database thành format hiển thị
             $branches = [];

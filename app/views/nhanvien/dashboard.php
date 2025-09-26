@@ -209,7 +209,13 @@ $confirmedBookings = $dashboardData['confirmedBookings'] ?? 0;
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="index.php?page=menu">
+                <a class="nav-link <?php echo $section === 'table_status' ? 'active' : ''; ?>" href="index.php?page=nhanvien&action=dashboard&section=table_status">
+                    <i class="fas fa-calendar-check me-2"></i>
+                    Quản lý bàn
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="index.php?page=menu2&coso=<?php echo urlencode($coSoInfo['MaCoSo'] ?? ''); ?>">
                     <i class="fas fa-utensils me-2"></i>
                     Xem Menu
                 </a>
@@ -389,7 +395,11 @@ $confirmedBookings = $dashboardData['confirmedBookings'] ?? 0;
             <?php elseif ($section === 'create_booking'): ?>
                 <!-- Create Booking Content -->
                 <?php include 'create_bill.php'; ?>
+            <?php elseif ($section === 'table_status'): ?>
+                <!-- Table Status Content -->
+                <?php include 'table_status.php'; ?>
             <?php endif; ?>
+
         </div>
     </main>
 

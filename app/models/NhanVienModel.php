@@ -7,7 +7,6 @@ class NhanVienModel
 {
     private $conn;
     private $table_name = "nhanvien";
-
     // Các thuộc tính của nhân viên
     public $MaNV;
     public $MaCoSo;
@@ -30,10 +29,9 @@ class NhanVienModel
                   LEFT JOIN coso c ON n.MaCoSo = c.MaCoSo
                   ORDER BY n.MaNV";
         
-        $stmt = $this->conn->prepare($query);
-        $stmt->execute();
+        $result = mysqli_query($this->conn, $query);
         
-        return $stmt;
+        return $result;
     }
 
     /**
@@ -45,11 +43,12 @@ class NhanVienModel
     {
         $query = "SELECT * FROM " . $this->table_name . " WHERE MaNV = ?";
         
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(1, $id);
-        $stmt->execute();
+        $stmt = mysqli_prepare($this->conn, $query);
+        mysqli_stmt_bind_param($stmt, "i", $id);
+        mysqli_stmt_execute($stmt);
         
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        $result = mysqli_stmt_get_result($stmt);
+        $row = mysqli_fetch_assoc($result);
         
         if ($row) {
             $this->MaNV = $row['MaNV'];
@@ -81,7 +80,7 @@ class NhanVienModel
                 (MaCoSo, TenDN, MatKhau, TenNhanVien, ChucVu)
                 VALUES (?, ?, ?, ?, ?)";
         
-        $stmt = $this->conn->prepare($query);
+        $stmt = mysqli_prepare($this->conn, $query);
         
         // Làm sạch dữ liệu
         $this->MaCoSo = htmlspecialchars(strip_tags($this->MaCoSo));
@@ -90,15 +89,11 @@ class NhanVienModel
         $this->ChucVu = htmlspecialchars(strip_tags($this->ChucVu));
         
         // Ràng buộc các tham số
-        $stmt->bindParam(1, $this->MaCoSo);
-        $stmt->bindParam(2, $this->TenDN);
-        $stmt->bindParam(3, $hashed_password);
-        $stmt->bindParam(4, $this->TenNhanVien);
-        $stmt->bindParam(5, $this->ChucVu);
+        mysqli_stmt_bind_param($stmt, "issss", $this->MaCoSo, $this->TenDN, $hashed_password, $this->TenNhanVien, $this->ChucVu);
         
         // Thực hiện truy vấn
-        if ($stmt->execute()) {
-            $this->MaNV = $this->conn->lastInsertId();
+        if (mysqli_stmt_execute($stmt)) {
+            $this->MaNV = mysqli_insert_id($this->conn);
             return true;
         }
         
@@ -113,10 +108,11 @@ class NhanVienModel
     {
         // Kiểm tra nếu đổi tên đăng nhập
         $check_username = "SELECT TenDN FROM " . $this->table_name . " WHERE MaNV = ?";
-        $stmt_check = $this->conn->prepare($check_username);
-        $stmt_check->bindParam(1, $this->MaNV);
-        $stmt_check->execute();
-        $row = $stmt_check->fetch(PDO::FETCH_ASSOC);
+        $stmt_check = mysqli_prepare($this->conn, $check_username);
+        mysqli_stmt_bind_param($stmt_check, "i", $this->MaNV);
+        mysqli_stmt_execute($stmt_check);
+        $result_check = mysqli_stmt_get_result($stmt_check);
+        $row = mysqli_fetch_assoc($result_check);
         
         if ($row['TenDN'] != $this->TenDN && $this->usernameExists()) {
             return false;
@@ -130,7 +126,7 @@ class NhanVienModel
                      SET MaCoSo = ?, TenDN = ?, MatKhau = ?, TenNhanVien = ?, ChucVu = ?
                      WHERE MaNV = ?";
             
-            $stmt = $this->conn->prepare($query);
+            $stmt = mysqli_prepare($this->conn, $query);
             
             // Làm sạch dữ liệu
             $this->MaCoSo = htmlspecialchars(strip_tags($this->MaCoSo));
@@ -140,19 +136,14 @@ class NhanVienModel
             $this->MaNV = htmlspecialchars(strip_tags($this->MaNV));
             
             // Ràng buộc các tham số
-            $stmt->bindParam(1, $this->MaCoSo);
-            $stmt->bindParam(2, $this->TenDN);
-            $stmt->bindParam(3, $hashed_password);
-            $stmt->bindParam(4, $this->TenNhanVien);
-            $stmt->bindParam(5, $this->ChucVu);
-            $stmt->bindParam(6, $this->MaNV);
+            mysqli_stmt_bind_param($stmt, "issssi", $this->MaCoSo, $this->TenDN, $hashed_password, $this->TenNhanVien, $this->ChucVu, $this->MaNV);
         } else {
             // Không cập nhật mật khẩu
             $query = "UPDATE " . $this->table_name . "
                      SET MaCoSo = ?, TenDN = ?, TenNhanVien = ?, ChucVu = ?
                      WHERE MaNV = ?";
             
-            $stmt = $this->conn->prepare($query);
+            $stmt = mysqli_prepare($this->conn, $query);
             
             // Làm sạch dữ liệu
             $this->MaCoSo = htmlspecialchars(strip_tags($this->MaCoSo));
@@ -162,15 +153,11 @@ class NhanVienModel
             $this->MaNV = htmlspecialchars(strip_tags($this->MaNV));
             
             // Ràng buộc các tham số
-            $stmt->bindParam(1, $this->MaCoSo);
-            $stmt->bindParam(2, $this->TenDN);
-            $stmt->bindParam(3, $this->TenNhanVien);
-            $stmt->bindParam(4, $this->ChucVu);
-            $stmt->bindParam(5, $this->MaNV);
+            mysqli_stmt_bind_param($stmt, "isssi", $this->MaCoSo, $this->TenDN, $this->TenNhanVien, $this->ChucVu, $this->MaNV);
         }
         
         // Thực hiện truy vấn
-        return $stmt->execute();
+        return mysqli_stmt_execute($stmt);
     }
 
     /**
@@ -181,11 +168,11 @@ class NhanVienModel
     {
         $query = "DELETE FROM " . $this->table_name . " WHERE MaNV = ?";
         
-        $stmt = $this->conn->prepare($query);
+        $stmt = mysqli_prepare($this->conn, $query);
         $this->MaNV = htmlspecialchars(strip_tags($this->MaNV));
-        $stmt->bindParam(1, $this->MaNV);
+        mysqli_stmt_bind_param($stmt, "i", $this->MaNV);
         
-        return $stmt->execute();
+        return mysqli_stmt_execute($stmt);
     }
 
     /**
@@ -196,10 +183,11 @@ class NhanVienModel
     {
         $query = "SELECT MaNV FROM " . $this->table_name . " WHERE TenDN = ?";
         
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(1, $this->TenDN);
-        $stmt->execute();
-        return $stmt->rowCount() > 0;
+        $stmt = mysqli_prepare($this->conn, $query);
+        mysqli_stmt_bind_param($stmt, "s", $this->TenDN);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+        return mysqli_num_rows($result) > 0;
     }
 
     /**
@@ -211,10 +199,11 @@ class NhanVienModel
     public function login($username, $password)
     {
         $query = "SELECT * FROM " . $this->table_name . " WHERE TenDN = ?";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(1, $username);
-        $stmt->execute();
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        $stmt = mysqli_prepare($this->conn, $query);
+        mysqli_stmt_bind_param($stmt, "s", $username);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+        $row = mysqli_fetch_assoc($result);
         
         if ($row && password_verify($password, $row['MatKhau'])) {
                 $this->MaNV = $row['MaNV'];
@@ -238,11 +227,10 @@ class NhanVienModel
     {
         $query = "SELECT * FROM " . $this->table_name . " WHERE MaCoSo = ? ORDER BY MaNV";
         
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(1, $MaCoSo);
-        $stmt->execute();
-        
-        return $stmt;
+        $stmt = mysqli_prepare($this->conn, $query);
+        mysqli_stmt_bind_param($stmt, "i", $MaCoSo);
+        mysqli_stmt_execute($stmt);
+        return mysqli_stmt_get_result($stmt);
     }
 
     /**
