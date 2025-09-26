@@ -274,6 +274,70 @@ document.addEventListener('DOMContentLoaded', function () {
         showBookingForm();
     });
 
+    // Xử lý submit form đặt bàn
+    const bookingForm = document.getElementById('menu2-bookingForm');
+    const guestHidden = document.getElementById('menu2-guest-count-hidden');
+    const dateHidden = document.getElementById('menu2-booking-date-hidden');
+    const branchHidden = document.getElementById('menu2-branch-id-hidden');
+    const totalHidden = document.getElementById('menu2-total-amount-hidden');
+    const cartHidden = document.getElementById('menu2-cart-items-hidden');
+    const timeSelect = document.getElementById('menu2-time-select');
+
+    if (bookingForm) {
+        bookingForm.addEventListener('submit', function (e) {
+            // 1) GUEST COUNT
+            const guestsDisplay = document.getElementById('menu2-booking-guests-display');
+            if (guestHidden && guestsDisplay) {
+                guestHidden.value = parseInt(guestsDisplay.textContent || '1', 10);
+            }
+
+            // 2) DATE (chuyển từ selectedDate sang yyyy-mm-dd)
+            if (dateHidden && typeof selectedDate !== 'undefined' && selectedDate) {
+                const y = selectedDate.getFullYear();
+                const m = ('0' + (selectedDate.getMonth() + 1)).slice(-2);
+                const d = ('0' + selectedDate.getDate()).slice(-2);
+                dateHidden.value = `${y}-${m}-${d}`;
+            }
+
+            // 3) BRANCH ID từ URL (?coso=11)
+            const urlParams = new URLSearchParams(window.location.search);
+            if (branchHidden) {
+                branchHidden.value = urlParams.get('coso') || '';
+            }
+
+            // 4) TOTAL + CART ITEMS từ shoppingCart
+            if (totalHidden && cartHidden) {
+                let total = 0;
+                const cartForPost = [];
+                for (const id in shoppingCart) {
+                    const item = shoppingCart[id];
+                    total += item.price * item.quantity;
+                    cartForPost.push({
+                        id: parseInt(id, 10),
+                        name: item.name,
+                        price: item.price,
+                        quantity: item.quantity
+                    });
+                }
+                totalHidden.value = Math.round(total);
+                cartHidden.value = JSON.stringify(cartForPost);
+            }
+
+            // 5) Validate form trước khi submit
+            if (!timeSelect || !timeSelect.value) {
+                e.preventDefault();
+                alert('Vui lòng chọn giờ đặt bàn');
+                return false;
+            }
+
+            if (Object.keys(shoppingCart).length === 0) {
+                e.preventDefault();
+                alert('Giỏ hàng trống, vui lòng chọn món ăn');
+                return false;
+            }
+        });
+    }
+
 
 
     // === HỆ THỐNG 3: LOGIC CALENDAR (GIỮ NGUYÊN, VÌ ĐÃ TỐT) ===

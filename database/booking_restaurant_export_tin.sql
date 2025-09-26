@@ -719,7 +719,7 @@ CREATE TABLE `nhanvien` (
 --
 
 INSERT INTO `nhanvien` (`MaNV`, `MaCoSo`, `TenDN`, `MatKhau`, `TenNhanVien`, `ChucVu`) VALUES
-(111, 11, 'vutin', '111', 'tin vu', 'nhan_vien');
+(111, 11, 'admin', '$2y$10$/DUh53rPS8Hc4ycZSSIDcuxOwgMLpfaPOv9U8esH.7ec0Zhphg3TO', 'Admin', 'admin');
 
 -- --------------------------------------------------------
 

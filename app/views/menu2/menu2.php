@@ -111,14 +111,17 @@
 <div id="menu2-bookingOverlay" class="menu2-booking-overlay">
     <div class="menu2-booking-form-container">
         <h1 class="menu2-form-title">Đặt bàn</h1>
-        <form id="menu2-bookingForm">
+        <form id="menu2-bookingForm" action="app/views/menu2/process-create.php" method="POST">
             <div class="menu2-form-section">
                 <h3 class="menu2-form-section-title"><i class="fas fa-user"></i>Thông tin của bạn</h3>
                 <div class="menu2-form-group">
-                    <input type="text" class="menu2-form-input" placeholder="Tên của bạn" required>
+                    <input name="customer_name" type="text" class="menu2-form-input" placeholder="Tên của bạn" required>
                 </div>
                 <div class="menu2-form-group">
-                    <input type="tel" class="menu2-form-input" placeholder="Số điện thoại" required>
+                    <input name="customer_phone" type="tel" class="menu2-form-input" placeholder="Số điện thoại" required>
+                </div>
+                <div class="menu2-form-group">
+                    <input name="customer_email" type="email" class="menu2-form-input" placeholder="Email (không bắt buộc)">
                 </div>
             </div>
 
@@ -132,6 +135,7 @@
                             <div class="menu2-quantity-display" id="menu2-booking-guests-display">1</div>
                             <button type="button" data-action="increase-guests">+</button>
                         </div>
+                        <input type="hidden" name="guest_count" id="menu2-guest-count-hidden" value="1">
                     </div>
                     <div class="menu2-form-group">
                         <label for="menu2-date-display-input">Chọn ngày</label>
@@ -139,10 +143,11 @@
                             <input type="text" class="menu2-form-input" id="menu2-date-display-input" readonly>
                             <i class="fas fa-calendar-alt"></i>
                         </div>
+                        <input type="hidden" name="booking_date" id="menu2-booking-date-hidden">
                     </div>
                     <div class="menu2-form-group">
                         <label>Chọn giờ</label>
-                        <select class="menu2-form-select" required>
+                        <select name="booking_time" class="menu2-form-select" id="menu2-time-select" required>
                             <option value="" selected disabled>Chọn giờ</option>
                             <option value="17:00">17:00</option>
                             <option value="17:30">17:30</option>
@@ -152,7 +157,12 @@
                     </div>
                 </div>
             </div>
-            <textarea class="menu2-form-textarea" placeholder="Ghi chú"></textarea>
+            <textarea name="notes" class="menu2-form-textarea" placeholder="Ghi chú"></textarea>
+            
+            <!-- Hidden inputs để truyền dữ liệu -->
+            <input type="hidden" name="branch_id" id="menu2-branch-id-hidden">
+            <input type="hidden" name="total_amount" id="menu2-total-amount-hidden">
+            <input type="hidden" name="cart_items" id="menu2-cart-items-hidden">
             
             <div class="menu2-form-actions">
                 <button type="button" class="menu2-btn menu2-btn-secondary" data-action="close-booking-form">Đóng</button>
