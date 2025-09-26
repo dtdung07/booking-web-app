@@ -239,7 +239,13 @@ $section = $_GET['section'] ?? 'dashboard';
             <li class="nav-item">
                 <a class="nav-link <?php echo $section === 'table' ? 'active' : ''; ?>" href="?page=admin&section=table">
                     <i class="fas fa-chair me-2"></i>
-                    Quản lý Bàn ăn
+                    Quản lý Bàn ăn 
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <?php echo $section === 'uudai' ? 'active' : ''; ?>" href="?page=admin&section=uudai">
+                    <i class="fas fa-percent me-2"></i>
+                    Quản lý Ưu đãi
                 </a>
             </li>
             <li class="nav-item mt-3">
@@ -276,6 +282,7 @@ $section = $_GET['section'] ?? 'dashboard';
                         case 'users': echo 'Quản lý Nhân viên'; break;
                         case 'branches': echo 'Quản lý Cơ sở'; break;
                         case 'table': echo 'Quản lý Bàn ăn'; break;
+                        case 'uudai': echo 'Quản lý Ưu đãi'; break;
                         default: echo 'Dashboard'; break;
                     }
                     ?>
@@ -323,7 +330,11 @@ $section = $_GET['section'] ?? 'dashboard';
                 case 'table':
                     include __DIR__ . '/table/index.php';
                     break;
-                    
+                
+                case 'uudai':
+                    include __DIR__ . '/uudai/index.php';
+                    break;
+               
                 default: // dashboard
             ?>
             <!-- Welcome Section -->
@@ -452,7 +463,17 @@ $section = $_GET['section'] ?? 'dashboard';
                         </div>
                     </a>
                 </div>
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <a href="index.php" target="_blank" class="quick-action d-block">
+                        <div class="text-center">
+                            <i class="fas fa-eye fa-2x mb-2" style="color: #E67E22;"></i>
+                            <h6>Quản lý ưu đãi</h6>
+                            <small class="text-muted">Quản lý ưu đãi</small>
+                        </div>
+                    </a>
+                </div>
             </div>
+            
 
             <!-- Charts Row -->
             <!-- <div class="row">
