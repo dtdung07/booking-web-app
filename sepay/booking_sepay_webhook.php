@@ -12,7 +12,7 @@ include __DIR__ . '/../config/connect.php';
 $data = json_decode(file_get_contents('php://input'));
 
 if (!is_object($data)) {
-    echo json_encode(['success' => false, 'message' => 'No data']);
+    echo json_encode(['success' => false, 'message' => 'Khong co du lieu']);
     die('No data found!');
 }
 
@@ -53,7 +53,7 @@ error_log("SePay Transaction: " . json_encode($logData));
 
 // Chỉ xử lý giao dịch tiền vào
 if ($transfer_type !== "in" || $amount_in <= 0) {
-    echo json_encode(['success' => false, 'message' => 'Not an incoming transaction']);
+    echo json_encode(['success' => false, 'message' => 'Khong phai la giao dich vao (in)']);
     die();
 }
 
@@ -63,7 +63,7 @@ $regex = '/(?:DH|DB)(\d+)/';
 preg_match($regex, $transaction_content, $matches);
 
 if (empty($matches[1]) || !is_numeric($matches[1])) {
-    echo json_encode(['success' => false, 'message' => 'Booking ID not found in transaction content']);
+    echo json_encode(['success' => false, 'message' => 'Khong tim thay Booking ID trong nội dung giao dịch']);
     die();
 }
 
@@ -80,7 +80,7 @@ $booking = mysqli_fetch_assoc($result);
 if (!$booking) {
     echo json_encode([
         'success' => false, 
-        'message' => 'Booking not found or already processed',
+        'message' => 'Khong tim thay don dat ban hoac da duoc xu ly',
         'booking_id' => $bookingId
     ]);
     die();
@@ -120,7 +120,7 @@ if (mysqli_query($conn, $updateBookingQuery)) {
     
     echo json_encode([
         'success' => true, 
-        'message' => 'Booking payment confirmed successfully',
+        'message' => 'Thanh toan don dat ban thanh cong',
         'booking_id' => $bookingId,
         'amount_paid' => $amount_in
     ]);
@@ -128,7 +128,7 @@ if (mysqli_query($conn, $updateBookingQuery)) {
 } else {
     echo json_encode([
         'success' => false, 
-        'message' => 'Failed to update booking status',
+        'message' => 'Loi khi cap nhat trang thai don dat ban',
         'booking_id' => $bookingId
     ]);
 }

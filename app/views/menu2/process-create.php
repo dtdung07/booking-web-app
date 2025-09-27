@@ -48,7 +48,7 @@ try {
     addMenuItemsToBooking($conn, $bookingId, $branchId, $cartItems);
     
     // Redirect đến trang thanh toán (chỉ tổng tiền món ăn, không có phí đặt bàn)
-    header("Location: /booking-web-app/sepay/sepay_payment.php?booking_id={$bookingId}&amount={$totalAmount}");
+    header("Location: / ");
     exit();
     
 } catch (Exception $e) {

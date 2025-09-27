@@ -1,13 +1,5 @@
 <?php
-// Kết nối database để lấy thống kê (sử dụng mysqli)
-$host = 'localhost';
-$user = 'root';
-$pass = '';
-$database = 'booking_restaurant';
-$port = '3306';
-
-$conn = mysqli_connect($host, $user, $pass, $database, $port);
-mysqli_set_charset($conn, "utf8");
+include dirname(__DIR__,3) . "/config/connect.php";
 
 // Lấy thống kê
 if ($conn) {

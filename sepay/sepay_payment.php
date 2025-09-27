@@ -58,7 +58,7 @@ if (!$booking) {
         <div class="info-card text-center">
             <h1 class="text-success mb-3">
                 <i class="fas fa-check-circle"></i>
-                Đặt bàn thành công
+                Thanh toán đơn đặt bàn
             </h1>
             <h4 class="text-muted mb-0">Mã đặt bàn: #DH<?= $booking['MaDon'] ?></h4>
         </div>

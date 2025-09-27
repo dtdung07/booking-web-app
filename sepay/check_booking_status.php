@@ -10,13 +10,13 @@ include __DIR__ . '/../config/connect.php';
 // Chỉ cho phép POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
-    echo json_encode(['error' => 'Method not allowed']);
+    echo json_encode(['error' => 'Phuong thuc khong duoc phep']);
     die();
 }
 
 // Kiểm tra booking_id
 if (!isset($_POST['booking_id']) || !is_numeric($_POST['booking_id'])) {
-    echo json_encode(['error' => 'Missing or invalid booking_id']);
+    echo json_encode(['error' => 'Thieu hoac booking_id khong hop le']);
     die();
 }
 
