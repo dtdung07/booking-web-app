@@ -93,39 +93,10 @@
             opacity: 0.8;
         }
 
-        .social-icons {
-            margin-top: 30px;
-        }
 
-        .social-icons a {
-            margin-right: 15px;
-            transition: transform 0.3s, box-shadow 0.3s;
-            display: inline-block;
-            border-radius: 50%;
-        }
+      
 
-        .social-icons a:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-        }
-
-        .social-icons i {
-            background-color: #fff;
-            color: var(--primary-color);
-            border-radius: 50%;
-            width: 48px;
-            height: 48px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.4rem; /* Adjusted font size for better fit */
-            transition: background-color 0.3s, color 0.3s;
-        }
-
-        .social-icons a:hover i {
-            background-color: var(--primary-color);
-            color: #fff;
-        }
+      
 
         /* --- Contact Form Section --- */
         .contact-form {
@@ -209,8 +180,6 @@
 </head>
 <body>
 
-    <?php include __DIR__ . '/../layouts/header.php'; ?>
-
     <main>
         <div class="contact-page-wrapper">
             <div class="contact-container">
@@ -231,11 +200,7 @@
                         <i class="fas fa-envelope"></i>
                         <a href="mailto:lienhe@nhahang.com"> lienhe@nhahang.com</a>
                     </div>
-                    <div class="social-icons">
-                        <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-                        <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
-                    </div>
+                   
                 </div>
 
                 <div class="contact-form">
