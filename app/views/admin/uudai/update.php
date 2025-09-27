@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 <!-- Modal sửa danh mục -->
 <div class="modal fade" id="updateCategoryModal" tabindex="-1">
   <div class="modal-dialog">
@@ -59,7 +58,6 @@ document.getElementById('updateCategoryForm').addEventListener('submit', functio
     }
 });
 </script>
-=======
 <?php
 // File này thường chỉ cần kết nối để truy vấn nếu cần (nhưng ở đây không cần truy vấn Danh mục)
 // include __DIR__ . "/connect.php"; 
@@ -114,4 +112,3 @@ document.getElementById('updateCategoryForm').addEventListener('submit', functio
     </div>
   </div>
 </div>
->>>>>>> 6f18b4ab1a54beb0dcafb5d866161a31ef913636

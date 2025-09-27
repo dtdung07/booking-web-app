@@ -1,5 +1,4 @@
 <?php
-<<<<<<< HEAD
 include __DIR__ . "/connect.php";
 
 // Kiểm tra xem dữ liệu đã được gửi chưa
@@ -37,7 +36,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit();
 }
 ?>
-=======
 include __DIR__ . "/connect.php"; // Kết nối CSDL
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_GET['MaUuDai'])) {
@@ -72,4 +70,3 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_GET['MaUuDai'])) {
 }
 exit();
 ?>
->>>>>>> 6f18b4ab1a54beb0dcafb5d866161a31ef913636

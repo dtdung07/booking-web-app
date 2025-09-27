@@ -1,5 +1,4 @@
 <?php
-<<<<<<< HEAD
 $title = "Quán Nhậu Tự Do - Quản lý Ưu đãi";
 $page_title = "Quản lý Ưu đãi";
 ?>
@@ -308,7 +307,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
-=======
 include __DIR__ . "/connect.php";
 
 // Kiểm tra xem MaUuDai có được truyền qua URL hay không
@@ -390,4 +388,3 @@ $ngay_kt_hien_thi = date('d/m/Y', strtotime($uudai['NgayKetThuc']));
         </button>
     </div>
 </div>
->>>>>>> 6f18b4ab1a54beb0dcafb5d866161a31ef913636

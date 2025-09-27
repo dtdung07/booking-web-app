@@ -12,8 +12,5 @@
     // die("Connection failed: " . mysqli_connect_error());
     // }
     // echo "Connected successfully";
-<<<<<<< HEAD
 ?>
-=======
-?>
->>>>>>> 6f18b4ab1a54beb0dcafb5d866161a31ef913636
+

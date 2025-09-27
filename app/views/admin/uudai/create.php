@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 <!-- Modal thêm danh mục -->
 <div class="modal fade" id="addCategoryModal" tabindex="-1" aria-labelledby="addCategoryModalLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -33,7 +32,6 @@
           <i class="fas fa-save"></i> Thêm Danh Mục
         </button>
       </div>
-=======
 <?php
 // 1. KHÔNG cần truy vấn danh mục món ăn.
 // 2. KHÔNG cần include connect.php (vì nó đã được include trong index.php của thư mục uudai).
@@ -85,7 +83,6 @@
         <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> Thêm ưu đãi</button>
         </div>
       </form>
->>>>>>> 6f18b4ab1a54beb0dcafb5d866161a31ef913636
     </div>
   </div>
 </div>

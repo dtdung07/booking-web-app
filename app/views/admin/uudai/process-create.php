@@ -1,5 +1,4 @@
 <?php
-<<<<<<< HEAD
 include "connect.php";
 
 // Kiểm tra xem dữ liệu đã được gửi chưa
@@ -36,7 +35,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit();
 }
 ?>
-=======
 include "connect.php"; // Kết nối CSDL
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -76,4 +74,3 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 }
 exit();
 ?>
->>>>>>> 6f18b4ab1a54beb0dcafb5d866161a31ef913636
