@@ -7,9 +7,9 @@ class TableStatusManager {
      * @return mysqli
      */
     private static function getConnection() {
-        $host = 'db';
+        $host = 'localhost';
         $user = 'root';
-        $pass = 'rootpassword';
+        $pass = '';
         $database = 'booking_restaurant';
         $port = '3306';
 

@@ -5,7 +5,7 @@ if (session_status() == PHP_SESSION_NONE) {
 
 // Xử lý cập nhật trạng thái bàn
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['maBan']) && isset($_POST['trangThai'])) {
-    require_once $_SERVER['DOCUMENT_ROOT'] . '/app/models/TableStatusManager.php';
+    require_once dirname(__DIR__,3) . '/app/models/TableStatusManager.php';
     
     $maBan = (int)$_POST['maBan'];
     $thoiGianBatDau = $_POST['thoiGianBatDau'];
@@ -42,7 +42,8 @@ $thoiGianKetThuc = $_GET['thoiGianKetThuc'] ?? date('Y-m-d H:i', strtotime('+2 h
 $banList = [];
 
 // Lấy thông tin cơ sở của nhân viên
-require_once $_SERVER['DOCUMENT_ROOT'] . '/app/models/TableStatusManager.php';
+
+require_once dirname(__DIR__,3) . '/app/models/TableStatusManager.php';
 $thongTinCoSo = TableStatusManager::layThongTinCoSo($maCoSo);
 $tenCoSo = $thongTinCoSo['TenCoSo'] ?? '';
 
