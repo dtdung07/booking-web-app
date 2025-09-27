@@ -1,4 +1,5 @@
 <?php
+<<<<<<< HEAD
 include "connect.php";
 
 // Kiểm tra xem có MaDM được truyền qua GET không
@@ -46,3 +47,26 @@ if (isset($_GET['MaDM'])) {
     echo "<script>alert('Không tìm thấy thông tin danh mục cần xóa!'); window.location.href = '?page=admin&section=categories';</script>";
 }
 ?>
+=======
+include "connect.php"; // Kết nối CSDL
+
+if (isset($_GET['MaUuDai'])) {
+    $maUuDai = $_GET['MaUuDai'];
+
+    $sql = "DELETE FROM uudai WHERE MaUD = ?";
+    
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $maUuDai);
+    
+    if ($stmt->execute()) {
+        header("Location: ?page=admin&section=uudai&status=delete_success");
+    } else {
+        header("Location: ?page=admin&section=uudai&status=delete_failed");
+    }
+    $stmt->close();
+} else {
+    header("Location: ?page=admin&section=uudai");
+}
+exit();
+?>
+>>>>>>> 6f18b4ab1a54beb0dcafb5d866161a31ef913636
