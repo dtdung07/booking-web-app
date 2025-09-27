@@ -16,28 +16,31 @@
       <div class="row g-3">
 
         <div class="col-md-12">
-          <label class="form-label">Tiêu đề ưu đãi</label>
-          <input type="text" class="form-control" placeholder="Ví dụ: Giảm giá 20% cho nhóm 4 người" id="TieuDe" name="TieuDe" required>
-        </div>
-        <div class="col-12">
-          <label class="form-label">Nội dung</label>
-          <textarea class="form-control" rows="3" placeholder="Mô tả chi tiết về ưu đãi" id="NoiDung" name="NoiDung" required></textarea>
+          <label class="form-label">Mô tả</label>
+          <textarea class="form-control" rows="3" placeholder="Mô tả chi tiết về ưu đãi" id="MoTa" name="MoTa" required></textarea>
         </div>
         <div class="col-md-6">
-          <label class="form-label">Phần trăm giảm</label>
-          <input type="number" class="form-control" placeholder="Ví dụ: 20" id="PhanTramGiam" name="PhanTramGiam" min="0" max="100" required>
+          <label class="form-label">Giá trị giảm</label>
+          <input type="number" class="form-control" placeholder="Ví dụ: 20" id="GiaTriGiam" name="GiaTriGiam" required>
         </div>
         <div class="col-md-6">
-          <label class="form-label">Mã áp dụng</label>
-          <input type="text" class="form-control" placeholder="Ví dụ: TUDO20" id="MaApDung" name="MaApDung">
+          <label class="form-label">Loại giảm giá</label>
+          <select class="form-control" name="LoaiGiamGia">
+            <option value="phantram">Phần trăm</option>
+            <option value="sotien">Số tiền</option>
+          </select>
+        </div>
+        <div class="col-md-12">
+          <label class="form-label">Điều kiện</label>
+          <input type="text" class="form-control" placeholder="Ví dụ: Áp dụng cho hóa đơn trên 500k" id="DieuKien" name="DieuKien">
         </div>
         <div class="col-md-6">
           <label class="form-label">Ngày bắt đầu</label>
-          <input type="date" class="form-control" id="NgayBatDau" name="NgayBatDau" required>
+          <input type="date" class="form-control" id="NgayBD" name="NgayBD" required>
         </div>
         <div class="col-md-6">
           <label class="form-label">Ngày kết thúc</label>
-          <input type="date" class="form-control" id="NgayKetThuc" name="NgayKetThuc" required>
+          <input type="date" class="form-control" id="NgayKT" name="NgayKT" required>
         </div>
       </div>
       </div>

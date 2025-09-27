@@ -16,7 +16,7 @@ $totalRecords = mysqli_fetch_array($countResult)['total'];
 $totalPages = ceil($totalRecords / $recordsPerPage);
 
 // Lấy dữ liệu với phân trang
-$sql = "SELECT * FROM `uudai` ORDER BY MaUuDai DESC LIMIT $offset, $recordsPerPage";
+$sql = "SELECT * FROM `uudai` ORDER BY `MaUD` DESC LIMIT $offset, $recordsPerPage";
 $result = mysqli_query($conn, $sql);
 
 // Die and show error if query fails
@@ -47,7 +47,7 @@ while($row = mysqli_fetch_array($result)){
         <?php if (!empty($uudaiItems)): ?>
           <?php foreach($uudaiItems as $row): ?>
             <?php
-            $noiDungFull = $row['NoiDung'] ?? '';
+            $noiDungFull = $row['MoTa'] ?? '';
             $maxLen = 50;
             if (mb_strlen($noiDungFull, 'UTF-8') > $maxLen) {
                 $noiDungShort = mb_substr($noiDungFull, 0, $maxLen, 'UTF-8') . '...';
@@ -55,25 +55,25 @@ while($row = mysqli_fetch_array($result)){
                 $noiDungShort = $noiDungFull;
             }
             
-            $ngayBatDau = date("d/m/Y", strtotime($row['NgayBatDau']));
-            $ngayKetThuc = date("d/m/Y", strtotime($row['NgayKetThuc']));
+            $ngayBatDau = date("d/m/Y", strtotime($row['NgayBD']));
+            $ngayKetThuc = date("d/m/Y", strtotime($row['NgayKT']));
             $today = date("Y-m-d");
-            $statusClass = $row['NgayKetThuc'] < $today ? 'text-danger' : 'text-success';
+            $statusClass = $row['NgayKT'] < $today ? 'text-danger' : 'text-success';
             ?>
             <tr>
-              <td><?=$row['MaUuDai']?></td>
-              <td><?=$row['TieuDe']?></td>
+              <td><?=$row['MaUD']?></td>
+              <td><?=$row['TieuDe'] ?? 'Chưa có tiêu đề'?></td>
               <td><?=$noiDungShort?></td>
-              <td><?=$row['PhanTramGiam']?>%</td>
+              <td><?=$row['GiaTriGiam']?><?=$row['LoaiGiamGia'] == 'phantram' ? '%' : 'đ'?></td>
               <td class="<?=$statusClass?>"><?=$ngayBatDau?> - <?=$ngayKetThuc?></td>
               <td>
               <div class="d-flex justify-content-center gap-2" role="group">
-              <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#updateUuDaiModal<?=$row['MaUuDai']?>">
+              <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#updateUuDaiModal<?=$row['MaUD']?>">
                 <i class="fas fa-edit"></i> Sửa
               </button>
               <?php include __DIR__ . "/update.php"; ?>
 
-              <a class="btn btn-danger btn-sm" href="?page=admin&section=uudai&action=delete&MaUuDai=<?=$row['MaUuDai']?>" onclick="return confirm('Bạn có chắc chắn muốn xóa ưu đãi này không?');"><i class="fas fa-trash"></i> Xoá</a>
+              <a class="btn btn-danger btn-sm" href="?page=admin&section=uudai&action=delete&MaUuDai=<?=$row['MaUD']?>" onclick="return confirm('Bạn có chắc chắn muốn xóa ưu đãi này không?');"><i class="fas fa-trash"></i> Xoá</a>
               </div>
             </td>
             </tr>

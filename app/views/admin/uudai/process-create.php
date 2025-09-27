@@ -3,22 +3,22 @@ include "connect.php"; // Kết nối CSDL
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Lấy dữ liệu từ form
-    $tieuDe = $_POST['TieuDe'] ?? '';
-    $noiDung = $_POST['NoiDung'] ?? '';
-    $phanTramGiam = $_POST['PhanTramGiam'] ?? 0;
-    $maApDung = $_POST['MaApDung'] ?? null;
-    $ngayBatDau = $_POST['NgayBatDau'] ?? '';
-    $ngayKetThuc = $_POST['NgayKetThuc'] ?? '';
+    $moTa = $_POST['MoTa'] ?? '';
+    $giaTriGiam = $_POST['GiaTriGiam'] ?? 0;
+    $loaiGiamGia = $_POST['LoaiGiamGia'] ?? 'phantram';
+    $dieuKien = $_POST['DieuKien'] ?? null;
+    $ngayBatDau = $_POST['NgayBD'] ?? '';
+    $ngayKetThuc = $_POST['NgayKT'] ?? '';
 
     // Validate dữ liệu (ví dụ đơn giản)
-    if (!empty($tieuDe) && !empty($noiDung) && !empty($ngayBatDau) && !empty($ngayKetThuc)) {
+    if (!empty($moTa) && !empty($ngayBatDau) && !empty($ngayKetThuc)) {
         // Chuẩn bị câu lệnh SQL để chèn dữ liệu
-        $sql = "INSERT INTO uudai (TieuDe, NoiDung, PhanTramGiam, MaApDung, NgayBatDau, NgayKetThuc) VALUES (?, ?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO uudai (MoTa, GiaTriGiam, LoaiGiamGia, DieuKien, NgayBD, NgayKT) VALUES (?, ?, ?, ?, ?, ?)";
         
         $stmt = $conn->prepare($sql);
         
         // Gán giá trị và thực thi
-        $stmt->bind_param("ssisss", $tieuDe, $noiDung, $phanTramGiam, $maApDung, $ngayBatDau, $ngayKetThuc);
+        $stmt->bind_param("sdssss", $moTa, $giaTriGiam, $loaiGiamGia, $dieuKien, $ngayBatDau, $ngayKetThuc);
         
         if ($stmt->execute()) {
             // Thành công, chuyển hướng về trang danh sách

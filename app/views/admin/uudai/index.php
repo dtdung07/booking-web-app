@@ -36,25 +36,9 @@ include __DIR__ . "/create.php";
   </div>
 
     <?php
-        if(isset($_GET['action'])){
-            switch ($_GET['action']) {
-                case 'view':
-                    include __DIR__ . "/list.php";
-                    break;
-                case 'create':
-                    include __DIR__ . "/create.php";
-                    break;
-                case 'update':
-                    include __DIR__ . "/update.php";
-                    break;
-                default:
-                    include "list.php";
-                    break;
-            }
-        } else {
-            // Mặc định hiển thị danh sách ưu đãi khi không có tham số action
-            include __DIR__ . "/list.php";
-        }
+        // Logic điều hướng đã được chuyển lên dashboard.php
+        // Phần này chỉ cần include file list.php để hiển thị danh sách
+        include __DIR__ . "/list.php";
     ?>
 
 

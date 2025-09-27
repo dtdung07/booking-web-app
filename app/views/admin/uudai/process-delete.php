@@ -4,7 +4,7 @@ include "connect.php"; // Kết nối CSDL
 if (isset($_GET['MaUuDai'])) {
     $maUuDai = $_GET['MaUuDai'];
 
-    $sql = "DELETE FROM uudai WHERE MaUuDai = ?";
+    $sql = "DELETE FROM uudai WHERE MaUD = ?";
     
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("i", $maUuDai);
