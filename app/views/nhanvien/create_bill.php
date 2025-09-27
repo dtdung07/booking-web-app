@@ -2162,6 +2162,7 @@ async function handleCreateOrderWithBookingInfo() {
     const currentDateTime = document.getElementById('currentDateTime').value.trim();
     const guests = parseInt(document.getElementById('nv-booking-guests-input').value);
     const notes = form.querySelector('textarea').value.trim();
+    console.log('Form Data:', { customerName, customerPhone, currentDateTime, guests, notes });
     
     // Tách ngày và giờ từ datetime-local input
     const selectedDate = currentDateTime ? currentDateTime.split('T')[0] : '';
@@ -2190,10 +2191,10 @@ async function handleCreateOrderWithBookingInfo() {
     // Chuẩn bị dữ liệu gửi lên server
     const orderData = {
         customerInfo: {
-            name: customerName || 'Khách tại quán',
-            phone: customerPhone || '',
+            name: customerName ?? 'Khách tại quán',
+            phone: customerPhone ?? '',
             email: '',
-            notes: notes || 'Đặt bàn tại quán'
+            notes: notes ?? 'Đặt bàn tại quán'
         },
         bookingInfo: {
             date: selectedDate,
@@ -2314,7 +2315,9 @@ async function handleCreateOrderDirect() {
         const currentDateTime = document.getElementById('currentDateTime')?.value.trim() || '';
         const guests = parseInt(document.getElementById('nv-booking-guests-input')?.value) || 1;
         const notes = form.querySelector('textarea')?.value.trim() || '';
-        
+        console.log('Lấy thông tin khách hàng từ form nv-bookingForm');
+        console.log('customerName:', customerName);
+        console.log('customerPhone:', customerPhone);
         // Nếu có thông tin khách hàng được nhập, sử dụng thông tin đó
         if (customerName || customerPhone) {
             customerInfo = {

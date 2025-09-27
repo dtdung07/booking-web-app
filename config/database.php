@@ -1,9 +1,9 @@
 <?php
 class Database {
-    private $host = "localhost";
+    private $host = "db";
     private $db_name = "booking_restaurant";
     private $username = "root";
-    private $password = "";
+    private $password = "rootpassword";
     public $conn;
     public function getConnection() {
     $this->conn = null;

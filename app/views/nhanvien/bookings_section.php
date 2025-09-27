@@ -321,7 +321,6 @@ tr:hover {
 <div class="bookings-table">
     <div class="table-header">
         <h3 class="table-title">Danh sách đơn đặt bàn</h3>
-       
     </div>
     
     <div class="table-container">

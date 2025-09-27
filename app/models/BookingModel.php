@@ -401,7 +401,7 @@ public function createAtStoreOrder($maKH, $maCoSo, $maNV, $cartItems, $ghiChu = 
 }
 
 // Tạo đơn đặt bàn với thông tin bàn
-public function createBookingWithTables($maKH, $maCoSo, $maNV, $cartItems, $ghiChu = '', $bookingDate = '', $bookingTime = '', $numberOfGuests = 1, $selectedTables = [])
+public function createBookingWithTables($TenKh, $SDT, $maCoSo, $maNV, $cartItems, $ghiChu = '', $bookingDate = '', $bookingTime = '', $numberOfGuests = 1, $selectedTables = [])
 {
     // Bắt đầu transaction
     mysqli_begin_transaction($this->conn);
@@ -409,7 +409,7 @@ public function createBookingWithTables($maKH, $maCoSo, $maNV, $cartItems, $ghiC
     try {
         // 1. Chuẩn bị thời gian đặt bàn
         $thoiGianBatDau = '';
-        if ($bookingDate && $bookingTime) {
+        if ($bookingDate && $bookingTime){
             // Chuyển đổi định dạng ngày từ dd/mm/yyyy sang yyyy-mm-dd
             $dateArray = explode('/', $bookingDate);
             if (count($dateArray) === 3) {
@@ -422,8 +422,17 @@ public function createBookingWithTables($maKH, $maCoSo, $maNV, $cartItems, $ghiC
             $thoiGianBatDau = date('Y-m-d H:i:s'); // Sử dụng thời gian hiện tại nếu không có
         }
 
+        // 1. Tạo hoặc lấy khách hàng
+        $query = "INSERT INTO khachhang (TenKH, SDT) VALUES (?, ?) ON DUPLICATE KEY UPDATE SoDT = ?";
+        $stmt = mysqli_prepare($this->conn, $query);
+        mysqli_stmt_bind_param($stmt, "ssi", $TenKh, $SDT);
+        mysqli_stmt_execute($stmt);
+        $maKH = mysqli_insert_id($this->conn);
+        $maKH = 2;
+        console.log('maKH:', $TenKh, $SDT);
+        
         // 2. Tạo bản ghi trong bảng `dondatban`
-        $query = "INSERT INTO " . $this->table . " (MaKH, MaCoSo, MaNV_XacNhan, ThoiGianBatDau, ThoiGianTao, TrangThai, SoLuongKH, GhiChu) 
+        $query = "INSERT INTO " . $this->table . "(MaKH, MaCoSo, MaNV_XacNhan, ThoiGianBatDau, ThoiGianTao, TrangThai, SoLuongKH, GhiChu) 
                   VALUES (?, ?, ?, ?, CONVERT_TZ(NOW(), '+00:00', '+07:00'), 'da_xac_nhan', ?, ?)";
         
         $stmt = mysqli_prepare($this->conn, $query);

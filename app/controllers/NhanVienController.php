@@ -402,7 +402,12 @@ public function createOrder()
         $customerPhone    = trim($customerInfo['phone'] ?? '');
         $customerEmail    = trim($customerInfo['email'] ?? '');
         $notes            = trim($customerInfo['notes'] ?? '');
-        
+        console.log('customerInfo:', $customerInfo);
+        console.log('customerName:', $customerName);
+        console.log('customerPhone:', $customerPhone);
+        console.log('customerEmail:', $customerEmail);
+        console.log('notes:', $notes);
+
         // 3. Thông tin đặt bàn
         $bookingDate      = $bookingInfo['date'] ?? '';
         $bookingTime      = $bookingInfo['time'] ?? '';
@@ -413,9 +418,10 @@ public function createOrder()
 
         // 4. Gọi Model để xử lý nghiệp vụ
         // $khachHangModel = new KhachHangModel($this->db);
-        $maKH = 2;
+        // $maKH = 2;
         $maDon = $this->bookingModel->createBookingWithTables(
-            $maKH,
+            $customerName,
+            $customerPhone,
             $currentUser['MaCoSo'],
             $currentUser['MaNV'],
             $cartItems,

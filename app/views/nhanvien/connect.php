@@ -1,7 +1,7 @@
 <?php
-    $host = 'localhost';
+    $host = 'db';
     $user = 'root';
-    $pass = '';
+    $pass = 'rootpassword';
     $database = 'booking_restaurant';
     $port = '3306';
     $conn = mysqli_connect($host, $user, $pass, $database, $port);
