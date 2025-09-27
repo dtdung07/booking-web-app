@@ -45,8 +45,12 @@ $section = $_GET['section'] ?? 'dashboard';
 $action = $_GET['action'] ?? null;
 
 // Xử lý các action (create, update, delete) trước khi bất kỳ HTML nào được xuất ra
-if ($section === 'uudai' && in_array($action, ['process-create', 'process-update', 'process-delete'])) {
-    include __DIR__ . '/uudai/' . $action . '.php';
+if ($section === 'uudai' && in_array($action, ['process-create', 'process-update', 'delete'])) {
+    if ($action === 'delete') {
+        include __DIR__ . '/uudai/process-delete.php';
+    } else {
+        include __DIR__ . '/uudai/' . $action . '.php';
+    }
     // Các file process đã có exit() nên không cần thêm ở đây.
 }
 ?>

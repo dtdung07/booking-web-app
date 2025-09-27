@@ -16,6 +16,10 @@
       <div class="row g-3">
 
         <div class="col-md-12">
+            <label class="form-label">Tiêu đề ưu đãi</label>
+            <input type="text" class="form-control" id="TieuDe" name="TieuDe" value="<?=$row['TieuDe']?>" required>
+        </div>
+        <div class="col-md-12">
           <label class="form-label">Mô tả</label>
           <textarea class="form-control" rows="3" id="MoTa" name="MoTa" required><?=$row['MoTa']?></textarea>
         </div>

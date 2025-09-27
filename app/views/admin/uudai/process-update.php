@@ -5,6 +5,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_GET['MaUuDai'])) {
     $maUuDai = $_GET['MaUuDai'];
     
     // Lấy dữ liệu từ form
+    $tieuDe = $_POST['TieuDe'] ?? '';
     $moTa = $_POST['MoTa'] ?? '';
     $giaTriGiam = $_POST['GiaTriGiam'] ?? 0;
     $loaiGiamGia = $_POST['LoaiGiamGia'] ?? 'phantram';
@@ -13,11 +14,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_GET['MaUuDai'])) {
     $ngayKetThuc = $_POST['NgayKT'] ?? '';
 
     // Validate
-    if (!empty($moTa) && !empty($ngayBatDau) && !empty($ngayKetThuc)) {
-        $sql = "UPDATE uudai SET MoTa = ?, GiaTriGiam = ?, LoaiGiamGia = ?, DieuKien = ?, NgayBD = ?, NgayKT = ? WHERE MaUD = ?";
+    if (!empty($tieuDe) && !empty($moTa) && !empty($ngayBatDau) && !empty($ngayKetThuc)) {
+        $sql = "UPDATE uudai SET TieuDe = ?, MoTa = ?, GiaTriGiam = ?, LoaiGiamGia = ?, DieuKien = ?, NgayBD = ?, NgayKT = ? WHERE MaUD = ?";
         
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("sdssssi", $moTa, $giaTriGiam, $loaiGiamGia, $dieuKien, $ngayBatDau, $ngayKetThuc, $maUuDai);
+        $stmt->bind_param("ssdssssi", $tieuDe, $moTa, $giaTriGiam, $loaiGiamGia, $dieuKien, $ngayBatDau, $ngayKetThuc, $maUuDai);
         
         if ($stmt->execute()) {
             header("Location: ?page=admin&section=uudai&status=update_success");
