@@ -1,11 +1,5 @@
 <?php
-// View để hiển thị trạng thái bàn cho nhân viên
-// Dữ liệu được truyền từ TableStatusController:
-// - $nhanVien: thông tin nhân viên đăng nhập
-// - $thongTinCoSo: thông tin cơ sở làm việc
-// - $thoiGianBatDau, $thoiGianKetThuc: khoảng thời gian
-// - $banList: danh sách bàn với trạng thái
-// - $thongKe: thống kê số lượng bàn
+
 ?>
 
 <style>
