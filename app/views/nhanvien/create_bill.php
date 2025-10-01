@@ -1,19 +1,3 @@
-<?php
-// File này được include trong dashboard.php để hiển thị section đơn đặt bàn
-// Dữ liệu được truyền từ controller qua biến $bookingsData
-
-// Lấy dữ liệu bookings từ controller
-$bookingsList = $bookingsData['bookingsList'] ?? [];
-$totalBookings = $bookingsData['totalBookings'] ?? 0;
-$totalPages = $bookingsData['totalPages'] ?? 0;
-$currentPage = $bookingsData['currentPage'] ?? 1;
-$limit = $bookingsData['limit'] ?? 10;
-
-// Lấy các filter parameters
-$statusFilter = $_GET['status_filter'] ?? 'all';
-$timeFilter = $_GET['time_filter'] ?? 'hom_nay';
-$searchKeyword = $_GET['search'] ?? '';
-?>
 
 <style>
 /* Styles cho phần đơn đặt bàn */
@@ -269,63 +253,74 @@ $searchKeyword = $_GET['search'] ?? '';
         color: #666;
         font-size: 16px;
     }
+/* ---- Bắt đầu CSS được sửa đổi ---- */
 
-    .menu2-card {
-        background: #fff;
-        display: flex;
-        height: 110px;
-        border-radius: 10px;
-        align-items: center;
-        cursor: pointer;
-    }
+.menu2-card {
+    background: #fff;
+    display: flex;
+    height: 120px; /* Giữ chiều cao cố định để layout ổn định */
+    border-radius: 12px; /* Bo góc mềm mại hơn */
+    cursor: pointer;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08); /* Thêm bóng mờ nhẹ cho đẹp */
+    margin-bottom: 15px; /* Thêm khoảng cách giữa các card */
+}
 
-    .menu2-card img {
-        width: 110px;
-        height: 100%;
-        object-fit: cover;
-        border-radius: 10px 0 0 10px;
-        margin-right: 15px;
-    }
+.menu2-card img {
+    width: 110px;
+    height: 100%;
+    object-fit: cover;
+    /* Không cần bo góc ở đây vì đã có overflow:hidden ở card cha */
+}
 
-    .menu2-card-content {
-        padding: 10px 0;
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-    }
+.menu2-card-content {
+    flex: 1; /* Chiếm hết không gian còn lại */
+    padding: 12px 15px; /* Thêm padding trên/dưới và trái/phải */
+    display: flex;
+    flex-direction: column;
+    /* Đây là thuộc tính quan trọng nhất: */
+    justify-content: space-between; /* Đẩy info lên trên và actions xuống dưới */
+    box-sizing: border-box;
+}
 
-    .menu2-card-name {
-        margin-bottom: 6px;
+/* Nhóm chứa tên và giá */
+.menu2-card-info {
+    /* Không cần style đặc biệt, chỉ để nhóm các phần tử */
+}
+
+.menu2-card-name {
+     margin-bottom: 4px;
         font-size: 17px;
         color: #333;
-    }
+}
 
-    .menu2-card-price {
-        font-weight: 500;
-        color: #1B4E30;
-        margin-bottom: 8px;
-    }
+.menu2-card-price {
+    display: block;
+    font-weight: 500;
+    color: #1B4E30;
+}
 
-    .menu2-card-actions {
-        text-align: right;
-        padding: 0 10px;
-    }
+.menu2-card-actions {
+    /* Đẩy toàn bộ vùng actions sang bên phải */
+    display: flex;
+    justify-content: flex-end;
+}
 
-    .menu2-btn-add-to-cart {
-        border: 1px solid gainsboro;
+.menu2-btn-add-to-cart {
+    border: 1px solid gainsboro;
         padding: 3px 12px;
         border-radius: 16px;
         font-size: 12px;
         cursor: pointer;
         display: inline-block;
-    }
+}
 
-    .menu2-btn-add-to-cart:hover {
-        background: orange;
-        border: none;
-    }
+.menu2-btn-add-to-cart:hover {
+    background-color: #f0f0f0;
+    border-color: #ccc;
+}
 
+/* ---- Kết thúc CSS được sửa đổi ---- */
 /* sticky-cart-widget ----------------- */
 
     #sticky-cart-widget {
@@ -818,8 +813,7 @@ z-index: 999;
     }
 
     .nv-form-row .nv-form-select,
-    .nv-form-row .nv-input-with-icon,
-    .nv-form-row .nv-quantity-selector {
+    .nv-form-row .nv-input-with-icon {
         height: 35px;
         box-sizing: border-box;
     }
@@ -868,63 +862,6 @@ z-index: 999;
         cursor: pointer;
     }
 
-    .nv-quantity-selector {
-        display: flex;
-        align-items: center;
-        border: 1px solid #e9ecef;
-        border-radius: 8px;
-        background-color: #fff;
-        overflow: hidden;
-        justify-content: flex-start;
-    }
-
-    .nv-quantity-selector button {
-        background-color: transparent;
-        border: none;
-        font-size: 1.1rem;
-        font-weight: bold;
-        cursor: pointer;
-        line-height: 1;
-        color: #495057;
-        width: 30px;
-        height: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .nv-quantity-display {
-        font-size: 0.81rem;
-        font-weight: 500;
-        border-left: 1px solid #e9ecef;
-        border-right: 1px solid #e9ecef;
-        min-width: 40px;
-        text-align: center;
-        flex-grow: 1;
-        height: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .nv-quantity-input {
-        border: none;
-        outline: none;
-        text-align: center;
-        font-size: 0.9rem;
-        font-weight: 500;
-        border-left: 1px solid #e9ecef;
-        border-right: 1px solid #e9ecef;
-        min-width: 50px;
-        flex-grow: 1;
-        height: 35px;
-        background-color: transparent;
-    }
-
-    .nv-quantity-input:focus {
-        background-color: #f8f9fa;
-    }
-
     .nv-form-actions {
         display: flex;
         justify-content: flex-end;
@@ -956,9 +893,17 @@ z-index: 999;
         background-color: #e67e22;
     }
 
-    .nv-btn-primary:disabled {
-        background-color: #bdc3c7;
-        cursor: not-allowed;
+    .nv-btn-primary:disabled,
+    .nv-btn-primary.disabled {
+        background-color: #bdc3c7 !important;
+        cursor: not-allowed !important;
+        opacity: 0.6;
+        color: #6c757d !important;
+    }
+
+    .nv-btn-primary:disabled:hover,
+    .nv-btn-primary.disabled:hover {
+        background-color: #bdc3c7 !important;
     }
 
     /* === CSS CHO PHẦN CHỌN BÀN === */
@@ -1126,8 +1071,7 @@ z-index: 999;
     }
 
     .nv-form-row .nv-form-select,
-    .nv-form-row .nv-input-with-icon,
-    .nv-form-row .nv-quantity-selector {
+    .nv-form-row .nv-input-with-icon {
         height: auto;
         min-height: 35px;
     }
@@ -1173,7 +1117,7 @@ z-index: 999;
                 <label for="search">Tìm kiếm món ăn</label>
                 <input type="text" id="search" name="search" class="filter-input" 
                        placeholder="Nhập tên món ăn..." 
-                       value="<?php echo htmlspecialchars($searchKeyword); ?>">
+                       value="">
             </div>
             
             <button type="button" id="search-btn" class="filter-btn">
@@ -1275,11 +1219,7 @@ z-index: 999;
                     <div class="nv-form-row">
                         <div class="nv-form-group">
                             <label>Số lượng người</label>
-                            <div class="nv-quantity-selector">
-                                <button type="button" data-action="decrease-guests">-</button>
-                                <input type="number" class="nv-quantity-input" id="nv-booking-guests-input" value="1" min="1" max="20">
-                                <button type="button" data-action="increase-guests">+</button>
-                            </div>
+                            <input type="number" class="nv-form-input" id="nv-booking-guests-input" value="1" min="1" placeholder="Nhập số lượng người">
                         </div>
                         <div class="nv-form-group">
                             <label for="nv-date-display-input">Ngày đặt bàn</label>
@@ -1324,32 +1264,7 @@ z-index: 999;
     </div>
 </div>
 
-    <!-- Pagination -->
-    <?php if ($totalPages > 1): ?>
-        <div class="pagination">
-            <?php if ($page > 1): ?>
-                <a href="?page=nhanvien&action=dashboard&section=bookings&booking_page=<?php echo $page - 1; ?>&status_filter=<?php echo urlencode($statusFilter); ?>&search=<?php echo urlencode($searchKeyword); ?>&time_filter=<?php echo urlencode($timeFilter); ?>">
-                    <i class="fas fa-chevron-left"></i> Trước
-                </a>
-            <?php endif; ?>
-            
-            <?php for ($i = max(1, $page - 2); $i <= min($totalPages, $page + 2); $i++): ?>
-                <?php if ($i === $page): ?>
-                    <span class="current"><?php echo $i; ?></span>
-                <?php else: ?>
-                    <a href="?page=nhanvien&action=dashboard&section=bookings&booking_page=<?php echo $i; ?>&status_filter=<?php echo urlencode($statusFilter); ?>&search=<?php echo urlencode($searchKeyword); ?>&time_filter=<?php echo urlencode($timeFilter); ?>">
-                        <?php echo $i; ?>
-                    </a>
-                <?php endif; ?>
-            <?php endfor; ?>
-            
-            <?php if ($page < $totalPages): ?>
-                <a href="?page=nhanvien&action=dashboard&section=bookings&booking_page=<?php echo $page + 1; ?>&status_filter=<?php echo urlencode($statusFilter); ?>&search=<?php echo urlencode($searchKeyword); ?>&time_filter=<?php echo urlencode($timeFilter); ?>">
-                    Sau <i class="fas fa-chevron-right"></i>
-                </a>
-            <?php endif; ?>
-        </div>
-    <?php endif; ?>
+   
 </div>
 
 <script>
@@ -1480,34 +1395,14 @@ function setCurrentDateAndTime() {
 
 function setupQuantityControls() {
     const quantityInput = document.getElementById('nv-booking-guests-input');
-    const decreaseBtn = document.querySelector('[data-action="decrease-guests"]');
-    const increaseBtn = document.querySelector('[data-action="increase-guests"]');
     
-    if (!quantityInput || !decreaseBtn || !increaseBtn) return;
+    if (!quantityInput) return;
     
-    // Xử lý nút giảm
-    decreaseBtn.addEventListener('click', function() {
-        const currentValue = parseInt(quantityInput.value) || 1;
-        if (currentValue > 1) {
-            quantityInput.value = currentValue - 1;
-        }
-    });
-    
-    // Xử lý nút tăng
-    increaseBtn.addEventListener('click', function() {
-        const currentValue = parseInt(quantityInput.value) || 1;
-        if (currentValue < 20) {
-            quantityInput.value = currentValue + 1;
-        }
-    });
-    
-    // Xử lý input từ bàn phím
+    // Xử lý input từ bàn phím - bỏ giới hạn số lượng
     quantityInput.addEventListener('input', function() {
         let value = parseInt(this.value);
         if (isNaN(value) || value < 1) {
             this.value = 1;
-        } else if (value > 20) {
-            this.value = 20;
         }
     });
     
@@ -1881,6 +1776,14 @@ function showBookingForm() {
             loadAvailableTables();
         }, 100);
         
+        // Đặt trạng thái ban đầu cho nút đặt bàn (disabled vì chưa chọn bàn)
+        const submitBtn = document.getElementById('nv-booking-submit-btn');
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.classList.add('disabled');
+            submitBtn.textContent = 'Đặt bàn';
+        }
+        
         // Focus vào input đầu tiên
         const firstInput = bookingOverlay.querySelector('input[type="text"]');
         if (firstInput) {
@@ -2078,6 +1981,9 @@ function renderAvailableTables(tables) {
     
     tablesContainer.innerHTML = '';
     tablesContainer.appendChild(tablesGrid);
+    
+    // Khởi tạo trạng thái ban đầu cho counter và nút submit
+    updateSelectedTablesCount();
 }
 
 function handleTableSelection(tableItem) {
@@ -2105,6 +2011,20 @@ function updateSelectedTablesCount() {
     const selectedTables = document.querySelectorAll('.nv-table-item[data-selected="true"]');
     const count = selectedTables.length;
     console.log(`Đã chọn ${count} bàn`);
+    
+    // Cập nhật trạng thái nút đặt bàn
+    const submitBtn = document.getElementById('nv-booking-submit-btn');
+    if (submitBtn) {
+        if (count === 0) {
+            submitBtn.disabled = true;
+            submitBtn.classList.add('disabled');
+            submitBtn.textContent = 'Đặt bàn';
+        } else {
+            submitBtn.disabled = false;
+            submitBtn.classList.remove('disabled');
+            submitBtn.textContent = 'Đặt bàn';
+        }
+    }
 }
 
 function addSelectedTableDisplay(tableId, tableName) {
@@ -2143,8 +2063,6 @@ function getSelectedTables() {
 
 // === CHỨC NĂNG TẠO ĐƠN VỚI THÔNG TIN BOOKING ===
 async function handleCreateOrderWithBookingInfo() {
-    console.log('handleCreateOrderWithBookingInfo called');
-    console.log('totalCartQuantity:', totalCartQuantity);
     
     // Kiểm tra giỏ hàng không trống
     if (totalCartQuantity === 0) {
@@ -2162,17 +2080,23 @@ async function handleCreateOrderWithBookingInfo() {
     const currentDateTime = document.getElementById('currentDateTime').value.trim();
     const guests = parseInt(document.getElementById('nv-booking-guests-input').value);
     const notes = form.querySelector('textarea').value.trim();
-    console.log('Form Data:', { customerName, customerPhone, currentDateTime, guests, notes });
     
     // Tách ngày và giờ từ datetime-local input
     const selectedDate = currentDateTime ? currentDateTime.split('T')[0] : '';
     const selectedTime = currentDateTime ? currentDateTime.split('T')[1] : '';
     
-    // Validate required fields (chỉ kiểm tra thời gian nếu có chọn bàn)
+    // Validate required fields
     const selectedTables = getSelectedTables();
     
-    if (selectedTables.length > 0 && !currentDateTime) {
-        alert('Vui lòng chọn ngày và giờ đặt bàn khi đã chọn bàn!');
+    // Bắt buộc phải chọn ít nhất một bàn
+    if (selectedTables.length === 0) {
+        alert('Vui lòng chọn ít nhất một bàn trước khi đặt bàn!');
+        return;
+    }
+    
+    // Kiểm tra thời gian khi đã chọn bàn
+    if (!currentDateTime) {
+        alert('Vui lòng chọn ngày và giờ đặt bàn!');
         return;
     }
     
@@ -2191,10 +2115,10 @@ async function handleCreateOrderWithBookingInfo() {
     // Chuẩn bị dữ liệu gửi lên server
     const orderData = {
         customerInfo: {
-            name: customerName ?? 'Khách tại quán',
-            phone: customerPhone ?? '',
+            name: customerName ,
+            phone: customerPhone ,
             email: '',
-            notes: notes ?? 'Đặt bàn tại quán'
+            notes: notes || 'Đặt bàn tại quán'
         },
         bookingInfo: {
             date: selectedDate,
@@ -2272,148 +2196,6 @@ async function handleCreateOrderWithBookingInfo() {
     }
 }
 
-// === CHỨC NĂNG TẠO ĐƠN TRỰC TIẾP (GIỮ LẠI ĐỂ TƯƠNG THÍCH) ===
-async function handleCreateOrderDirect() {
-    // Kiểm tra giỏ hàng không trống
-    if (totalCartQuantity === 0) {
-        alert('Giỏ hàng trống! Vui lòng thêm món ăn trước khi tạo đơn.');
-        return;
-    }
-    
-    // Xác nhận tạo đơn
-    if (!confirm('Bạn có chắc chắn muốn tạo đơn đặt món này không?')) {
-        return;
-    }
-    
-    // Chuẩn bị dữ liệu giỏ hàng
-    const cartItems = [];
-    for (const itemId in shoppingCart) {
-        const item = shoppingCart[itemId];
-        cartItems.push({
-            id: itemId,
-            name: item.name,
-            price: item.price,
-            quantity: item.quantity
-        });
-    }
-    
-    // Lấy thông tin từ form nv-bookingForm (nếu có)
-    const form = document.getElementById('nv-bookingForm');
-    let customerInfo = {
-        name: 'Khách hàng tại quán',
-        phone: '',
-        email: '',
-        notes: 'Đặt món tại quán'
-    };
-    
-    let bookingInfo = null;
-    
-    // Nếu form tồn tại, lấy thông tin từ form
-    if (form) {
-        const customerName = form.querySelector('input[type="text"]')?.value.trim() || '';
-        const customerPhone = form.querySelector('input[type="tel"]')?.value.trim() || '';
-        const currentDateTime = document.getElementById('currentDateTime')?.value.trim() || '';
-        const guests = parseInt(document.getElementById('nv-booking-guests-input')?.value) || 1;
-        const notes = form.querySelector('textarea')?.value.trim() || '';
-        console.log('Lấy thông tin khách hàng từ form nv-bookingForm');
-        console.log('customerName:', customerName);
-        console.log('customerPhone:', customerPhone);
-        // Nếu có thông tin khách hàng được nhập, sử dụng thông tin đó
-        if (customerName || customerPhone) {
-            customerInfo = {
-                name: customerName || 'Khách hàng tại quán',
-                phone: customerPhone,
-                email: '',
-                notes: notes || 'Đặt món tại quán'
-            };
-        }
-        
-        // Nếu có thông tin đặt bàn, thêm vào orderData
-        if (currentDateTime) {
-            const selectedDate = currentDateTime.split('T')[0] || '';
-            const selectedTime = currentDateTime.split('T')[1] || '';
-            const selectedTables = getSelectedTables();
-            
-            bookingInfo = {
-                date: selectedDate,
-                time: selectedTime,
-                guests: guests,
-                selectedTables: selectedTables
-            };
-        }
-    }
-    
-    // Chuẩn bị dữ liệu gửi lên server
-    const orderData = {
-        customerInfo: customerInfo,
-        cartItems: cartItems
-    };
-    
-    // Thêm thông tin booking nếu có
-    if (bookingInfo) {
-        orderData.bookingInfo = bookingInfo;
-    }
-    
-    // Hiển thị loading trên nút
-    const proceedBtn = document.getElementById('bill-proceedToBookingBtn');
-    const originalText = proceedBtn.innerHTML;
-    proceedBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang tạo đơn...';
-    proceedBtn.disabled = true;
-    try {
-        // Gửi request tạo đơn
-        const response = await fetch('index.php?page=nhanvien&action=createOrder', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            body: JSON.stringify(orderData)
-        });
-        
-        const result = await response.json();
-        
-        if (result.success) {
-            // Thành công
-            alert(`Tạo đơn đặt món thành công! Mã đơn: ${result.data.maDon}`);
-            
-            // Reset giỏ hàng và đóng modal
-            Object.keys(shoppingCart).forEach(key => delete shoppingCart[key]);
-            
-            // Cập nhật UI trực tiếp thay vì gọi updateAllUI()
-            totalCartQuantity = 0;
-            totalCartPrice = 0;
-            const stickyCartWidget = document.getElementById('sticky-cart-widget');
-            if (stickyCartWidget) {
-                stickyCartWidget.classList.remove('show');
-            }
-            
-            // Đóng modal trực tiếp thay vì gọi hideBillModal()
-            const billOverlay = document.getElementById('create-bill');
-            if (billOverlay) {
-                billOverlay.classList.remove('show');
-                document.body.style.overflow = '';
-            }
-            
-            // Có thể chuyển hướng đến trang chi tiết đơn hoặc danh sách đơn
-            if (confirm('Bạn có muốn xem chi tiết đơn đặt món vừa tạo không?')) {
-                window.location.href = `index.php?page=nhanvien&action=viewBookingDetail&id=${result.data.maDon}`;
-            }
-            
-        } else {
-            // Lỗi từ server
-            alert('Có lỗi xảy ra: ' + (result.error || 'Không thể tạo đơn đặt món'));
-        }
-        
-    } catch (error) {
-        console.error('Error creating order:', error);
-        alert('Có lỗi xảy ra khi tạo đơn. Vui lòng thử lại!');
-    } finally {
-        // Khôi phục nút
-        proceedBtn.innerHTML = originalText;
-        proceedBtn.disabled = false;
-    }
-}
-
 // === CHỨC NĂNG TÌM KIẾM MENU ===
 let currentSearchQuery = '';
 let isSearching = false;
@@ -2450,25 +2232,25 @@ function renderMenuItems(items) {
         menuCard.setAttribute('data-description', item.MoTa || '');
         menuCard.setAttribute('data-image-url', item.HinhAnhURL || 'https://storage.quannhautudo.com/data/thumb_400/Data/images/product/2025/06/202506271712248578.webp');
         
-        menuCard.innerHTML = `
-            <img src="${item.HinhAnhURL || 'https://storage.quannhautudo.com/data/thumb_400/Data/images/product/2025/06/202506271712248578.webp'}" 
-                 alt="${item.TenMon}"
-                 onerror="this.src='https://storage.quannhautudo.com/data/thumb_400/Data/images/product/2025/06/202506271712248578.webp'">
-            
-            <div class="menu2-card-content">
+          menuCard.innerHTML = `
+        <img src="${item.HinhAnhURL || 'URL_HINH_ANH_MAC_DINH'}" 
+             alt="${item.TenMon}"
+             onerror="this.src='URL_HINH_ANH_MAC_DINH'">
+        
+        <div class="menu2-card-content">
+            <div class="menu2-card-info">
                 <span class="menu2-card-name">${item.TenMon}</span>
-                <div class="menu2-card-price">
-                    ${formatPrice(item.Gia)}đ
-                </div>
-                <div class="menu2-card-actions">
-                    <div class="menu2-btn-add-to-cart" 
-                         data-action="add-to-cart"
-                         data-id="${item.MaMon}"
-                         data-name="${item.TenMon}"
-                         data-price="${item.Gia}">+ Đặt</div>
-                </div>
+                <span class="menu2-card-price">${formatPrice(item.Gia)}đ</span>
             </div>
-        `;
+            <div class="menu2-card-actions">
+                <div class="menu2-btn-add-to-cart" 
+                     data-action="add-to-cart"
+                     data-id="${item.MaMon}"
+                     data-name="${item.TenMon}"
+                     data-price="${item.Gia}">+ Đặt</div>
+            </div>
+        </div>
+    `;
         
         menuGrid.appendChild(menuCard);
     });

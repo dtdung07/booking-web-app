@@ -1,53 +1,11 @@
 <?php
-if (session_status() == PHP_SESSION_NONE) {
-    session_start();
-}
-
-// Xử lý cập nhật trạng thái bàn
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['maBan']) && isset($_POST['trangThai'])) {
-    require_once $_SERVER['DOCUMENT_ROOT'] . '/app/models/TableStatusManager.php';
-    
-    $maBan = (int)$_POST['maBan'];
-    $thoiGianBatDau = $_POST['thoiGianBatDau'];
-    $thoiGianKetThuc = $_POST['thoiGianKetThuc'];
-    $trangThai = $_POST['trangThai'];
-    
-    // Kiểm tra quyền nhân viên - chỉ được thao tác với bàn của cơ sở mình
-    $nhanVien = $_SESSION['user'];
-    $banInfo = TableStatusManager::layThongTinBan($maBan);
-    
-    if ($banInfo && $banInfo['MaCoSo'] == $nhanVien['MaCoSo']) {
-        $result = TableStatusManager::capNhatTrangThaiBan($maBan, $trangThai);
-        
-        if ($result) {
-            $_SESSION['success_message'] = 'Cập nhật trạng thái bàn thành công!';
-        } else {
-            $_SESSION['error_message'] = 'Có lỗi xảy ra khi cập nhật trạng thái bàn!';
-        }
-    } else {
-        $_SESSION['error_message'] = 'Bạn không có quyền thao tác với bàn này!';
-    }
-    
-    // Sử dụng JavaScript redirect thay vì PHP header
-    echo '<script>window.location.href = "?page=nhanvien&action=dashboard&section=table_status";</script>';
-    exit;
-}
-
-// Khởi tạo các biến cần thiết
-$nhanVien = $_SESSION['user'];
-$maCoSo = $nhanVien['MaCoSo']; // Lấy cơ sở từ thông tin nhân viên
-$tenCoSo = '';
-$thoiGianBatDau = $_GET['thoiGianBatDau'] ?? date('Y-m-d H:i');
-$thoiGianKetThuc = $_GET['thoiGianKetThuc'] ?? date('Y-m-d H:i', strtotime('+2 hours'));
-$banList = [];
-
-// Lấy thông tin cơ sở của nhân viên
-require_once $_SERVER['DOCUMENT_ROOT'] . '/app/models/TableStatusManager.php';
-$thongTinCoSo = TableStatusManager::layThongTinCoSo($maCoSo);
-$tenCoSo = $thongTinCoSo['TenCoSo'] ?? '';
-
-// Lấy danh sách bàn với trạng thái
-$banList = TableStatusManager::layBanTheoCoSo($maCoSo);
+// View để hiển thị trạng thái bàn cho nhân viên
+// Dữ liệu được truyền từ TableStatusController:
+// - $nhanVien: thông tin nhân viên đăng nhập
+// - $thongTinCoSo: thông tin cơ sở làm việc
+// - $thoiGianBatDau, $thoiGianKetThuc: khoảng thời gian
+// - $banList: danh sách bàn với trạng thái
+// - $thongKe: thống kê số lượng bàn
 ?>
 
 <style>
@@ -122,6 +80,14 @@ $banList = TableStatusManager::layBanTheoCoSo($maCoSo);
         <?php unset($_SESSION['error_message']); ?>
     <?php endif; ?>
     
+    <?php if (isset($_SESSION['info_message'])): ?>
+        <div class="alert alert-info alert-dismissible fade show" role="alert">
+            <i class="fas fa-info-circle"></i> <?=$_SESSION['info_message']?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        <?php unset($_SESSION['info_message']); ?>
+    <?php endif; ?>
+    
     <!-- Form chọn thời gian -->
     <form method="GET" class="mb-4">
         <input type="hidden" name="page" value="nhanvien">
@@ -133,20 +99,20 @@ $banList = TableStatusManager::layBanTheoCoSo($maCoSo);
             <div class="col-md-3">
                 <label class="form-label">Cơ sở làm việc:</label>
                 <div class="form-control-plaintext bg-light p-2 rounded">
-                    <strong><?=htmlspecialchars($tenCoSo)?></strong>
+                    <strong><?=htmlspecialchars($thongTinCoSo['TenCoSo'] ?? '')?></strong>
                 </div>
             </div>
             
             <div class="col-md-3">
                 <label class="form-label">Thời gian bắt đầu:</label>
                 <input type="datetime-local" name="thoiGianBatDau" class="form-control" 
-                       value="<?=htmlspecialchars($thoiGianBatDau)?>" required>
+                       value="<?=htmlspecialchars($thoiGianBatDau ?? date('Y-m-d H:i'))?>" required>
             </div>
             
             <div class="col-md-3">
                 <label class="form-label">Thời gian kết thúc:</label>
                 <input type="datetime-local" name="thoiGianKetThuc" class="form-control" 
-                       value="<?=htmlspecialchars($thoiGianKetThuc)?>" required>
+                       value="<?=htmlspecialchars($thoiGianKetThuc ?? date('Y-m-d H:i', strtotime('+2 hours')))?>" required>
             </div>
             
             <div class="col-md-3">
@@ -160,8 +126,13 @@ $banList = TableStatusManager::layBanTheoCoSo($maCoSo);
 
     <!-- Hiển thị thông tin cơ sở và thời gian -->
     <div class="alert alert-info">
-        <strong>Cơ sở:</strong> <?=$tenCoSo?> | 
-        <strong>Thời gian:</strong> <?=date('d/m/Y H:i', strtotime($thoiGianBatDau))?> - <?=date('d/m/Y H:i', strtotime($thoiGianKetThuc))?>
+        <strong>Cơ sở:</strong> <?=htmlspecialchars($thongTinCoSo['TenCoSo'] ?? '')?> | 
+        <strong>Thời gian:</strong> 
+        <?php if (isset($thoiGianBatDau) && isset($thoiGianKetThuc)): ?>
+            <?=date('d/m/Y H:i', strtotime($thoiGianBatDau))?> - <?=date('d/m/Y H:i', strtotime($thoiGianKetThuc))?>
+        <?php else: ?>
+            <?=date('d/m/Y H:i')?> - <?=date('d/m/Y H:i', strtotime('+2 hours'))?>
+        <?php endif; ?>
     </div>
 
     <!-- Bảng danh sách bàn -->
@@ -237,16 +208,11 @@ $banList = TableStatusManager::layBanTheoCoSo($maCoSo);
 
     <!-- Thống kê -->
     <?php if (!empty($banList)): ?>
-        <?php
-        $tongBan = count($banList);
-        $banTrong = count(array_filter($banList, function($ban) { return $ban['TrangThai'] == 'trong'; }));
-        $banDaDat = $tongBan - $banTrong;
-        ?>
         <div class="row mt-4">
             <div class="col-md-4">
                 <div class="card bg-primary text-white">
                     <div class="card-body text-center">
-                        <h5><?=$tongBan?></h5>
+                        <h5><?=$thongKe['tongBan']?></h5>
                         <p class="mb-0">Tổng số bàn</p>
                     </div>
                 </div>
@@ -254,7 +220,7 @@ $banList = TableStatusManager::layBanTheoCoSo($maCoSo);
             <div class="col-md-4">
                 <div class="card bg-success text-white">
                     <div class="card-body text-center">
-                        <h5><?=$banTrong?></h5>
+                        <h5><?=$thongKe['banTrong']?></h5>
                         <p class="mb-0">Bàn trống</p>
                     </div>
                 </div>
@@ -262,7 +228,7 @@ $banList = TableStatusManager::layBanTheoCoSo($maCoSo);
             <div class="col-md-4">
                 <div class="card bg-warning text-white">
                     <div class="card-body text-center">
-                        <h5><?=$banDaDat?></h5>
+                        <h5><?=$thongKe['banDaDat']?></h5>
                         <p class="mb-0">Bàn đã đặt</p>
                     </div>
                 </div>
@@ -272,15 +238,11 @@ $banList = TableStatusManager::layBanTheoCoSo($maCoSo);
 </div>
 
 <!-- Form ẩn để cập nhật trạng thái -->
-<form id="updateStatusForm" method="POST" style="display: none;">
-    <input type="hidden" name="page" value="admin">
-    <input type="hidden" name="section" value="table">
-    <input type="hidden" name="action" value="updateStatus">
+<form id="updateStatusForm" method="POST" action="index.php?page=nhanvien&action=update_table_status" style="display: none;">
     <input type="hidden" name="maBan" id="updateMaBan">
-    <input type="hidden" name="thoiGianBatDau" id="updateThoiGianBatDau">
-    <input type="hidden" name="thoiGianKetThuc" id="updateThoiGianKetThuc">
+    <input type="hidden" name="thoiGianBatDau" id="updateThoiGianBatDau" value="<?=htmlspecialchars($thoiGianBatDau ?? date('Y-m-d H:i'))?>">
+    <input type="hidden" name="thoiGianKetThuc" id="updateThoiGianKetThuc" value="<?=htmlspecialchars($thoiGianKetThuc ?? date('Y-m-d H:i', strtotime('+2 hours')))?>">
     <input type="hidden" name="trangThai" id="updateTrangThai">
-    <input type="hidden" name="maCoSo" id="updateMaCoSo">
 </form>
 
 <script>
@@ -294,7 +256,6 @@ function updateTableStatus(maBan, trangThai) {
         const originalText = button.innerHTML;
         button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
         button.disabled = true;
-        
         document.getElementById('updateMaBan').value = maBan;
         document.getElementById('updateTrangThai').value = trangThai;
         document.getElementById('updateStatusForm').submit();
@@ -302,55 +263,75 @@ function updateTableStatus(maBan, trangThai) {
 }
 
 function showTableDetails(maBan, tenBan, trangThai) {
-    const statusText = trangThai === 'trong' ? 'Trống' : 'Đã đặt';
-    const statusClass = trangThai === 'trong' ? 'success' : 'warning';
-    
-    const details = `
-        <div class="table-details">
-            <h6><i class="fas fa-utensils"></i> Chi tiết bàn</h6>
-            <p><strong>Mã bàn:</strong> ${maBan}</p>
-            <p><strong>Tên bàn:</strong> ${tenBan}</p>
-            <p><strong>Trạng thái:</strong> <span class="badge bg-${statusClass}">${statusText}</span></p>
-            <p><strong>Thời gian:</strong> ${document.querySelector('input[name="thoiGianBatDau"]').value} - ${document.querySelector('input[name="thoiGianKetThuc"]').value}</p>
-        </div>
-    `;
-    
-    // Tạo modal hoặc alert
-    const modal = document.createElement('div');
-    modal.className = 'modal fade';
-    modal.innerHTML = `
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Chi tiết bàn</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    // Gọi AJAX để lấy chi tiết bàn từ server
+    fetch(`index.php?page=nhanvien&action=get_table_details&maBan=${maBan}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert(data.error);
+                return;
+            }
+            
+            const statusText = trangThai === 'trong' ? 'Trống' : 'Đã đặt';
+            const statusClass = trangThai === 'trong' ? 'success' : 'warning';
+            
+            const details = `
+                <div class="table-details">
+                    <h6><i class="fas fa-utensils"></i> Chi tiết bàn</h6>
+                    <p><strong>Mã bàn:</strong> ${maBan}</p>
+                    <p><strong>Tên bàn:</strong> ${tenBan}</p>
+                    <p><strong>Sức chứa:</strong> ${data.SucChua || 'N/A'} người</p>
+                    <p><strong>Trạng thái:</strong> <span class="badge bg-${statusClass}">${statusText}</span></p>
+                    <p><strong>Thời gian:</strong> ${document.querySelector('input[name="thoiGianBatDau"]').value} - ${document.querySelector('input[name="thoiGianKetThuc"]').value}</p>
                 </div>
-                <div class="modal-body">
-                    ${details}
+            `;
+            
+            // Tạo modal để hiển thị chi tiết
+            const modal = document.createElement('div');
+            modal.className = 'modal fade';
+            modal.innerHTML = `
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Chi tiết bàn</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            ${details}
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                        </div>
+                    </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    document.body.appendChild(modal);
-    const bsModal = new bootstrap.Modal(modal);
-    bsModal.show();
-    
-    // Xóa modal sau khi đóng
-    modal.addEventListener('hidden.bs.modal', function() {
-        document.body.removeChild(modal);
-    });
+            `;
+            
+            document.body.appendChild(modal);
+            const bsModal = new bootstrap.Modal(modal);
+            bsModal.show();
+            
+            // Xóa modal sau khi đóng
+            modal.addEventListener('hidden.bs.modal', function() {
+                document.body.removeChild(modal);
+            });
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Có lỗi xảy ra khi lấy thông tin bàn');
+        });
 }
 
-// Auto submit form khi thay đổi cơ sở
+// Đảm bảo thời gian form được cập nhật khi submit
 document.addEventListener('DOMContentLoaded', function() {
-    const coSoSelect = document.querySelector('select[name="maCoSo"]');
-    if (coSoSelect && coSoSelect.value) {
-        // Form sẽ tự động submit khi chọn cơ sở
-        console.log('Cơ sở đã được chọn:', coSoSelect.value);
+    console.log('Table status page loaded successfully');
+    
+    // Cập nhật giá trị thời gian vào form ẩn khi trang load
+    const thoiGianBatDau = document.querySelector('input[name="thoiGianBatDau"]');
+    const thoiGianKetThuc = document.querySelector('input[name="thoiGianKetThuc"]');
+    
+    if (thoiGianBatDau && thoiGianKetThuc) {
+        document.getElementById('updateThoiGianBatDau').value = thoiGianBatDau.value;
+        document.getElementById('updateThoiGianKetThuc').value = thoiGianKetThuc.value;
     }
 });
 </script>
