@@ -317,6 +317,10 @@ if ($section === 'uudai' && in_array($action, ['process-create', 'process-update
                 case 'menu':
                     include __DIR__ . '/menu/index.php';
                     break;
+                
+                case 'menu_branch':
+                    include __DIR__ . '/menu_branch/index.php';
+                    break;
                     
                 case 'categories':
                     include __DIR__ . '/categories/index.php';
