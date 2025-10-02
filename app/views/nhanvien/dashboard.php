@@ -17,10 +17,16 @@ $section = $_GET['section'] ?? 'overview';
 
 // Lấy dữ liệu dashboard
 $coSoInfo = $dashboardData['coSoInfo'];
-$todayBookings = $dashboardData['todayBookings'] ?? 0;
-$todayNewBookings = $dashboardData['todayBookings'] ?? 0;
+$totalBooking = $dashboardData['todayBookings'] ?? 0;
+$todayNewBookings = $dashboardData['todayNewBookings'] ?? 0;
+$completedBookings = $dashboardData['completedBookings'] ?? 0;
 $pendingBookings = $dashboardData['pendingBookings'] ?? 0;
 $confirmedBookings = $dashboardData['confirmedBookings'] ?? 0;
+
+// Extract dữ liệu table status nếu có
+if (isset($tableStatusData) && is_array($tableStatusData)) {
+    extract($tableStatusData);
+}
 ?>
 
 <!DOCTYPE html>
@@ -37,6 +43,9 @@ $confirmedBookings = $dashboardData['confirmedBookings'] ?? 0;
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
+    <!-- CSS Constants -->
+    <link rel="stylesheet" href="public/css/constants.css">
+    
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
@@ -49,6 +58,8 @@ $confirmedBookings = $dashboardData['confirmedBookings'] ?? 0;
             --colorLinkGreen: #1B4E30;
             --colorGrey: #D9D9D9;
         }
+
+        
         
         .sidebar {
             position: fixed;
@@ -204,13 +215,19 @@ $confirmedBookings = $dashboardData['confirmedBookings'] ?? 0;
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="index.php?page=menu">
+                <a class="nav-link <?php echo $section === 'table_status' ? 'active' : ''; ?>" href="index.php?page=nhanvien&action=dashboard&section=table_status">
+                    <i class="fas fa-calendar-check me-2"></i>
+                    Quản lý bàn
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="index.php?page=menu2&coso=<?php echo urlencode($coSoInfo['MaCoSo'] ?? ''); ?>">
                     <i class="fas fa-utensils me-2"></i>
                     Xem Menu
                 </a>
             </li>
            
-            <li class="nav-item mt-3">
+            <li class="nav-item">
                 <a class="nav-link" href="index.php">
                     <i class="fas fa-home me-2"></i>
                     Về trang chủ
@@ -295,6 +312,21 @@ $confirmedBookings = $dashboardData['confirmedBookings'] ?? 0;
                             </div>
                         </div>
                     </div>
+                     <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card stat-card">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center">
+                                    <div class="stat-icon text-white me-3" style="background-color: #1fb109ff;">
+                                        <i class="fas fa-check"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="text-muted mb-1">Đơn hoàn thành</h6>
+                                        <h3 class="mb-0"><?php echo number_format($completedBookings); ?></h3>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     
                     <div class="col-xl-3 col-md-6 mb-4">
                         <div class="card stat-card">
@@ -321,7 +353,7 @@ $confirmedBookings = $dashboardData['confirmedBookings'] ?? 0;
                                     </div>
                                     <div>
                                         <h6 class="text-muted mb-1">Đặt bàn trước</h6>
-                                        <h3 class="mb-0"><?php echo number_format($todayBookings); ?></h3>
+                                        <h3 class="mb-0"><?php echo number_format($pendingBookings); ?></h3>
                                     </div>
                                 </div>
                             </div>
@@ -362,7 +394,7 @@ $confirmedBookings = $dashboardData['confirmedBookings'] ?? 0;
                             <div class="text-center">
                                 <i class="fas fa-map-marker-alt fa-2x mb-2" style="color: var(--colorPrimary);"></i>
                                 <h6>Xem cơ sở</h6>
-                                <small class="text-muted">Thông tin các cơ sở nhà hàng</small>
+                                <small class="text-muted">Thông tin các nhà hàng</small>
                             </div>
                         </a>
                     </div>
@@ -381,8 +413,14 @@ $confirmedBookings = $dashboardData['confirmedBookings'] ?? 0;
             <?php elseif ($section === 'bookings'): ?>
                 <!-- Bookings Content -->
                 <?php include 'bookings_section.php'; ?>
-
+            <?php elseif ($section === 'create_booking'): ?>
+                <!-- Create Booking Content -->
+                <?php include 'create_bill.php'; ?>
+            <?php elseif ($section === 'table_status'): ?>
+                <!-- Table Status Content -->
+                <?php include 'table_status.php'; ?>
             <?php endif; ?>
+
         </div>
     </main>
 

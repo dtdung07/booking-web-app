@@ -28,7 +28,10 @@ class AdminBranchController extends BaseController
     {
         $page_title = "Quản lý cơ sở - Admin";
         $stmt = $this->coSo->getAll();
-        $branches = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $branches = [];
+        while ($row = mysqli_fetch_assoc($stmt)) {
+            $branches[] = $row;
+        }
         // Render view của trang admin
         // $this->render('admin/branches/index', [
         //     'page_title' => $page_title,
@@ -43,7 +46,11 @@ class AdminBranchController extends BaseController
     public function getBranches()
     {
         $stmt = $this->coSo->getAll();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $branches = [];
+        while ($row = mysqli_fetch_assoc($stmt)) {
+            $branches[] = $row;
+        }
+        return $branches;
     }
     /**
      * API để lấy dữ liệu cơ sở cho bảng admin (JSON response)
@@ -53,7 +60,10 @@ class AdminBranchController extends BaseController
         header('Content-Type: application/json; charset=utf-8');
         try {
             $stmt = $this->coSo->getAll();
-            $branches = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $branches = [];
+            while ($row = mysqli_fetch_assoc($stmt)) {
+                $branches[] = $row;
+            }
             
             echo json_encode([
                 'success' => true,

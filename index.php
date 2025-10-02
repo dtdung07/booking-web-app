@@ -67,6 +67,7 @@ switch ($request) {
         
     case 'nhanvien':
         $controller = new NhanVienController();
+        $action = $_GET['action'];
         break;
     
     default:
@@ -78,6 +79,8 @@ switch ($request) {
 if (method_exists($controller, $action)) {
     $controller->$action();
 } else {
+    // Debug: Log missing method
+    error_log("Method '$action' not found in " . get_class($controller));
     $controller->index();
 }
 ?>

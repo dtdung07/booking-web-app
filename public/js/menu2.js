@@ -50,6 +50,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const dpNextMonthBtn = document.getElementById('menu2-dp-next-month');
     const dpTodayBtn = document.getElementById('menu2-dp-today-btn');
     const dpCloseBtn = document.getElementById('menu2-dp-close-btn');
+
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
@@ -121,13 +122,21 @@ document.addEventListener('DOMContentLoaded', function () {
             shoppingCart[itemId] = { name: itemName, price: parseFloat(itemPrice), quantity: quantity };
         }
         updateAllUI();
+
+        // Lưu vào cookies
+        saveCartToCookies();
     }
 
     // --- Các hàm Mở/Đóng Modal ---
     function openModal(element, state) {
         if (element) {
             element.classList.toggle('show', state);
-            document.body.style.overflow = (state && (itemModal.style.display === 'block' || billOverlay.classList.contains('show') || dpOverlay.classList.contains('show') || bookingOverlay.classList.contains('show'))) ? 'hidden' : 'auto';
+            document.body.style.overflow = (state && (
+                (itemModal && itemModal.style.display === 'block') ||
+                (billOverlay && billOverlay.classList.contains('show')) ||
+                (dpOverlay && dpOverlay.classList.contains('show')) ||
+                (bookingOverlay && bookingOverlay.classList.contains('show'))
+            )) ? 'hidden' : 'auto';
         }
     }
 
@@ -141,7 +150,6 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('menu2-modalImage').src = imageUrl || 'https://storage.quannhautudo.com/data/thumb_400/Data/images/product/2025/06/202506271712248578.webp';
         document.getElementById('menu2-modalDescription').textContent = description || 'Món ăn ngon tại nhà hàng';
         quantityInputModal.value = 1;
-
         itemModal.style.display = 'block';
         document.body.style.overflow = 'hidden';
     }
@@ -159,17 +167,22 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function closeBillModal() {
+        console.log('Closing bill modal');
         openModal(billOverlay, false);
-        if (itemModal.style.display !== 'block' && !dpOverlay.classList.contains('show') && !bookingOverlay.classList.contains('show')) {
+        if ((!itemModal || itemModal.style.display !== 'block') &&
+            (!dpOverlay || !dpOverlay.classList.contains('show')) &&
+            (!bookingOverlay || !bookingOverlay.classList.contains('show'))) {
             document.body.style.overflow = 'auto';
         }
     }
 
     function showBookingForm() {
+        console.log('Showing booking form');
         openModal(bookingOverlay, true);
     }
 
     function closeBookingForm() {
+        console.log('Showing booking form');
         openModal(bookingOverlay, false);
     }
 
@@ -228,50 +241,53 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // Sự kiện riêng cho các element không dùng delegation
-    orderNowBtn.addEventListener('click', () => {
-        const quantity = parseInt(quantityInputModal.value);
-        addToCart(currentItemId, currentItemName, currentItemPrice, quantity);
-        closeItemModal();
-    });
+    if (orderNowBtn) {
+        orderNowBtn.addEventListener('click', () => {
+            const quantity = parseInt(quantityInputModal.value);
+            addToCart(currentItemId, currentItemName, currentItemPrice, quantity);
+            closeItemModal();
+        });
+    }
 
-    stickyCartWidget.addEventListener('click', openBillModal);
-    billCloseBtn.addEventListener('click', closeBillModal);
+    // Note: sticky cart widget, bill close button và clear all button
+    // được xử lý bởi global-cart-manager.js
 
-    billClearAllBtn.addEventListener('click', function (e) {
-        e.preventDefault();
-        if (confirm('Bạn có chắc chắn muốn xoá tất cả các món trong giỏ hàng tạm?')) {
-            Object.keys(shoppingCart).forEach(key => delete shoppingCart[key]);
-            updateAllUI();
-        }
-    });
+    if (billItemsContainer) {
+        billItemsContainer.addEventListener('click', function (e) {
+            const actionTarget = e.target.closest('[data-action]');
+            if (!actionTarget) return;
 
-    billItemsContainer.addEventListener('click', function (e) {
-        const actionTarget = e.target.closest('[data-action]');
-        if (!actionTarget) return;
+            const action = actionTarget.dataset.action;
+            const itemDiv = e.target.closest('.menu2-bill-item');
+            if (!itemDiv) return;
+            const itemId = itemDiv.dataset.itemId;
 
-        const action = actionTarget.dataset.action;
-        const itemDiv = e.target.closest('.menu2-bill-item');
-        if (!itemDiv) return;
-        const itemId = itemDiv.dataset.itemId;
-
-        if (action === 'bill-qty-increase') {
-            shoppingCart[itemId].quantity += 1;
-        } else if (action === 'bill-qty-decrease') {
-            if (shoppingCart[itemId].quantity > 1) {
-                shoppingCart[itemId].quantity -= 1;
-            } else {
+            if (action === 'bill-qty-increase') {
+                shoppingCart[itemId].quantity += 1;
+            } else if (action === 'bill-qty-decrease') {
+                if (shoppingCart[itemId].quantity > 1) {
+                    shoppingCart[itemId].quantity -= 1;
+                } else {
+                    delete shoppingCart[itemId];
+                }
+            } else if (action === 'delete-item') {
                 delete shoppingCart[itemId];
             }
-        } else if (action === 'delete-item') {
-            delete shoppingCart[itemId];
-        }
-        updateAllUI();
-    });
+            updateAllUI();
 
-    proceedToBookingBtn.addEventListener('click', function () {
-        closeBillModal();
-        showBookingForm();
-    });
+            // Lưu vào cookies sau mỗi thay đổi
+            saveCartToCookies();
+        });
+    }
+
+    if (proceedToBookingBtn) {
+        proceedToBookingBtn.addEventListener('click', function () {
+            closeBillModal();
+            showBookingForm();
+        });
+    }
+
+
 
     // === HỆ THỐNG 3: LOGIC CALENDAR (GIỮ NGUYÊN, VÌ ĐÃ TỐT) ===
     // ... (Toàn bộ code calendar của bạn có thể giữ nguyên ở đây) ...
@@ -322,7 +338,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function closeDatePickerModal() {
         openModal(dpOverlay, false);
-        if (itemModal.style.display !== 'block' && !billOverlay.classList.contains('show') && !bookingOverlay.classList.contains('show')) {
+        if ((!itemModal || itemModal.style.display !== 'block') &&
+            (!billOverlay || !billOverlay.classList.contains('show')) &&
+            (!bookingOverlay || !bookingOverlay.classList.contains('show'))) {
             document.body.style.overflow = 'auto';
         }
     }
@@ -334,21 +352,39 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    dpCloseBtn.addEventListener('click', closeDatePickerModal);
-    dpPrevMonthBtn.addEventListener('click', () => renderCalendar(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth() - 1));
-    dpNextMonthBtn.addEventListener('click', () => renderCalendar(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth() + 1));
-    dpTodayBtn.addEventListener('click', () => {
-        selectedDate = new Date(today);
-        dateInput.value = formatDateForInput(selectedDate);
-        closeDatePickerModal();
-    });
-    dpGrid.addEventListener('click', (e) => {
-        const target = e.target.closest('.menu2-dp-day:not(.empty):not(.disabled)');
-        if (!target) return;
-        selectedDate = new Date(target.dataset.date);
-        dateInput.value = formatDateForInput(selectedDate);
-        closeDatePickerModal();
-    });
+    if (dpCloseBtn) {
+        dpCloseBtn.addEventListener('click', closeDatePickerModal);
+    }
+
+    if (dpPrevMonthBtn) {
+        dpPrevMonthBtn.addEventListener('click', () => renderCalendar(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth() - 1));
+    }
+
+    if (dpNextMonthBtn) {
+        dpNextMonthBtn.addEventListener('click', () => renderCalendar(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth() + 1));
+    }
+
+    if (dpTodayBtn) {
+        dpTodayBtn.addEventListener('click', () => {
+            selectedDate = new Date(today);
+            if (dateInput) {
+                dateInput.value = formatDateForInput(selectedDate);
+            }
+            closeDatePickerModal();
+        });
+    }
+
+    if (dpGrid) {
+        dpGrid.addEventListener('click', (e) => {
+            const target = e.target.closest('.menu2-dp-day:not(.empty):not(.disabled)');
+            if (!target) return;
+            selectedDate = new Date(target.dataset.date);
+            if (dateInput) {
+                dateInput.value = formatDateForInput(selectedDate);
+            }
+            closeDatePickerModal();
+        });
+    }
 
     // === Đóng modal chung ===
     document.addEventListener('keydown', function (event) {
@@ -361,11 +397,14 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     window.addEventListener('click', function (event) {
-        if (event.target == itemModal) closeItemModal();
-        if (event.target == billOverlay) closeBillModal();
-        if (event.target == dpOverlay) closeDatePickerModal();
-        if (event.target == bookingOverlay) closeBookingForm();
+        if (itemModal && event.target == itemModal) closeItemModal();
+        if (billOverlay && event.target == billOverlay) closeBillModal();
+        if (dpOverlay && event.target == dpOverlay) closeDatePickerModal();
+        if (bookingOverlay && event.target == bookingOverlay) closeBookingForm();
     });
+
+    // === KHÔI PHỤC GIỎ HÀNG TỪ COOKIES SAU KHI TẤT CẢ FUNCTIONS ĐÃ ĐƯỢC ĐỊNH NGHĨA ===
+    loadCartFromCookies();
 
 }); // --- KẾT THÚC DOMCONTENTLOADED ---
 
@@ -501,14 +540,41 @@ function escapeHtml(text) {
     return String(text).replace(/[&<>"']/g, function (m) { return map[m]; });
 }
 
+// === HÀM HELPER CHO COOKIES ===
+function saveCartToCookies() {
+    if (typeof window.CartCookies !== 'undefined') {
+        window.CartCookies.saveCart(shoppingCart);
 
-function escapeHtml(text) {
-    const map = {
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#039;'
-    };
-    return String(text).replace(/[&<>"']/g, function (m) { return map[m]; });
+        // Cập nhật global cart display trên tất cả các trang
+        if (typeof window.updateGlobalCart === 'function') {
+            window.updateGlobalCart();
+        }
+    }
+}
+
+function loadCartFromCookies() {
+    if (typeof window.CartCookies !== 'undefined') {
+        const savedCart = window.CartCookies.loadCart();
+        if (savedCart && Object.keys(savedCart).length > 0) {
+            // Khôi phục dữ liệu vào biến global
+            Object.keys(savedCart).forEach(itemId => {
+                shoppingCart[itemId] = savedCart[itemId];
+            });
+
+            // Cập nhật UI sau khi khôi phục
+            updateAllUI();
+            console.log('Cart restored from cookies:', savedCart);
+        }
+    }
+}
+
+function clearCartFromCookies() {
+    if (typeof window.CartCookies !== 'undefined') {
+        window.CartCookies.clearCart();
+
+        // Cập nhật global cart display
+        if (typeof window.updateGlobalCart === 'function') {
+            window.updateGlobalCart();
+        }
+    }
 }

@@ -17,7 +17,10 @@ class HomeController extends BaseController
     {
         // Lấy dữ liệu cơ sở từ database
         $stmt = $this->coSo->getAll();
-        $branches_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $branches_data = [];
+        while ($row = mysqli_fetch_assoc($stmt)) {
+            $branches_data[] = $row;
+        }
         
         // Nhóm cơ sở theo địa chỉ
         $grouped_branches = [];

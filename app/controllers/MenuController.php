@@ -45,7 +45,7 @@ class MenuController extends BaseController
         $groupedMenuItems = $this->menuModel->findMenuItemsGroupedByCategory($maCoSo);
         
         // Script riêng cho menu2
-        $additional_scripts = '<script src="' . asset('js/menu2.js') . '"></script>';
+        // $additional_scripts = '<script src="' . asset('js/menu2.js') . '"></script>';
         
         // Truyền dữ liệu cho View
         $this->render('menu2/menu2', [
@@ -54,7 +54,7 @@ class MenuController extends BaseController
             'groupedMenuItems' => $groupedMenuItems,
             'selectedCategory' => $selectedCategory,
             'maCoSo' => $maCoSo,
-            'additional_scripts' => $additional_scripts
+            // 'additional_scripts' => $additional_scripts
         ]);
     }
     
@@ -110,8 +110,11 @@ class MenuController extends BaseController
     private function getBranches() 
     {
         $sql = "SELECT MaCoSo, TenCoSo, DiaChi FROM coso WHERE TenCoSo != '' ORDER BY MaCoSo ASC";
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $result = mysqli_query($this->db, $sql);
+        $branches = [];
+        while ($row = mysqli_fetch_assoc($result)) {
+            $branches[] = $row;
+        }
+        return $branches;
     }
 }
