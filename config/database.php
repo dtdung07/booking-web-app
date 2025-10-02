@@ -5,7 +5,7 @@ class Database {
     private $username = "root";
     private $password = "";
     public $conn;
-    public function getConnection() {
+   public function getConnection() {
     $this->conn = null;
     try {
         // Tạo kết nối MySQLi

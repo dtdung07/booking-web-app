@@ -36,8 +36,14 @@ class TableStatusController extends BaseController {
         // Lấy thông tin cơ sở của nhân viên
         $thongTinCoSo = $this->tableStatusModel->layThongTinCoSo($maCoSo);
         
+        // Cleanup các đơn đặt bàn quá hạn trước khi hiển thị trạng thái
+        $cleanupResult = TableStatusManager::xoaDonDatBanQuaHan($maCoSo);
+        if ($cleanupResult['success'] && $cleanupResult['deleted_count'] > 0) {
+            $_SESSION['info_message'] = $cleanupResult['message'];
+        }
+        
         // Lấy danh sách bàn với trạng thái
-        $banList = $this->tableStatusModel->layBanTheoCoSo($maCoSo, $thoiGianBatDau, $thoiGianKetThuc);
+        $banList = $this->tableStatusModel->layBanTheoCoSo($maCoSo);
         
         // Tính toán thống kê
         $thongKe = $this->tinhThongKe($banList);
@@ -55,6 +61,42 @@ class TableStatusController extends BaseController {
     }
 
     /**
+     * Lấy dữ liệu table status để sử dụng trong dashboard
+     * @return array
+     */
+    public function getTableStatusData() {
+        // Kiểm tra quyền nhân viên
+        $this->authController->requireNhanVien();
+        
+        // Lấy thông tin nhân viên từ session
+        $nhanVien = $_SESSION['user'];
+        $maCoSo = $nhanVien['MaCoSo'];
+        
+        // Khởi tạo các biến cần thiết
+        $thoiGianBatDau = $_GET['thoiGianBatDau'] ?? date('Y-m-d H:i');
+        $thoiGianKetThuc = $_GET['thoiGianKetThuc'] ?? date('Y-m-d H:i', strtotime('+2 hours'));
+        
+        // Lấy thông tin cơ sở của nhân viên
+        $thongTinCoSo = $this->tableStatusModel->layThongTinCoSo($maCoSo);
+        
+        // Lấy danh sách bàn với trạng thái
+        $banList = $this->tableStatusModel->layBanTheoCoSo($maCoSo);
+        
+        // Tính toán thống kê
+        $thongKe = $this->tinhThongKe($banList);
+        
+        // Trả về dữ liệu
+        return [
+            'nhanVien' => $nhanVien,
+            'thongTinCoSo' => $thongTinCoSo,
+            'thoiGianBatDau' => $thoiGianBatDau,
+            'thoiGianKetThuc' => $thoiGianKetThuc,
+            'banList' => $banList,
+            'thongKe' => $thongKe
+        ];
+    }
+
+    /**
      * Cập nhật trạng thái bàn
      */
     public function updateStatus() {
@@ -62,7 +104,7 @@ class TableStatusController extends BaseController {
         $this->authController->requireNhanVien();
         
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            $this->redirect('index.php?page=nhanvien&action=table_status');
+            $this->redirect('index.php?page=nhanvien&action=dashboard&section=table_status');
             return;
         }
         
@@ -92,7 +134,7 @@ class TableStatusController extends BaseController {
         }
         
         // Thực hiện cập nhật
-        $result = $this->tableStatusModel->capNhatTrangThaiBan($maBan, $thoiGianBatDau, $thoiGianKetThuc, $trangThai);
+        $result = $this->tableStatusModel->capNhatTrangThaiBan($maBan, $trangThai);
         
         if ($result) {
             $_SESSION['success_message'] = 'Cập nhật trạng thái bàn thành công!';
@@ -101,7 +143,7 @@ class TableStatusController extends BaseController {
         }
         
         // Redirect về trang quản lý với tham số thời gian
-        $redirectUrl = 'index.php?page=nhanvien&action=table_status&thoiGianBatDau=' . urlencode($thoiGianBatDau) . '&thoiGianKetThuc=' . urlencode($thoiGianKetThuc);
+        $redirectUrl = 'index.php?page=nhanvien&action=dashboard&section=table_status&thoiGianBatDau=' . urlencode($thoiGianBatDau) . '&thoiGianKetThuc=' . urlencode($thoiGianKetThuc);
         $this->redirect($redirectUrl);
     }
 
@@ -162,7 +204,7 @@ class TableStatusController extends BaseController {
         $thoiGianBatDau = $_POST['thoiGianBatDau'] ?? date('Y-m-d H:i');
         $thoiGianKetThuc = $_POST['thoiGianKetThuc'] ?? date('Y-m-d H:i', strtotime('+2 hours'));
         
-        $redirectUrl = 'index.php?page=nhanvien&action=table_status&thoiGianBatDau=' . urlencode($thoiGianBatDau) . '&thoiGianKetThuc=' . urlencode($thoiGianKetThuc);
+        $redirectUrl = 'index.php?page=nhanvien&action=dashboard&section=table_status&thoiGianBatDau=' . urlencode($thoiGianBatDau) . '&thoiGianKetThuc=' . urlencode($thoiGianKetThuc);
         $this->redirect($redirectUrl);
     }
 

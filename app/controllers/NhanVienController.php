@@ -5,7 +5,7 @@ require_once __DIR__ . '/../models/NhanVienModel.php';
 require_once __DIR__ . '/../models/BookingModel.php'; 
 require_once __DIR__ . '/../models/BranchModel.php'; 
 require_once __DIR__ . '/../models/MenuModel.php'; 
-require_once __DIR__ . '/../models/TableModel.php'; 
+require_once __DIR__ . '/../models/TableStatusManager.php'; 
 require_once __DIR__ . '/../../includes/BaseController.php'; 
 require_once __DIR__ . '/AuthController.php'; 
 
@@ -15,7 +15,7 @@ class NhanVienController extends BaseController
     private $bookingModel;
     private $branchModel;
     private $menuModel;
-    private $tableModel;
+    private $tableStatusManager;
     private $authController;
     private $db;
 
@@ -27,7 +27,7 @@ class NhanVienController extends BaseController
         $this->bookingModel = new BookingModel($this->db);
         $this->branchModel = new BranchModel($this->db);
         $this->menuModel = new MenuModel($this->db);
-        $this->tableModel = new TableModel($this->db);
+        $this->tableStatusManager = new TableStatusManager($this->db);
         $this->authController = new AuthController();
         
         if (session_status() === PHP_SESSION_NONE) {
@@ -46,20 +46,35 @@ class NhanVienController extends BaseController
         
         // Lấy thống kê dashboard
         $dashboardData = $this->getDashboardStatistics($maCoSo);
+
         
         // Xử lý section hiển thị
         $section = $_GET['section'] ?? 'overview';
         error_log("run Section: " . $section);
         
         switch ($section) {
+            case 'dashboard':
+                $cleanupResult = TableStatusManager::xoaDonDatBanQuaHan($maCoSo);
             case 'bookings':
+                $cleanupResult = TableStatusManager::xoaDonDatBanQuaHan($maCoSo);
+                if ($cleanupResult['success'] && $cleanupResult['deleted_count'] > 0) {
+                    $_SESSION['info_message'] = $cleanupResult['message'];
+                }
                 $bookingsData = $this->getBookingsList($maCoSo);
                 break;
+            
+            case 'create_bill':
+                $createBillResult = TableStatusManager::xoaDonDatBanQuaHan($maCoSo);
             case 'profile':
                 $profileData = $this->getProfileData($currentUser['MaNV']);
                 break;
+            case 'table_status':
+                require_once __DIR__ . '/TableStatusController.php';
+                $tableStatusController = new TableStatusController();
+                $tableStatusData = $tableStatusController->getTableStatusData();
+                break;
             default:
-                $section = 'overview';
+                $section = 'dashboard';
                 break;
         }
         
@@ -80,7 +95,7 @@ class NhanVienController extends BaseController
             $nhanVienData = $this->nhanVienModel->toArray();
         } else {
             $_SESSION['error_message'] = 'Không tìm thấy thông tin nhân viên.';
-            $this->redirect('index.php?page=nhanvien&action=dashboard');
+            $this->redirect('index.php?page=nhanvien&action=dashboard&section=dashboard');
             return;
         }
 
@@ -207,15 +222,17 @@ public function viewBookingDetail()
             $coSoInfo = $this->branchModel->getById($maCoSo);
             
             // Lấy các thống kê booking
-            $todayBookings = $this->bookingModel->countBookingsByBranch($maCoSo);
+            $totalBooking = $this->bookingModel->countBookingsByBranch($maCoSo);
             $todayNewBookings = $this->bookingModel->countTodayBookingsByBranch($maCoSo);
+            $completedBookings = $this->bookingModel->countCompletedBookingsByBranch($maCoSo);
             $pendingBookings = $this->bookingModel->countPendingBookingsByBranch($maCoSo);
             $confirmedBookings = $this->bookingModel->countConfirmedBookingsByBranch($maCoSo);
             
             return [
                 'coSoInfo' => $coSoInfo,
-                'todayBookings' => $todayBookings,
+                'totalBooking' => $totalBooking,
                 'todayNewBookings' => $todayNewBookings,
+                'completedBookings' => $completedBookings,
                 'pendingBookings' => $pendingBookings,
                 'confirmedBookings' => $confirmedBookings
             ];
@@ -223,8 +240,9 @@ public function viewBookingDetail()
             error_log("Error getting dashboard statistics: " . $e->getMessage());
             return [
                 'coSoInfo' => 'hello',
-                'todayBookings' => 0,
+                'totalBooking' => 0,
                 'todayNewBookings' => 0,
+                'completedBookings' => 0,
                 'pendingBookings' => 0,
                 'confirmedBookings' => 0
             ];
@@ -302,7 +320,6 @@ public function viewBookingDetail()
 // Tìm kiếm món ăn trong menu
     public function searchMenu()
     {
-        error_log("\033[31msearchMenu called----------------------------\033[0m");
         // Kiểm tra quyền truy cập
         $this->authController->requireNhanVien();
         
@@ -398,10 +415,10 @@ public function createOrder()
         $bookingInfo  = $data['bookingInfo'] ?? [];
 
         // 2. Dùng giá trị mặc định nếu không có thông tin khách hàng
-        $customerName     = trim($customerInfo['name']  ?? 'Khách hàng tại quán');
-        $customerPhone    = trim($customerInfo['phone'] ?? '');
-        $customerEmail    = trim($customerInfo['email'] ?? '');
-        $notes            = trim($customerInfo['notes'] ?? '');
+        $customerName     = $customerInfo['name'];
+        $customerPhone    = $customerInfo['phone'];
+        $customerEmail    = $customerInfo['email'];
+        $notes            = $customerInfo['notes'];
         
         // 3. Thông tin đặt bàn
         $bookingDate      = $bookingInfo['date'] ?? '';
@@ -413,9 +430,10 @@ public function createOrder()
 
         // 4. Gọi Model để xử lý nghiệp vụ
         // $khachHangModel = new KhachHangModel($this->db);
-        $maKH = 2;
         $maDon = $this->bookingModel->createBookingWithTables(
-            $maKH,
+            $customerName,
+            $customerPhone,
+            $customerEmail,
             $currentUser['MaCoSo'],
             $currentUser['MaNV'],
             $cartItems,
@@ -499,7 +517,7 @@ public function createOrder()
             $maCoSo = $currentUser['MaCoSo'];
             
             // Lấy danh sách bàn chưa từng được đặt (không có trong dondatban_ban)
-            $availableTables = $this->tableModel->getUnbookedTablesByBranch($maCoSo);
+            $availableTables = TableStatusManager::layBanChuaDuocDat($maCoSo);
             
             echo json_encode([
                 'success' => true,

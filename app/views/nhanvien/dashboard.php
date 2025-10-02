@@ -17,10 +17,16 @@ $section = $_GET['section'] ?? 'overview';
 
 // Lấy dữ liệu dashboard
 $coSoInfo = $dashboardData['coSoInfo'];
-$todayBookings = $dashboardData['todayBookings'] ?? 0;
+$totalBooking = $dashboardData['todayBookings'] ?? 0;
 $todayNewBookings = $dashboardData['todayNewBookings'] ?? 0;
+$completedBookings = $dashboardData['completedBookings'] ?? 0;
 $pendingBookings = $dashboardData['pendingBookings'] ?? 0;
 $confirmedBookings = $dashboardData['confirmedBookings'] ?? 0;
+
+// Extract dữ liệu table status nếu có
+if (isset($tableStatusData) && is_array($tableStatusData)) {
+    extract($tableStatusData);
+}
 ?>
 
 <!DOCTYPE html>
@@ -301,6 +307,21 @@ $confirmedBookings = $dashboardData['confirmedBookings'] ?? 0;
                                     <div>
                                         <h6 class="text-muted mb-1">Đặt bàn hôm nay</h6>
                                         <h3 class="mb-0"><?php echo number_format($todayNewBookings); ?></h3>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                     <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card stat-card">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center">
+                                    <div class="stat-icon text-white me-3" style="background-color: #1fb109ff;">
+                                        <i class="fas fa-check"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="text-muted mb-1">Đơn hoàn thành</h6>
+                                        <h3 class="mb-0"><?php echo number_format($completedBookings); ?></h3>
                                     </div>
                                 </div>
                             </div>

@@ -28,7 +28,7 @@ class AuthController extends BaseController
             if ($user['ChucVu'] === 'admin') {
                 $this->redirect('index.php?page=admin&action=dashboard');
             } else if ($user['ChucVu'] === 'nhan_vien') {
-                $this->redirect('index.php?page=nhanvien&action=dashboard');
+                $this->redirect('index.php?page=nhanvien&action=dashboard&section=dashboard');
             } else {
                 // Logout nếu vai trò không hợp lệ
                 $this->logout();
@@ -83,7 +83,7 @@ class AuthController extends BaseController
             if ($nhanVienData['ChucVu'] === 'admin') {
                 $this->redirect('index.php?page=admin&action=dashboard');
             } else if ($nhanVienData['ChucVu'] === 'nhan_vien') {
-                $this->redirect('index.php?page=nhanvien&action=dashboard');
+                $this->redirect('index.php?page=nhanvien&action=dashboard&section=dashboard');
             } else {
                 // Trường hợp không xác định được vai trò
                 $_SESSION['error_message'] = 'Vai trò không hợp lệ. Vui lòng liên hệ quản trị viên.';

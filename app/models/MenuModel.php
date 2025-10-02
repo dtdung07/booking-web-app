@@ -85,15 +85,14 @@ class MenuModel {
      * Tìm kiếm món ăn theo tên và mã cơ sở
      */
 public function searchMenuItems($maCoSo, $tenMon = '') {
-    $sql = "SELECT m.MaMon, m.TenMon, m.MoTa, m.HinhAnhURL, mc.Gia, dm.TenDM, dm.MaDM
+    error_log("Searching menu items for MaCoSo: $maCoSo with TenMon: $tenMon");
+    $sql = "SELECT m.MaMon, m.TenMon, m.MoTa, m.HinhAnhURL, mc.Gia
             FROM menu_coso mc
             JOIN monan m ON mc.MaMon = m.MaMon
-            JOIN danhmuc dm ON m.MaDM = dm.MaDM
             WHERE mc.MaCoSo = ? AND mc.TinhTrang = 'con_hang'";
     
-    // Thêm điều kiện tìm kiếm theo tên món nếu có
     if (!empty($tenMon)) {
-        $sql .= " AND m.TenMon LIKE ?";
+        $sql .= " AND  m.TenMon LIKE ? COLLATE utf8mb4_0900_as_ci";
         $sql .= " ORDER BY m.TenMon";
         
         $stmt = mysqli_prepare($this->db, $sql);
@@ -115,6 +114,7 @@ public function searchMenuItems($maCoSo, $tenMon = '') {
     }
     return $menuItems;
 }
+
 
 
 }

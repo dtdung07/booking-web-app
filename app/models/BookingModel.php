@@ -77,7 +77,25 @@ class BookingModel
         try {
             $today = date('Y-m-d');
             $query = "SELECT COUNT(*) as total FROM " . $this->table . " 
-                     WHERE MaCoSo = ? AND DATE(ThoiGianTao) = ?";
+                     WHERE MaCoSo = ? AND DATE(ThoiGianTao) = ? AND TrangThai != 'hoan_thanh'";
+            $stmt = mysqli_prepare($this->conn, $query);
+            mysqli_stmt_bind_param($stmt, "is", $maCoSo, $today);
+            mysqli_stmt_execute($stmt);
+            $result_set = mysqli_stmt_get_result($stmt);
+            $result = mysqli_fetch_assoc($result_set);
+            return $result['total'];
+        } catch (Exception $e) {
+            error_log("Error in BookingModel::countTodayBookingsByBranch: " . $e->getMessage());
+            return 0;
+        }
+    }
+    // Đếm đơn đã hoàn thành theo cơ sở
+    public function countCompletedBookingsByBranch($maCoSo)
+    {
+        try {
+            $today = date('Y-m-d');
+            $query = "SELECT COUNT(*) as total FROM " . $this->table . " 
+                     WHERE MaCoSo = ? AND DATE(ThoiGianTao) = ? AND TrangThai = 'hoan_thanh'";
             $stmt = mysqli_prepare($this->conn, $query);
             mysqli_stmt_bind_param($stmt, "is", $maCoSo, $today);
             mysqli_stmt_execute($stmt);
@@ -327,7 +345,7 @@ public function updateStatus($maDon, $maCoSo, $status, $maNVXacNhan = null, $ghi
         }
     }
 
-   // LẤY DANH SÁCH MÓN ĂN cho một đơn đặt bàn.
+// LẤY DANH SÁCH MÓN ĂN cho một đơn đặt bàn.
 public function getMenuItemsForBooking($maDon, $maCoSo)
 {
     try {
@@ -359,49 +377,9 @@ public function getMenuItemsForBooking($maDon, $maCoSo)
     }
 }
 
-// Tạo đơn đặt bàn tại quán
-public function createAtStoreOrder($maKH, $maCoSo, $maNV, $cartItems, $ghiChu = '')
-{
-    // Bắt đầu transaction
-    mysqli_begin_transaction($this->conn);
-
-    try {
-        // 1. Tạo bản ghi trong bảng `dondatban`
-        $query = "INSERT INTO " . $this->table . " (MaKH, MaCoSo, MaNV_XacNhan, ThoiGianBatDau, ThoiGianTao, TrangThai,SoLuongKH, GhiChu) 
-                  VALUES (?, ?, ?, NOW(), CONVERT_TZ(NOW(), '+00:00', '+07:00'), 'da_xac_nhan',1, ?)";
-        
-        $stmt = mysqli_prepare($this->conn, $query);
-        mysqli_stmt_bind_param($stmt, "iiis", $maKH, $maCoSo, $maNV, $ghiChu);
-        mysqli_stmt_execute($stmt);
-        
-        $maDon = mysqli_insert_id($this->conn);
-
-        // 2. Thêm các món ăn vào bảng `chitietdondatban`
-        $insertItemQuery = "INSERT INTO chitietdondatban (MaDon, MaMon, SoLuong, DonGia) 
-                            VALUES (?, ?, ?, 
-                                (SELECT Gia FROM menu_coso WHERE MaMon = ? AND MaCoSo = ?)
-                            )";
-        $itemStmt = mysqli_prepare($this->conn, $insertItemQuery);
-
-        foreach ($cartItems as $item) {
-            mysqli_stmt_bind_param($itemStmt, "iiiii", $maDon, $item['id'], $item['quantity'], $item['id'], $maCoSo);
-            
-            if (!mysqli_stmt_execute($itemStmt)) {
-                throw new Exception('Không thể thêm món ăn vào đơn hàng.');
-            }
-        }
-
-        mysqli_commit($this->conn);
-        return $maDon;
-    } catch (Exception $e) {
-        mysqli_rollback($this->conn);
-        error_log("Error in BookingModel::createAtStoreOrder: " . $e->getMessage());
-        return false;
-    }
-}
 
 // Tạo đơn đặt bàn với thông tin bàn
-public function createBookingWithTables($maKH, $maCoSo, $maNV, $cartItems, $ghiChu = '', $bookingDate = '', $bookingTime = '', $numberOfGuests = 1, $selectedTables = [])
+public function createBookingWithTables($TenKh, $SDT, $Email, $maCoSo, $maNV, $cartItems, $ghiChu = '', $bookingDate = '', $bookingTime = '', $numberOfGuests = 1, $selectedTables = [])
 {
     // Bắt đầu transaction
     mysqli_begin_transaction($this->conn);
@@ -409,12 +387,18 @@ public function createBookingWithTables($maKH, $maCoSo, $maNV, $cartItems, $ghiC
     try {
         // 1. Chuẩn bị thời gian đặt bàn
         $thoiGianBatDau = '';
-        if ($bookingDate && $bookingTime) {
-            // Chuyển đổi định dạng ngày từ dd/mm/yyyy sang yyyy-mm-dd
-            $dateArray = explode('/', $bookingDate);
-            if (count($dateArray) === 3) {
-                $formattedDate = $dateArray[2] . '-' . $dateArray[1] . '-' . $dateArray[0];
-                $thoiGianBatDau = $formattedDate . ' ' . $bookingTime . ':00';
+        if ($bookingDate && $bookingTime){
+            // Kiểm tra format của ngày từ frontend
+            if (strpos($bookingDate, '/') !== false) {
+                // Format dd/mm/yyyy - chuyển đổi sang yyyy-mm-dd
+                $dateArray = explode('/', $bookingDate);
+                if (count($dateArray) === 3) {
+                    $formattedDate = $dateArray[2] . '-' . $dateArray[1]. '-' . $dateArray[0];
+                    $thoiGianBatDau = $formattedDate . ' ' . $bookingTime . ':00';
+                }
+            } else {
+                // Format yyyy-mm-dd - sử dụng trực tiếp
+                $thoiGianBatDau = $bookingDate . ' ' . $bookingTime . ':00';
             }
         }
         
@@ -422,8 +406,39 @@ public function createBookingWithTables($maKH, $maCoSo, $maNV, $cartItems, $ghiC
             $thoiGianBatDau = date('Y-m-d H:i:s'); // Sử dụng thời gian hiện tại nếu không có
         }
 
+        // 1. Tạo hoặc lấy khách hàng
+        $maKH = null;
+        
+        // Kiểm tra xem khách hàng đã tồn tại chưa (dựa trên SDT nếu có, hoặc tên)
+        if (!empty($SDT)) {
+            error_log("----------------------------Debug phone: Checking existing customer by phone: $SDT");
+            $checkQuery = "SELECT MaKH FROM khachhang WHERE SDT = ?";
+            $checkStmt = mysqli_prepare($this->conn, $checkQuery);
+            mysqli_stmt_bind_param($checkStmt, "s", $SDT);
+            mysqli_stmt_execute($checkStmt);
+            $result = mysqli_stmt_get_result($checkStmt);
+            $existingCustomer = mysqli_fetch_assoc($result);
+            
+            if ($existingCustomer) {
+                $maKH = $existingCustomer['MaKH'];
+                error_log("----------------------------Debug: Existing customer check by phone executed. $maKH: " . print_r($existingCustomer, true));
+            }
+        }
+        if(empty($TenKh) && empty($SDT)){
+          $maKH = 2;
+        }
+        
+        // Nếu chưa tồn tại, tạo khách hàng mới
+        if ($maKH === null) {
+            $insertQuery = "INSERT INTO khachhang (TenKH, SDT, Email) VALUES (?, ?, ?)";
+            $insertStmt = mysqli_prepare($this->conn, $insertQuery);
+            mysqli_stmt_bind_param($insertStmt, "sss", $TenKh, $SDT, $Email);
+            mysqli_stmt_execute($insertStmt);
+            $maKH = mysqli_insert_id($this->conn);
+        }
+        
         // 2. Tạo bản ghi trong bảng `dondatban`
-        $query = "INSERT INTO " . $this->table . " (MaKH, MaCoSo, MaNV_XacNhan, ThoiGianBatDau, ThoiGianTao, TrangThai, SoLuongKH, GhiChu) 
+        $query = "INSERT INTO " . $this->table . "(MaKH, MaCoSo, MaNV_XacNhan, ThoiGianBatDau, ThoiGianTao, TrangThai, SoLuongKH, GhiChu) 
                   VALUES (?, ?, ?, ?, CONVERT_TZ(NOW(), '+00:00', '+07:00'), 'da_xac_nhan', ?, ?)";
         
         $stmt = mysqli_prepare($this->conn, $query);
@@ -469,6 +484,9 @@ public function createBookingWithTables($maKH, $maCoSo, $maNV, $cartItems, $ghiC
     } catch (Exception $e) {
         mysqli_rollback($this->conn);
         error_log("Error in BookingModel::createBookingWithTables: " . $e->getMessage());
+        error_log("Error details - Customer: $TenKh, Phone: $SDT, CoSo: $maCoSo, NV: $maNV");
+        error_log("Error details - Cart items count: " . count($cartItems));
+        error_log("Error details - Selected tables count: " . count($selectedTables));
         return false;
     }
 }
