@@ -2,7 +2,7 @@
     $host = 'localhost';
     $user = 'root';
     $pass = '';
-    $database = 'booking_web_app';
+    $database = 'booking_restaurant';
     $port = '3306';
 
     $conn = mysqli_connect($host, $user, $pass, $database, $port);
