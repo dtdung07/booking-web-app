@@ -1,5 +1,5 @@
 <?php
-include __DIR__ . "/connect.php";
+include dirname(__DIR__,4) . "/config/connect.php";
 
 // Include modal sửa danh mục
 include __DIR__ . "/update.php";

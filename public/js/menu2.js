@@ -287,6 +287,122 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    // Xử lý submit form đặt bàn
+    const bookingForm = document.getElementById('menu2-bookingForm');
+    const guestHidden = document.getElementById('menu2-guest-count-hidden');
+    const dateHidden = document.getElementById('menu2-booking-date-hidden');
+    const branchHidden = document.getElementById('menu2-branch-id-hidden');
+    const totalHidden = document.getElementById('menu2-total-amount-hidden');
+    const cartHidden = document.getElementById('menu2-cart-items-hidden');
+    const timeSelect = document.getElementById('menu2-time-select');
+
+    if (bookingForm) {
+        bookingForm.addEventListener('submit', function (e) {
+            // 1) GUEST COUNT
+            const guestsDisplay = document.getElementById('menu2-booking-guests-display');
+            if (guestHidden && guestsDisplay) {
+                guestHidden.value = parseInt(guestsDisplay.textContent || '1', 10);
+            }
+
+            // 2) DATE (chuyển từ selectedDate sang yyyy-mm-dd)
+            if (dateHidden && typeof selectedDate !== 'undefined' && selectedDate) {
+                const y = selectedDate.getFullYear();
+                const m = ('0' + (selectedDate.getMonth() + 1)).slice(-2);
+                const d = ('0' + selectedDate.getDate()).slice(-2);
+                dateHidden.value = `${y}-${m}-${d}`;
+            }
+
+            // 3) BRANCH ID từ URL (?coso=11)
+            const urlParams = new URLSearchParams(window.location.search);
+            if (branchHidden) {
+                branchHidden.value = urlParams.get('coso') || '';
+            }
+
+            // 4) TOTAL + CART ITEMS từ shoppingCart
+            if (totalHidden && cartHidden) {
+                let total = 0;
+                const cartForPost = [];
+                for (const id in shoppingCart) {
+                    const item = shoppingCart[id];
+                    total += item.price * item.quantity;
+                    cartForPost.push({
+                        id: parseInt(id, 10),
+                        name: item.name,
+                        price: item.price,
+                        quantity: item.quantity
+                    });
+                }
+                totalHidden.value = Math.round(total);
+                cartHidden.value = JSON.stringify(cartForPost);
+            }
+
+            // 5) Validate form trước khi submit
+            if (!timeSelect || !timeSelect.value) {
+                e.preventDefault();
+                alert('Vui lòng chọn giờ đặt bàn');
+                return false;
+            }
+
+            if (Object.keys(shoppingCart).length === 0) {
+                e.preventDefault();
+                alert('Giỏ hàng trống, vui lòng chọn món ăn');
+                return false;
+            }
+        });
+    }
+
+    // === XỬ LÝ SUBMIT FORM ĐẶT BÀN VỚI SEPAY ===
+    const bookingForm = document.getElementById('menu2-bookingForm');
+    if (bookingForm) {
+        bookingForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Kiểm tra giỏ hàng không trống
+            if (totalCartQuantity === 0) {
+                alert('Giỏ hàng trống! Vui lòng thêm món ăn trước khi đặt bàn.');
+                return;
+            }
+            
+            // Lấy thông tin từ form
+            const customerName = this.querySelector('input[placeholder="Tên của bạn"]').value;
+            const customerPhone = this.querySelector('input[placeholder="Số điện thoại"]').value;
+            const guestCount = bookingGuestsDisplay ? parseInt(bookingGuestsDisplay.textContent) : 1;
+            const bookingDate = selectedDate ? selectedDate.toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
+            const bookingTime = this.querySelector('select').value;
+            const notes = this.querySelector('textarea').value;
+            
+            // Validate form
+            if (!customerName || !customerPhone || !bookingTime) {
+                alert('Vui lòng điền đầy đủ thông tin bắt buộc!');
+                return;
+            }
+            
+            // Chuẩn bị dữ liệu giỏ hàng
+            const cartItems = [];
+            for (const itemId in shoppingCart) {
+                const item = shoppingCart[itemId];
+                cartItems.push({
+                    id: itemId,
+                    name: item.name,
+                    price: item.price,
+                    quantity: item.quantity
+                });
+            }
+            
+            // Tạo booking với SePay
+            createBookingWithPayment({
+                customerName: customerName,
+                customerPhone: customerPhone,
+                guestCount: guestCount,
+                bookingDate: bookingDate,
+                bookingTime: bookingTime,
+                notes: notes,
+                cartItems: cartItems,
+                totalAmount: totalCartPrice
+            });
+        });
+    }
+
 
 
     // === HỆ THỐNG 3: LOGIC CALENDAR (GIỮ NGUYÊN, VÌ ĐÃ TỐT) ===
@@ -577,4 +693,56 @@ function clearCartFromCookies() {
             window.updateGlobalCart();
         }
     }
+// === HÀM TẠO BOOKING VỚI SEPAY PAYMENT ===
+function createBookingWithPayment(bookingData) {
+    // Hiển thị loading
+    const submitBtn = document.querySelector('#menu2-bookingForm button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
+    submitBtn.disabled = true;
+    
+    // Chuẩn bị dữ liệu gửi đến server
+    const formData = new FormData();
+    formData.append('customer_name', bookingData.customerName);
+    formData.append('customer_phone', bookingData.customerPhone);
+    formData.append('customer_email', ''); // Email không bắt buộc trong menu2
+    formData.append('branch_id', getCurrentBranchId()); // Lấy từ URL parameter
+    formData.append('guest_count', bookingData.guestCount);
+    formData.append('booking_date', bookingData.bookingDate);
+    formData.append('booking_time', bookingData.bookingTime);
+    formData.append('notes', bookingData.notes);
+    formData.append('total_amount', bookingData.totalAmount);
+    
+    // Thêm thông tin món ăn
+    formData.append('cart_items', JSON.stringify(bookingData.cartItems));
+    
+    // Gửi request tạo booking
+    fetch('menu_booking_handler.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success && data.booking_id) {
+            // Chuyển hướng đến trang thanh toán SePay
+            window.location.href = `sepay_payment.php?booking_id=${data.booking_id}&amount=${bookingData.totalAmount}`;
+        } else {
+            throw new Error(data.message || 'Có lỗi xảy ra khi tạo đặt bàn');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Có lỗi xảy ra: ' + error.message);
+    })
+    .finally(() => {
+        // Khôi phục nút submit
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    });
+}
+
+// Hàm lấy ID chi nhánh từ URL
+function getCurrentBranchId() {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('coso') || '11'; // Default là chi nhánh 11
 }

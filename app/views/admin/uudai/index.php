@@ -1,5 +1,5 @@
 <?php
-include dirname(__DIR__,4) . "/config/connect.php";
+include __DIR__ . "/connect.php";
 
 // Xử lý các action
 if(isset($_GET['action'])){
@@ -16,7 +16,7 @@ if(isset($_GET['action'])){
     }
 }
 
-//Modal thêm món ăn
+//Modal thêm ưu đãi
 include __DIR__ . "/create.php";
 
 ?>
@@ -25,52 +25,30 @@ include __DIR__ . "/create.php";
     <!-- Search bar -->
   <div class="row mb-3">
     <div class="col-md-6">
-      <input type="text" class="form-control" id="searchInput" placeholder="Tìm kiếm món ăn trên trang hiện tại...">
-      <!-- <small class="text-muted">
-        <i class="fas fa-info-circle"></i> Tìm kiếm chỉ hoạt động trên trang hiện tại
-      </small> -->
+      <input type="text" class="form-control" id="searchInput" placeholder="Tìm kiếm ưu đãi trên trang hiện tại...">
     </div>
     <div class="col-md-6 text-end">
-      <a href="?page=admin&section=menu_branch" class="btn btn-info">
-        <i class="fas fa-store"></i> Quản lý Menu theo Cơ sở
-      </a>
-      <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addBranchModal">
-        <i class="fas fa-plus"></i> Thêm món ăn mới
+      <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addUuDaiModal">
+        <i class="fas fa-plus"></i> Thêm ưu đãi mới
       </button>
 
     </div>
   </div>
 
     <?php
-        if(isset($_GET['action'])){
-            switch ($_GET['action']) {
-                case 'view':
-                    include __DIR__ . "/view.php";
-                    break;
-                case 'create':
-                    include __DIR__ . "/create.php";
-                    break;
-                case 'update':
-                    include __DIR__ . "/update.php";
-                    break;
-                default:
-                    include "view.php";
-                    break;
-            }
-        } else {
-            // Mặc định hiển thị danh sách món ăn khi không có tham số action
-            include __DIR__ . "/view.php";
-        }
+        // Logic điều hướng đã được chuyển lên dashboard.php
+        // Phần này chỉ cần include file list.php để hiển thị danh sách
+        include __DIR__ . "/list.php";
     ?>
 
 
     </div>
 
 <script>
-  // Tìm kiếm món ăn
+  // Tìm kiếm ưu đãi
   document.getElementById('searchInput').addEventListener('keyup', function() {
     let filter = this.value.toLowerCase();
-    let rows = document.querySelectorAll("#menuTable tbody tr");
+    let rows = document.querySelectorAll("#uudaiTable tbody tr");
     let visibleCount = 0;
     
     rows.forEach(row => {
@@ -92,14 +70,14 @@ include __DIR__ . "/create.php";
     let noResultRow = document.querySelector("#noSearchResult");
     if (visibleCount === 0 && filter.trim() !== "") {
       if (!noResultRow) {
-        let tbody = document.querySelector("#menuTable tbody");
+        let tbody = document.querySelector("#uudaiTable tbody");
         let newRow = document.createElement("tr");
         newRow.id = "noSearchResult";
         newRow.innerHTML = `
           <td colspan="5" class="text-center text-muted py-4">
             <i class="fas fa-search fa-2x mb-2"></i>
             <br>
-            Không tìm thấy món ăn phù hợp với từ khóa "<strong>${filter}</strong>"
+            Không tìm thấy ưu đãi phù hợp với từ khóa "<strong>${filter}</strong>"
             <br>
             <small>Thử tìm kiếm với từ khóa khác hoặc kiểm tra các trang khác</small>
           </td>

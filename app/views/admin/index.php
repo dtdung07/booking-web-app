@@ -1,5 +1,5 @@
 <?php
-include __DIR__ . "/connect.php";
+include dirname(__DIR__,3) . "/config/connect.php";
 ?>
 <!DOCTYPE html>
 <html lang="en">

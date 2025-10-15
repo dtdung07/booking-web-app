@@ -1,5 +1,5 @@
 <?php
-include __DIR__ . "/connect.php";
+include dirname(__DIR__,4) . "/config/connect.php";
 
 // Xử lý các action
 if(isset($_GET['action'])){
