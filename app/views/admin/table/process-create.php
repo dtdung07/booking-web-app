@@ -1,5 +1,5 @@
 <?php
-include "connect.php";
+include dirname(__DIR__,4) . "/config/connect.php";
 ?>
 
 <?php
@@ -13,8 +13,8 @@ include "connect.php";
         $sql = "INSERT INTO `ban`(`MaCoSo`, `TenBan`, `SucChua`) VALUES ('$maCoSo','$tenban','$succhua')";
 
         mysqli_query($conn, $sql);
-        header("location: ?page=admin&section=table");
-        exit(); // Dừng thực thi để tránh output thêm
+        echo "<script>window.location.href='?page=admin&section=table';</script>";
+        exit();
     }
     else{
         echo "Vui lòng nhập đầy đủ thông tin";

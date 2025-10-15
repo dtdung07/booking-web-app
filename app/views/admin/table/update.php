@@ -28,8 +28,9 @@
           <input type="text" class="form-control" placeholder="Ví dụ: T1-01 (Tầng 1 - Bàn 1)" id="updateTenBan" name="TenBan" required>
         </div>
         <div class="col-12">
-          <label class="form-label">Sức chứa</label>
-          <textarea class="form-control" rows="2" placeholder="Ví dụ: 4, 6, 8" id="updateSucChua" name="SucChua" required></textarea>
+            <label class="form-label">Sức chứa (người)</label>
+          <input type="number" class="form-control" placeholder="Ví dụ: 4, 6, 8" id="updateSucChua" name="SucChua" min="1" max="100" required>
+          <small class="text-muted">Số người tối thiểu: 1</small>
         </div>
       </div>
       </div>

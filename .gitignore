@@ -12,6 +12,9 @@
 *.log
 logs/
 
+# Ignore file dac ta
+sepay/Nhóm 03 - Website đặt bàn và thực đơn nhà hàng.pdf.md
+
 # Ignore temporary files
 *.tmp
 *.temp

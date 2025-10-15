@@ -154,7 +154,7 @@ while($row = mysqli_fetch_array($result)){
               <i class="fas fa-edit"></i> Sửa
               </button>
 
-              <a class="btn btn-danger" href="?page=admin&section=table&action=delete&MaBan=<?=$row['MaBan']?>"><i class="fas fa-trash"></i> Xoá</a>
+              <a class="btn btn-danger" href="?page=admin&section=table&action=delete&MaBan=<?=$row['MaBan']?>" onclick="return confirm('Bạn có chắc chắn muốn xóa bàn \'<?=htmlspecialchars($row['TenBan'], ENT_QUOTES)?>\' không?');"><i class="fas fa-trash"></i> Xoá</a>
               </div>
             </td>
             </tr>

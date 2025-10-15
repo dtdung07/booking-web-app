@@ -43,7 +43,7 @@ $branches = $controller->getBranches();
       <input type="text" class="form-control" id="searchInput" placeholder="Tìm kiếm cơ sở...">
     </div>
     <div class="col-md-6 text-end">
-      <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addBranchModal">
+      <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addBranchModal">
         <i class="fas fa-plus"></i> Thêm cơ sở mới
       </button>
     </div>
@@ -146,11 +146,13 @@ $branches = $controller->getBranches();
           </div>
           <div class="mb-3">
             <label for="dienThoai" class="form-label">Số điện thoại <span class="text-danger">*</span></label>
-            <input type="tel" class="form-control" id="dienThoai" required>
+            <input type="tel" class="form-control" id="dienThoai" required pattern="[0-9]{10,11}" maxlength="15" placeholder="Ví dụ: 0922782387">
+            <small class="text-muted">Nhập 10-11 chữ số</small>
           </div>
           <div class="mb-3">
             <label for="anhUrl" class="form-label">URL ảnh</label>
-            <input type="url" class="form-control" id="anhUrl" placeholder="https://example.com/image.jpg">
+            <input type="url" class="form-control" id="anhUrl" placeholder="https://example.com/image.jpg" maxlength="100">
+            <small class="text-muted">Tối đa 100 ký tự</small>
           </div>
         </form>
       </div>
@@ -183,11 +185,13 @@ $branches = $controller->getBranches();
           </div>
           <div class="mb-3">
             <label for="editDienThoai" class="form-label">Số điện thoại <span class="text-danger">*</span></label>
-            <input type="tel" class="form-control" id="editDienThoai" required>
+            <input type="tel" class="form-control" id="editDienThoai" required pattern="[0-9]{10,11}" maxlength="15" placeholder="Ví dụ: 0922782387">
+            <small class="text-muted">Nhập 10-11 chữ số</small>
           </div>
           <div class="mb-3">
             <label for="editAnhUrl" class="form-label">URL ảnh</label>
-            <input type="url" class="form-control" id="editAnhUrl" placeholder="https://example.com/image.jpg">
+            <input type="url" class="form-control" id="editAnhUrl" placeholder="https://example.com/image.jpg" maxlength="100">
+            <small class="text-muted">Tối đa 100 ký tự</small>
           </div>
         </form>
       </div>
@@ -217,7 +221,7 @@ $branches = $controller->getBranches();
 
   // Xem chi tiết cơ sở
   function viewBranch(id) {
-    fetch(`../../../controllers/admin/AdminBranchController.php?action=get_data`)
+    fetch(`app/controllers/admin/AdminBranchController.php?action=get_data`)
       .then(response => response.json())
       .then(data => {
         if (data.success) {
@@ -234,8 +238,8 @@ $branches = $controller->getBranches();
   function editBranch(id) {
     console.log('editBranch called with id:', id);
     
-    // Đường dẫn đúng từ view đến controller
-    fetch(`../../../controllers/admin/AdminBranchController.php?action=get_data`)
+    // Đường dẫn tuyệt đối để tránh lỗi khi include vào dashboard
+    fetch(`app/controllers/admin/AdminBranchController.php?action=get_data`)
       .then(response => {
         console.log('Response status:', response.status);
         if (!response.ok) {
@@ -289,7 +293,7 @@ $branches = $controller->getBranches();
       const formData = new FormData();
       formData.append('maCoSo', id);
 
-      fetch('../../../controllers/admin/AdminBranchController.php?action=delete', {
+      fetch('app/controllers/admin/AdminBranchController.php?action=delete', {
         method: 'POST',
         body: formData
       })
@@ -321,7 +325,7 @@ $branches = $controller->getBranches();
       formData.append('dienThoai', dienThoai);
       formData.append('anhUrl', anhUrl);
 
-      fetch('../../../controllers/admin/AdminBranchController.php?action=add', {
+      fetch('app/controllers/admin/AdminBranchController.php?action=add', {
         method: 'POST',
         body: formData
       })
@@ -359,7 +363,7 @@ $branches = $controller->getBranches();
       formData.append('dienThoai', dienThoai);
       formData.append('anhUrl', anhUrl);
 
-      fetch('../../../controllers/admin/AdminBranchController.php?action=update', {
+      fetch('app/controllers/admin/AdminBranchController.php?action=update', {
         method: 'POST',
         body: formData
       })

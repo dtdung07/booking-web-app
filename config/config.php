@@ -18,7 +18,7 @@ define('PUBLIC_PATH', ROOT_PATH . '/public');
 define('CONFIG_PATH', ROOT_PATH . '/config');
 
 // Cấu hình URL
-define('BASE_URL', 'https://fisher-jackets-exchange-execute.trycloudflare.com/booking-web-app');
+define('BASE_URL', 'https://shop.dtdung.qzz.io/booking-web-app');
 define('ASSETS_URL', BASE_URL . '/public');
 
 // Cấu hình ứng dụng

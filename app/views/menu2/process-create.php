@@ -47,8 +47,8 @@ try {
     // 3. Thêm món ăn vào booking
     addMenuItemsToBooking($conn, $bookingId, $branchId, $cartItems);
     
-    // Redirect đến trang thanh toán (chỉ tổng tiền món ăn, không có phí đặt bàn)
-    header("Location: / ");
+    // Chuyển hướng đến trang thanh toán SEPAY với mã đơn và tổng tiền
+    header("Location: ../../../sepay/sepay_payment.php?booking_id={$bookingId}&amount={$totalAmount}");
     exit();
     
 } catch (Exception $e) {

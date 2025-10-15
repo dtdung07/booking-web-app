@@ -299,6 +299,10 @@ $section = $_GET['section'] ?? 'dashboard';
                 case 'menu':
                     include __DIR__ . '/menu/index.php';
                     break;
+                
+                case 'menu_branch':
+                    include __DIR__ . '/menu_branch/index.php';
+                    break;
                     
                 case 'categories':
                     include __DIR__ . '/categories/index.php';
