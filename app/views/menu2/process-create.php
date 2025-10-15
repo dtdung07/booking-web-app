@@ -1,6 +1,31 @@
 <?php
 /*
-File: app/views/menu2/process-create.php
+File: app/views# Chỉ cho phép POST
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header('Content-Type: application/json');
+    echo json_encode([
+        'success' => false,
+        'message' => 'Chỉ cho phép phương thức POST'
+    ]);
+    exit();
+}lidate dữ liệu cơ bản
+if (empty($customerName) || empty($customerPhone) || empty($branchId) || empty($bookingDate) || empty($bookingTime)) {
+    header('Content-Type: application/json');
+    echo json_encode([
+        'success' => false,
+        'message' => 'Thiếu thông tin bắt buộc'
+    ]);
+    exit();
+}
+
+if (empty($cartItems)) {
+    header('Content-Type: application/json');
+    echo json_encode([
+        'success' => false,
+        'message' => 'Giỏ hàng trống'
+    ]);
+    exit();
+}ess-create.php
 Xử lý tạo đặt bàn từ form menu2 - sử dụng mysqli
 */
 
@@ -47,12 +72,21 @@ try {
     // 3. Thêm món ăn vào booking
     addMenuItemsToBooking($conn, $bookingId, $branchId, $cartItems);
     
-    // Redirect đến trang thanh toán (chỉ tổng tiền món ăn, không có phí đặt bàn)
-    header("Location: / ");
+    // Trả về JSON response cho JavaScript
+    header('Content-Type: application/json');
+    echo json_encode([
+        'success' => true,
+        'booking_id' => $bookingId,
+        'message' => 'Đặt bàn thành công'
+    ]);
     exit();
     
 } catch (Exception $e) {
-    echo "Lỗi: " . $e->getMessage();
+    header('Content-Type: application/json');
+    echo json_encode([
+        'success' => false,
+        'message' => $e->getMessage()
+    ]);
     exit();
 }
 

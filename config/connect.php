@@ -2,9 +2,9 @@
     // Thiết lập múi giờ Việt Nam
     date_default_timezone_set('Asia/Ho_Chi_Minh');
     
-    $host = 'localhost';
+    $host = 'db';
     $user = 'root';
-    $pass = '';
+    $pass = 'rootpassword';
     $database = 'booking_restaurant';
     $port = '3306';
 
