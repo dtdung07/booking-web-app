@@ -293,6 +293,8 @@
         const dateHidden = document.getElementById('menu2-booking-date-hidden');
         const branchHidden = document.getElementById('menu2-branch-id-hidden');
         const totalHidden = document.getElementById('menu2-total-amount-hidden');
+        const discountIdHidden = document.getElementById('menu2-discount-id-hidden');
+        const finalAmountHidden = document.getElementById('menu2-final-amount-hidden');
         const cartHidden = document.getElementById('menu2-cart-items-hidden');
         const timeSelect = document.getElementById('menu2-time-select');
 
@@ -319,24 +321,69 @@
                 }
 
                 // 4) TOTAL + CART ITEMS từ shoppingCart
-                if (totalHidden && cartHidden) {
-                    let total = 0;
-                    const cartForPost = [];
-                    for (const id in shoppingCart) {
-                        const item = shoppingCart[id];
-                        total += item.price * item.quantity;
-                        cartForPost.push({
-                            id: parseInt(id, 10),
-                            name: item.name,
-                            price: item.price,
-                            quantity: item.quantity
-                        });
-                    }
-                    totalHidden.value = Math.round(total);
-                    cartHidden.value = JSON.stringify(cartForPost);
+                let total = 0;
+                const cartForPost = [];
+                for (const id in shoppingCart) {
+                    const item = shoppingCart[id];
+                    total += item.price * item.quantity;
+                    cartForPost.push({
+                        id: parseInt(id, 10),
+                        name: item.name,
+                        price: item.price,
+                        quantity: item.quantity
+                    });
+                }
+                if (totalHidden) totalHidden.value = Math.round(total);
+                if (cartHidden) cartHidden.value = JSON.stringify(cartForPost);
+
+                // 4.1) Lấy thông tin mã giảm giá (nếu có) từ global-cart-manager.js
+                const currentDiscount = (typeof window.getCurrentDiscount === 'function') ? window.getCurrentDiscount() : null;
+                if (currentDiscount) {
+                    if (discountIdHidden) discountIdHidden.value = currentDiscount.id || '';
+                    if (finalAmountHidden) finalAmountHidden.value = Math.round(currentDiscount.finalAmount || total);
+                } else {
+                    if (discountIdHidden) discountIdHidden.value = '';
+                    if (finalAmountHidden) finalAmountHidden.value = Math.round(total);
                 }
 
                 // 5) Validate form trước khi submit
+                
+                // Validate tên khách hàng
+                const nameInput = bookingForm.querySelector('input[name="customer_name"]');
+                if (nameInput && nameInput.value.trim()) {
+                    const namePattern = /^[a-zA-ZÀ-ỹ\s]{2,50}$/;
+                    if (!namePattern.test(nameInput.value.trim())) {
+                        e.preventDefault();
+                        alert('Tên chỉ được chứa chữ cái và khoảng trắng, từ 2-50 ký tự');
+                        nameInput.focus();
+                        return false;
+                    }
+                }
+                
+                // Validate số điện thoại
+                const phoneInput = bookingForm.querySelector('input[name="customer_phone"]');
+                if (phoneInput && phoneInput.value.trim()) {
+                    const phonePattern = /^0[0-9]{9}$/;
+                    if (!phonePattern.test(phoneInput.value.trim())) {
+                        e.preventDefault();
+                        alert('Số điện thoại phải có 10 số và bắt đầu bằng số 0');
+                        phoneInput.focus();
+                        return false;
+                    }
+                }
+                
+                // Validate email (nếu có nhập)
+                const emailInput = bookingForm.querySelector('input[name="customer_email"]');
+                if (emailInput && emailInput.value.trim()) {
+                    const emailPattern = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/i;
+                    if (!emailPattern.test(emailInput.value.trim())) {
+                        e.preventDefault();
+                        alert('Email không đúng định dạng');
+                        emailInput.focus();
+                        return false;
+                    }
+                }
+                
                 if (!timeSelect || !timeSelect.value) {
                     e.preventDefault();
                     alert('Vui lòng chọn giờ đặt bàn');
@@ -469,6 +516,24 @@
 
         // === KHÔI PHỤC GIỎ HÀNG TỪ COOKIES SAU KHI TẤT CẢ FUNCTIONS ĐÃ ĐƯỢC ĐỊNH NGHĨA ===
         loadCartFromCookies();
+
+        // === SET THỜI GIAN MẶC ĐỊNH CHO INPUT TIME ===
+        // Lấy thời gian hiện tại
+        const now = new Date();
+        const hours = ('0' + now.getHours()).slice(-2);
+        const minutes = ('0' + now.getMinutes()).slice(-2);
+        const currentTime = hours + ':' + minutes;
+        
+        // Set cho cả 2 input time (trong menu2.php và layout.php)
+        const timeInput = document.getElementById('menu2-time-select');
+        const timeInputLayout = document.getElementById('menu2-time-select-layout');
+        
+        if (timeInput) {
+            timeInput.value = currentTime;
+        }
+        if (timeInputLayout) {
+            timeInputLayout.value = currentTime;
+        }
 
     }); // --- KẾT THÚC DOMCONTENTLOADED ---
 

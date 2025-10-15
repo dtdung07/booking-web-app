@@ -91,9 +91,27 @@ $totalQuery = "SELECT SUM(SoLuong * DonGia) as total_food FROM chitietdondatban 
 $totalResult = mysqli_query($conn, $totalQuery);
 $totalData = mysqli_fetch_assoc($totalResult);
 
-$expectedAmount = $totalData['total_food'] ?? 0;
+$expectedAmount = floatval($totalData['total_food'] ?? 0);
 
-if ($amount_in < $expectedAmount) {
+// Áp dụng giảm giá nếu đơn có MaUD hợp lệ
+if (!empty($booking['MaUD'])) {
+    $maUD = intval($booking['MaUD']);
+    $udQuery = "SELECT GiaTriGiam, LoaiGiamGia FROM uudai WHERE MaUD = '$maUD' AND NgayBD <= CURDATE() AND NgayKT >= CURDATE()";
+    $udResult = mysqli_query($conn, $udQuery);
+    if ($udRow = mysqli_fetch_assoc($udResult)) {
+        $discountValue = floatval($udRow['GiaTriGiam']);
+        if ($udRow['LoaiGiamGia'] === 'phantram') {
+            $discountAmount = ($expectedAmount * $discountValue) / 100;
+        } else { // sotien
+            $discountAmount = $discountValue;
+        }
+        $discountAmount = min($discountAmount, $expectedAmount);
+        $expectedAmount = max(0, $expectedAmount - $discountAmount);
+    }
+}
+
+// So sánh theo số tiền phải thu sau giảm (nếu có)
+if (floatval($amount_in) < floatval($expectedAmount)) {
     echo json_encode([
         'success' => false, 
         'message' => 'Insufficient payment amount',

@@ -16,12 +16,16 @@ if (!$bookingId || !is_numeric($bookingId)) {
     die('Booking ID không hợp lệ!');
 }
 
-// Lấy thông tin đặt bàn
-$query = "SELECT d.*, kh.TenKH, kh.SDT, kh.Email, cs.TenCoSo, cs.DiaChi 
+// Lấy thông tin đặt bàn KÈM THÔNG TIN BÀN ĐÃ ĐƯỢC GÁN
+$query = "SELECT d.*, kh.TenKH, kh.SDT, kh.Email, cs.TenCoSo, cs.DiaChi,
+                 GROUP_CONCAT(CONCAT(b.TenBan, ' (', b.SucChua, ' chỗ)') SEPARATOR ', ') as DanhSachBan
           FROM dondatban d
           LEFT JOIN khachhang kh ON d.MaKH = kh.MaKH  
           LEFT JOIN coso cs ON d.MaCoSo = cs.MaCoSo
-          WHERE d.MaDon = '$bookingId' AND d.TrangThai = 'cho_xac_nhan'";
+          LEFT JOIN dondatban_ban ddb ON d.MaDon = ddb.MaDon
+          LEFT JOIN ban b ON ddb.MaBan = b.MaBan
+          WHERE d.MaDon = '$bookingId' AND d.TrangThai = 'cho_xac_nhan'
+          GROUP BY d.MaDon";
 
 $result = mysqli_query($conn, $query);
 $booking = mysqli_fetch_assoc($result);
@@ -67,7 +71,7 @@ if (!$booking) {
         <div id="success_pay_box" class="success-box">
             <h2><i class="fas fa-check-circle"></i> Thanh toán thành công!</h2>
             <p class="mb-3">Chúng tôi đã nhận được thanh toán. Bàn của bạn đã được xác nhận!</p>
-            <a href="index.php?page=menu&coso=<?= $booking['MaCoSo'] ?>" class="btn btn-light btn-lg">
+            <a href="../index.php?page=menu&coso=<?= $booking['MaCoSo'] ?>" class="btn btn-light btn-lg">
                 Về trang menu
             </a>
         </div>
@@ -168,6 +172,10 @@ if (!$booking) {
                                 <td><i class="fas fa-users text-muted me-2"></i>Số người:</td>
                                 <td><strong><?= $booking['SoLuongKH'] ?> người</strong></td>
                             </tr>
+                            <tr>
+                                <td><i class="fas fa-chair text-muted me-2"></i>Bàn:</td>
+                                <td><strong><?= htmlspecialchars($booking['DanhSachBan'] ?: 'Đang xử lý...') ?></strong></td>
+                            </tr>
                             <tr class="border-top pt-3">
                                 <td><strong>Tổng tiền:</strong></td>
                                 <td><span class="amount-highlight"><?= number_format($amount) ?>đ</span></td>
@@ -206,7 +214,7 @@ if (!$booking) {
         
         <!-- Nút quay lại -->
         <div class="text-center mt-4">
-            <a href="index.php?page=menu&coso=<?= $booking['MaCoSo'] ?>" class="text-decoration-none">
+            <a href="../index.php?page=menu&coso=<?= $booking['MaCoSo'] ?>" class="text-decoration-none">
             <i class="fa-solid fa-arrow-left"></i>
                 Quay lại menu
             </a>
