@@ -1,5 +1,5 @@
 <?php
-include __DIR__ . "/connect.php";
+include dirname(__DIR__,4) . "/config/connect.php";
 
 // Kiểm tra xem dữ liệu đã được gửi chưa
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -31,8 +31,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo "<script>alert('Vui lòng nhập đầy đủ thông tin!'); window.history.back();</script>";
     }
 } else {
-    // Nếu không phải POST request, chuyển hướng về trang chính
-    header("Location: ?page=admin&section=categories");
+    // Nếu không phải POST request, chuyển hướng về trang chính (dùng JS)
+    echo "<script>window.location.href='?page=admin&section=categories';</script>";
     exit();
 }
 ?>

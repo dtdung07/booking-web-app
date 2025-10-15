@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th9 11, 2025 lúc 05:16 AM
+-- Thời gian đã tạo: Th10 15, 2025 lúc 02:04 PM
 -- Phiên bản máy phục vụ: 10.4.32-MariaDB
 -- Phiên bản PHP: 8.2.12
 
@@ -30,9 +30,19 @@ SET time_zone = "+00:00";
 CREATE TABLE `ban` (
   `MaBan` int(11) NOT NULL,
   `MaCoSo` int(11) NOT NULL,
-  `TenBan` varchar(50) NOT NULL,
-  `SucChua` int(11) NOT NULL CHECK (`SucChua` > 0)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `TenBan` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `SucChua` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+--
+-- Đang đổ dữ liệu cho bảng `ban`
+--
+
+INSERT INTO `ban` (`MaBan`, `MaCoSo`, `TenBan`, `SucChua`) VALUES
+(1, 2, 'T1-01', 6),
+(2, 2, 'T1-01', 6),
+(3, 11, 'T1-01', 8),
+(4, 11, 'T1-02', 6);
 
 -- --------------------------------------------------------
 
@@ -43,9 +53,16 @@ CREATE TABLE `ban` (
 CREATE TABLE `chitietdondatban` (
   `MaDon` int(11) NOT NULL,
   `MaMon` int(11) NOT NULL,
-  `SoLuong` int(11) NOT NULL CHECK (`SoLuong` > 0),
+  `SoLuong` int(11) NOT NULL,
   `DonGia` decimal(10,2) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+--
+-- Đang đổ dữ liệu cho bảng `chitietdondatban`
+--
+
+INSERT INTO `chitietdondatban` (`MaDon`, `MaMon`, `SoLuong`, `DonGia`) VALUES
+(100, 15, 1, 75000.00);
 
 -- --------------------------------------------------------
 
@@ -66,11 +83,11 @@ CREATE TABLE `coso` (
 --
 
 INSERT INTO `coso` (`MaCoSo`, `TenCoSo`, `DienThoai`, `DiaChi`, `AnhUrl`) VALUES
-(2, '10 Nguyễn Văn Huyên', '0922782387', 'Cầu Giấy', ''),
-(3, '68 Láng Thượng', '0922782387', 'Đống Đa', ''),
-(4, '505 Minh Khai', '0922782387', 'Hai Bà Trưng', ''),
-(5, 'Nguyễn Hữu Thọ (Linh Đàm)', '0922782387', 'Hoàng Mai', ''),
-(11, '67A Phó Đức Chính', '0922782387', 'Ba Đình', '');
+(2, '10 Nguyễn Văn Huyên', '092278238', 'Cầu Giấy', 'https://storage.quannhautudo.com/data/thumb_800/Data/images/product/2023/08/202308051004475343.webp'),
+(3, '68 Láng Thượng', '0922782387', 'Đống Đa', 'https://storage.quannhautudo.com/data/thumb_800/Data/images/product/2023/05/202305111648358011.webp'),
+(4, '505 Minh Khai', '0922782387', 'Hai Bà Trưng', 'https://storage.quannhautudo.com/data/thumb_800/Data/images/product/2023/06/202306281114157262.webp'),
+(5, 'Nguyễn Hữu Thọ (Linh Đàm)', '0922782387', 'Hoàng Mai', 'https://storage.quannhautudo.com/data/thumb_800/Data/images/product/2023/10/202310241151064241.webp'),
+(11, '67A Phó Đức Chính', '0922782387', 'Ba Đình', 'https://storage.quannhautudo.com/data/thumb_800/Data/images/product/2024/10/202410041831456635.webp');
 
 -- --------------------------------------------------------
 
@@ -117,12 +134,24 @@ CREATE TABLE `dondatban` (
   `MaCoSo` int(11) NOT NULL,
   `MaUD` int(11) DEFAULT NULL,
   `MaNV_XacNhan` int(11) DEFAULT NULL,
-  `SoLuongKH` int(11) NOT NULL CHECK (`SoLuongKH` > 0),
+  `SoLuongKH` int(11) NOT NULL,
   `ThoiGianBatDau` datetime NOT NULL,
-  `GhiChu` text DEFAULT NULL,
-  `TrangThai` enum('cho_xac_nhan','da_xac_nhan','da_huy','hoan_thanh') NOT NULL DEFAULT 'cho_xac_nhan',
+  `GhiChu` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `TrangThai` enum('cho_xac_nhan','da_xac_nhan','da_huy','hoan_thanh') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'cho_xac_nhan',
   `ThoiGianTao` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+--
+-- Đang đổ dữ liệu cho bảng `dondatban`
+--
+
+INSERT INTO `dondatban` (`MaDon`, `MaKH`, `MaCoSo`, `MaUD`, `MaNV_XacNhan`, `SoLuongKH`, `ThoiGianBatDau`, `GhiChu`, `TrangThai`, `ThoiGianTao`) VALUES
+(95, 2, 2, NULL, 111, 1, '2025-09-30 21:19:00', 'Đặt bàn tại quán [Tự động hủy do quá hạn]', 'hoan_thanh', '2025-09-30 21:19:52'),
+(96, 2, 2, NULL, 111, 1, '2025-09-30 21:21:00', 'Đặt bàn tại quán [Tự động hủy do quá hạn]', 'hoan_thanh', '2025-09-30 21:21:46'),
+(97, 2, 2, NULL, 111, 1, '2025-09-30 21:22:00', 'Đặt bàn tại quán [Tự động hủy do quá hạn]', 'hoan_thanh', '2025-09-30 21:22:19'),
+(98, 2, 2, NULL, 111, 1, '2025-09-30 21:50:00', 'Đặt bàn tại quán [Tự động hủy do quá hạn]', 'hoan_thanh', '2025-09-30 21:50:36'),
+(99, 2, 2, NULL, 111, 1, '2025-09-30 21:55:00', 'Đặt bàn tại quán [Tự động hủy do quá hạn]', 'hoan_thanh', '2025-09-30 21:55:44'),
+(100, 2, 11, NULL, 111, 1, '2025-09-30 23:07:00', 'Đặt bàn tại quán [Tự động hủy do quá hạn]', 'hoan_thanh', '2025-09-30 23:07:29');
 
 -- --------------------------------------------------------
 
@@ -135,6 +164,13 @@ CREATE TABLE `dondatban_ban` (
   `MaBan` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Đang đổ dữ liệu cho bảng `dondatban_ban`
+--
+
+INSERT INTO `dondatban_ban` (`MaDon`, `MaBan`) VALUES
+(100, 3);
+
 -- --------------------------------------------------------
 
 --
@@ -144,9 +180,19 @@ CREATE TABLE `dondatban_ban` (
 CREATE TABLE `khachhang` (
   `MaKH` int(11) NOT NULL,
   `TenKH` varchar(100) NOT NULL,
-  `Email` varchar(100) NOT NULL,
+  `Email` varchar(100) DEFAULT NULL,
   `SDT` varchar(15) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Đang đổ dữ liệu cho bảng `khachhang`
+--
+
+INSERT INTO `khachhang` (`MaKH`, `TenKH`, `Email`, `SDT`) VALUES
+(1, 'Vũ Tín', 'vutin123@gmail.com', '0987654321'),
+(2, 'Khách hàng tại quán', '', ''),
+(3, 'Admin System', 'admin@system.local', '0000000000'),
+(57, 'tín', '', '0362889901');
 
 -- --------------------------------------------------------
 
@@ -157,9 +203,9 @@ CREATE TABLE `khachhang` (
 CREATE TABLE `menu_coso` (
   `MaCoSo` int(11) NOT NULL,
   `MaMon` int(11) NOT NULL,
-  `Gia` decimal(10,2) NOT NULL CHECK (`Gia` >= 0),
-  `TinhTrang` enum('con_hang','het_hang') NOT NULL DEFAULT 'con_hang'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `Gia` decimal(10,2) NOT NULL,
+  `TinhTrang` enum('con_hang','het_hang') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'con_hang'
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
 -- Đang đổ dữ liệu cho bảng `menu_coso`
@@ -719,7 +765,9 @@ CREATE TABLE `nhanvien` (
 --
 
 INSERT INTO `nhanvien` (`MaNV`, `MaCoSo`, `TenDN`, `MatKhau`, `TenNhanVien`, `ChucVu`) VALUES
-(111, 11, 'admin', '$2y$10$/DUh53rPS8Hc4ycZSSIDcuxOwgMLpfaPOv9U8esH.7ec0Zhphg3TO', 'Admin', 'admin');
+(111, 11, 'admin', '$2y$10$4xxiEIR3.vy.zlPcpJEHweZgGTlBeA.gV/O4vKKNNTwmYrhsga0Ni', 'Admin', 'admin'),
+(112, 11, 'dung', '$2y$10$5PMRPUj6PeNBYR5S0GMjWumcIX/2aVXwaXvWIBsokgKGYuwwZH576', 'Dung', 'nhan_vien'),
+(113, 11, 'vutin', '$2y$10$CSdZs9k5DZwvN6nYuu3t2uu3J0rPbmEET1S3eC7JQUJzVXUI4KEQe', 'Tin Vu', 'nhan_vien');
 
 -- --------------------------------------------------------
 
@@ -729,6 +777,7 @@ INSERT INTO `nhanvien` (`MaNV`, `MaCoSo`, `TenDN`, `MatKhau`, `TenNhanVien`, `Ch
 
 CREATE TABLE `uudai` (
   `MaUD` int(11) NOT NULL,
+  `TenMaUD` varchar(50) DEFAULT NULL,
   `MoTa` text NOT NULL,
   `GiaTriGiam` decimal(10,2) NOT NULL,
   `LoaiGiamGia` enum('phantram','sotien') NOT NULL,
@@ -736,6 +785,19 @@ CREATE TABLE `uudai` (
   `NgayBD` date NOT NULL,
   `NgayKT` date NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Đang đổ dữ liệu cho bảng `uudai`
+--
+
+INSERT INTO `uudai` (`MaUD`, `TenMaUD`, `MoTa`, `GiaTriGiam`, `LoaiGiamGia`, `DieuKien`, `NgayBD`, `NgayKT`) VALUES
+(10, 'GIAM10', 'Giảm 10% cho đơn hàng', 10.00, 'phantram', 'Áp dụng cho tất cả đơn hàng', '2024-01-01', '2025-12-31'),
+(11, 'GIAM20', 'Giảm 20% cho khách hàng mới', 20.00, 'phantram', 'Dành cho khách hàng đặt lần đầu', '2024-01-01', '2025-12-31'),
+(12, 'GIAM30', 'Giảm 30% khuyến mãi đặc biệt', 30.00, 'phantram', 'Áp dụng cho đơn hàng trên 500.000đ', '2024-01-01', '2025-12-31'),
+(13, 'GIAM50K', 'Giảm 50.000đ cho đơn hàng', 50000.00, 'sotien', 'Áp dụng cho đơn hàng trên 300.000đ', '2024-01-01', '2025-12-31'),
+(14, 'GIAM100K', 'Giảm 100.000đ cho đơn hàng lớn', 100000.00, 'sotien', 'Áp dụng cho đơn hàng trên 500.000đ', '2024-01-01', '2025-12-31'),
+(15, 'TET2025', 'Giảm 25% dịp Tết Ất Tỵ', 25.00, 'phantram', 'Chương trình Tết 2025', '2025-01-20', '2025-02-10'),
+(16, 'QUOCKHANH', 'Giảm 15% Quốc Khánh', 15.00, 'phantram', 'Kỷ niệm Quốc Khánh', '2025-08-28', '2025-09-05');
 
 --
 -- Chỉ mục cho các bảng đã đổ
@@ -790,7 +852,6 @@ ALTER TABLE `dondatban_ban`
 --
 ALTER TABLE `khachhang`
   ADD PRIMARY KEY (`MaKH`),
-  ADD UNIQUE KEY `Email` (`Email`),
   ADD UNIQUE KEY `SDT` (`SDT`);
 
 --
@@ -819,7 +880,8 @@ ALTER TABLE `nhanvien`
 -- Chỉ mục cho bảng `uudai`
 --
 ALTER TABLE `uudai`
-  ADD PRIMARY KEY (`MaUD`);
+  ADD PRIMARY KEY (`MaUD`),
+  ADD UNIQUE KEY `TenMaUD` (`TenMaUD`);
 
 --
 -- AUTO_INCREMENT cho các bảng đã đổ
@@ -829,13 +891,13 @@ ALTER TABLE `uudai`
 -- AUTO_INCREMENT cho bảng `ban`
 --
 ALTER TABLE `ban`
-  MODIFY `MaBan` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `MaBan` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT cho bảng `coso`
 --
 ALTER TABLE `coso`
-  MODIFY `MaCoSo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  MODIFY `MaCoSo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- AUTO_INCREMENT cho bảng `danhmuc`
@@ -847,13 +909,13 @@ ALTER TABLE `danhmuc`
 -- AUTO_INCREMENT cho bảng `dondatban`
 --
 ALTER TABLE `dondatban`
-  MODIFY `MaDon` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `MaDon` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=101;
 
 --
 -- AUTO_INCREMENT cho bảng `khachhang`
 --
 ALTER TABLE `khachhang`
-  MODIFY `MaKH` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `MaKH` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=59;
 
 --
 -- AUTO_INCREMENT cho bảng `monan`
@@ -865,13 +927,13 @@ ALTER TABLE `monan`
 -- AUTO_INCREMENT cho bảng `nhanvien`
 --
 ALTER TABLE `nhanvien`
-  MODIFY `MaNV` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=112;
+  MODIFY `MaNV` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=114;
 
 --
 -- AUTO_INCREMENT cho bảng `uudai`
 --
 ALTER TABLE `uudai`
-  MODIFY `MaUD` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `MaUD` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- Các ràng buộc cho các bảng đã đổ
