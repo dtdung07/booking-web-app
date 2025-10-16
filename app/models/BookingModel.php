@@ -70,14 +70,31 @@ class BookingModel
             return 0;
         }
     }
-
-    // Đếm đơn đặt bàn hôm nay theo cơ sở
     public function countTodayBookingsByBranch($maCoSo)
     {
         try {
             $today = date('Y-m-d');
             $query = "SELECT COUNT(*) as total FROM " . $this->table . " 
-                     WHERE MaCoSo = ? AND DATE(ThoiGianTao) = ? AND TrangThai != 'hoan_thanh'";
+                     WHERE MaCoSo = ? AND DATE(ThoiGianBatDau) = ? AND TrangThai != 'hoan_thanh'";
+            $stmt = mysqli_prepare($this->conn, $query);
+            mysqli_stmt_bind_param($stmt, "is", $maCoSo, $today);
+            mysqli_stmt_execute($stmt);
+            $result_set = mysqli_stmt_get_result($stmt);
+            $result = mysqli_fetch_assoc($result_set);
+            return $result['total'];
+        } catch (Exception $e) {
+            error_log("Error in BookingModel::countTodayBookingsByBranch: " . $e->getMessage());
+            return 0;
+        }
+    }
+
+    // Đếm đơn đặt trước
+    public function countUpcomingBookingsByBranch($maCoSo)
+    {
+        try {
+            $today = date('Y-m-d');
+            $query = "SELECT COUNT(*) as total FROM " . $this->table . " 
+                     WHERE MaCoSo = ? AND DATE(ThoiGianBatDau) > ? AND TrangThai != 'hoan_thanh'";
             $stmt = mysqli_prepare($this->conn, $query);
             mysqli_stmt_bind_param($stmt, "is", $maCoSo, $today);
             mysqli_stmt_execute($stmt);

@@ -22,7 +22,7 @@
                 </ul>
             </nav>
             
-            <div class="header-actions">
+            <div class="header-actions">    
                 <!-- Dropdown chọn cơ sở trong header -->
                 <div class="header-branch-selector" aria-label="Chọn cơ sở">
                     <button id="headerBranchBtn" class="change-branch-btn">

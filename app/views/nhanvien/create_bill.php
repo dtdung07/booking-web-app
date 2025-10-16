@@ -1895,7 +1895,7 @@ function parseDateFromDisplay(dateStr) {
     return null;
 }
 
-// === XỬ LÝ DANH SÁCH BÀN CHƯA TỪNG ĐƯỢC ĐẶT ===
+// === XỬ LÝ DANH SÁCH BÀN TRỐNG THEO LOGIC MỚI ===
 async function loadAvailableTables() {
     const tablesContainer = document.getElementById('nv-available-tables-container');
     
@@ -1907,7 +1907,7 @@ async function loadAvailableTables() {
     tablesContainer.innerHTML = `
         <div class="nv-tables-loading">
             <i class="fas fa-spinner fa-spin"></i>
-            <span>Đang tải danh sách bàn...</span>
+            <span>Đang tải danh sách bàn trống...</span>
         </div>
     `;
     
@@ -1944,8 +1944,8 @@ function renderAvailableTables(tables) {
         tablesContainer.innerHTML = `
             <div class="nv-tables-empty">
                 <i class="fas fa-chair"></i>
-                <h4>Không có bàn khả dụng</h4>
-                <p>Tất cả các bàn của cơ sở đã từng được đặt. Chỉ hiển thị các bàn chưa từng có đơn đặt bàn.</p>
+                <h4>Không có bàn trống</h4>
+                <p>Tất cả các bàn hiện tại đã được đặt hoặc có lịch đặt trong vòng 2 giờ tới.</p>
             </div>
         `;
         return;

@@ -71,6 +71,7 @@ class NhanVienController extends BaseController
             case 'table_status':
                 require_once __DIR__ . '/TableStatusController.php';
                 $tableStatusController = new TableStatusController();
+                $cleanupResult = TableStatusManager::xoaDonDatBanQuaHan($maCoSo);
                 $tableStatusData = $tableStatusController->getTableStatusData();
                 break;
             default:
@@ -227,6 +228,7 @@ public function viewBookingDetail()
             $completedBookings = $this->bookingModel->countCompletedBookingsByBranch($maCoSo);
             $pendingBookings = $this->bookingModel->countPendingBookingsByBranch($maCoSo);
             $confirmedBookings = $this->bookingModel->countConfirmedBookingsByBranch($maCoSo);
+            $upcomingBookings = $this->bookingModel->countUpcomingBookingsByBranch($maCoSo);
             
             return [
                 'coSoInfo' => $coSoInfo,
@@ -234,7 +236,8 @@ public function viewBookingDetail()
                 'todayNewBookings' => $todayNewBookings,
                 'completedBookings' => $completedBookings,
                 'pendingBookings' => $pendingBookings,
-                'confirmedBookings' => $confirmedBookings
+                'confirmedBookings' => $confirmedBookings,
+                'upcomingBookings' => $upcomingBookings
             ];
         } catch (Exception $e) {
             error_log("Error getting dashboard statistics: " . $e->getMessage());
@@ -503,7 +506,7 @@ public function createOrder()
     }
 
     /**
-     * Lấy danh sách bàn chưa từng được đặt (AJAX)
+     * Lấy danh sách bàn trống theo logic mới (AJAX)
      */
     public function getAvailableTables()
     {
@@ -516,8 +519,8 @@ public function createOrder()
             $currentUser = $_SESSION['user'];
             $maCoSo = $currentUser['MaCoSo'];
             
-            // Lấy danh sách bàn chưa từng được đặt (không có trong dondatban_ban)
-            $availableTables = TableStatusManager::layBanChuaDuocDat($maCoSo);
+            // Lấy danh sách bàn trống theo logic mới (không có đơn đặt trong vòng 2 giờ tới)
+            $availableTables = TableStatusManager::layBanTrongTheoThoiGian($maCoSo);
             
             echo json_encode([
                 'success' => true,
