@@ -33,3 +33,6 @@ docs
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Test files
+*.test.php

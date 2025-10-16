@@ -71,9 +71,15 @@ if (!$booking) {
         <div id="success_pay_box" class="success-box">
             <h2><i class="fas fa-check-circle"></i> Thanh toán thành công!</h2>
             <p class="mb-3">Chúng tôi đã nhận được thanh toán. Bàn của bạn đã được xác nhận!</p>
-            <a href="../index.php?page=menu&coso=<?= $booking['MaCoSo'] ?>" class="btn btn-light btn-lg">
-                Về trang menu
-            </a>
+            <div class="mb-3">
+                <a href="invoice.php?booking_id=<?= $booking['MaDon'] ?>" class="btn btn-light btn-lg me-2">
+                    <i class="fas fa-receipt me-2"></i>Xem hóa đơn
+                </a>
+                <a href="../index.php?page=menu&coso=<?= $booking['MaCoSo'] ?>" class="btn btn-outline-light btn-lg">
+                    Về trang menu
+                </a>
+            </div>
+            <p class="small mb-0"><i class="fas fa-envelope me-1"></i>Email xác nhận đã được gửi đến hộp thư của bạn</p>
         </div>
 
         <!-- Giao diện thanh toán -->
@@ -237,9 +243,8 @@ if (!$booking) {
                     dataType: "json",
                     success: function(data) {
                         if (data.payment_status === "Paid") {
-                            $("#checkout_box").fadeOut(500, function() {
-                                $("#success_pay_box").fadeIn(500);
-                            });
+                            // Chuyển hướng đến trang hóa đơn chi tiết
+                            window.location.href = "invoice.php?booking_id=<?= $booking['MaDon'] ?>";
                             paymentStatus = 'Paid';
                         }
                     },
