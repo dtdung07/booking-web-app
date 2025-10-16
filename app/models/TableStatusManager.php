@@ -16,9 +16,9 @@ class TableStatusManager {
      * @return mysqli
      */
     private static function getConnection() {
-        $host = 'localhost';
+        $host = 'db';
         $user = 'root';
-        $pass = '';
+        $pass = 'rootpassword';
         $database = 'booking_restaurant';
         $port = '3306';
 
@@ -27,26 +27,34 @@ class TableStatusManager {
             die("Connection failed: " . mysqli_connect_error());
         }
         mysqli_set_charset($conn, "utf8");
+        mysqli_query($conn, "SET time_zone = '+07:00'");
+
         
         return $conn;
     }
     
     /**
-     * Kiểm tra trạng thái bàn - đơn giản chỉ cần kiểm tra có trong dondatban_ban hay không
+     * Kiểm tra trạng thái bàn dựa vào thời gian bắt đầu đặt bàn
+     * Bàn được coi là đã đặt nếu có đơn đặt trong khoảng 2 giờ tới
      * @param int $maBan Mã bàn
      * @return string 'trong' hoặc 'da_dat'
      */
     public static function kiemTraTrangThaiBan($maBan) { 
         $conn = self::getConnection();
 
+        // Tính thời gian hiện tại + 2 giờ
+        $thoiGianHienTai = date('Y-m-d H:i:s');
+        $thoiGianCong2Gio = date('Y-m-d H:i:s', strtotime('+2 hours'));
+
         $sql = "SELECT COUNT(*) as so_don_dat
                 FROM dondatban_ban dbb
                 JOIN dondatban dd ON dbb.MaDon = dd.MaDon
                 WHERE dbb.MaBan = ?
-                AND dd.TrangThai IN ('cho_xac_nhan', 'da_xac_nhan')";
+                AND dd.TrangThai IN ('cho_xac_nhan', 'da_xac_nhan')
+                AND dd.ThoiGianBatDau <= ?";
 
         $stmt = mysqli_prepare($conn, $sql);
-        mysqli_stmt_bind_param($stmt, "i", $maBan);
+        mysqli_stmt_bind_param($stmt, "is", $maBan, $thoiGianCong2Gio);
         mysqli_stmt_execute($stmt);
         $result = mysqli_stmt_get_result($stmt);
         $row = mysqli_fetch_assoc($result);
@@ -55,12 +63,15 @@ class TableStatusManager {
     }
 
     /**
-     * Lấy danh sách bàn theo cơ sở với trạng thái dựa vào dondatban_ban
+     * Lấy danh sách bàn theo cơ sở với trạng thái dựa vào thời gian đặt bàn
      * @param int $maCoSo Mã cơ sở
      * @return array Danh sách bàn với trạng thái
      */
     public static function layBanTheoCoSo($maCoSo) {
         $conn = self::getConnection();
+
+        // Tính thời gian hiện tại + 2 giờ
+        $thoiGianCong2Gio = date('Y-m-d H:i:s', strtotime('+2 hours'));
 
         $sql = "SELECT b.*,
                 CASE
@@ -70,6 +81,7 @@ class TableStatusManager {
                         JOIN dondatban dd ON dbb.MaDon = dd.MaDon
                         WHERE dbb.MaBan = b.MaBan
                         AND dd.TrangThai IN ('cho_xac_nhan', 'da_xac_nhan')
+                        AND dd.ThoiGianBatDau <= ?
                     ) THEN 'da_dat'
                     ELSE 'trong'
                 END as TrangThai
@@ -78,7 +90,7 @@ class TableStatusManager {
                 ORDER BY b.MaBan";
 
         $stmt = mysqli_prepare($conn, $sql);
-        mysqli_stmt_bind_param($stmt, "i", $maCoSo);
+        mysqli_stmt_bind_param($stmt, "si", $thoiGianCong2Gio, $maCoSo);
         mysqli_stmt_execute($stmt);
         $result = mysqli_stmt_get_result($stmt);
 
@@ -100,19 +112,7 @@ class TableStatusManager {
         $conn = self::getConnection();
 
         if ($trangThai == 'da_dat') {
-            // Kiểm tra xem bàn đã có đơn đặt chưa
-            $checkSql = "SELECT COUNT(*) as count FROM dondatban_ban dbb
-                        JOIN dondatban dd ON dbb.MaDon = dd.MaDon
-                        WHERE dbb.MaBan = ? AND dd.TrangThai IN ('cho_xac_nhan', 'da_xac_nhan')";
-            $checkStmt = mysqli_prepare($conn, $checkSql);
-            mysqli_stmt_bind_param($checkStmt, "i", $maBan);
-            mysqli_stmt_execute($checkStmt);
-            $checkResult = mysqli_stmt_get_result($checkStmt);
-            $checkRow = mysqli_fetch_assoc($checkResult);
-            
-            if ($checkRow['count'] > 0) {
-                return true; // Bàn đã được đặt rồi
-            }
+         
 
             // Lấy MaCoSo từ bàn
             $sqlGetCoSo = "SELECT MaCoSo FROM ban WHERE MaBan = ?";
@@ -139,7 +139,8 @@ class TableStatusManager {
             $stmt2 = mysqli_prepare($conn, $sql2);
             mysqli_stmt_bind_param($stmt2, "ii", $maDon, $maBan);
             return mysqli_stmt_execute($stmt2);
-        } else {
+        } 
+        else {
             // Xóa tất cả các đơn đặt bàn (cả admin và nhân viên) để đánh dấu bàn trống
             mysqli_begin_transaction($conn);
             
@@ -168,7 +169,6 @@ class TableStatusManager {
                     $deleteBanStmt = mysqli_prepare($conn, $deleteBanSql);
                     mysqli_stmt_bind_param($deleteBanStmt, str_repeat('i', count($maDonList)), ...$maDonList);
                     mysqli_stmt_execute($deleteBanStmt);
-                  
                 }
                 
                 mysqli_commit($conn);
@@ -415,6 +415,49 @@ class TableStatusManager {
     }
 
     /**
+     * Lấy danh sách bàn trống theo logic thời gian thực (không có đơn đặt trong vòng 2 giờ tới)
+     * @param int $maCoSo Mã cơ sở
+     * @return array Danh sách bàn trống
+     */
+    public static function layBanTrongTheoThoiGian($maCoSo) {
+        $conn = self::getConnection();
+        
+        try {
+            // Tính thời gian hiện tại + 2 giờ
+            $thoiGianCong2Gio = date('Y-m-d H:i:s', strtotime('+2 hours'));
+            
+            $sql = "SELECT b.MaBan, b.TenBan, b.SucChua 
+                   FROM ban b 
+                   WHERE b.MaCoSo = ? 
+                   AND NOT EXISTS (
+                       SELECT 1
+                       FROM dondatban_ban dbb
+                       JOIN dondatban dd ON dbb.MaDon = dd.MaDon
+                       WHERE dbb.MaBan = b.MaBan
+                       AND dd.TrangThai IN ('cho_xac_nhan', 'da_xac_nhan')
+                       AND dd.ThoiGianBatDau <= ?
+                   )
+                   ORDER BY b.TenBan";
+            
+            $stmt = mysqli_prepare($conn, $sql);
+            mysqli_stmt_bind_param($stmt, "is", $maCoSo, $thoiGianCong2Gio);
+            mysqli_stmt_execute($stmt);
+            $result = mysqli_stmt_get_result($stmt);
+            
+            $tables = [];
+            while ($row = mysqli_fetch_assoc($result)) {
+                $tables[] = $row;
+            }
+            
+            return $tables;
+            
+        } catch (Exception $e) {
+            error_log("Error in layBanTrongTheoThoiGian: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
      * Lấy danh sách bàn không có trong dondatban_ban (từ TableModel)
      * @param int $maCoSo Mã cơ sở
      * @return array Danh sách bàn chưa được đặt
@@ -476,17 +519,13 @@ class TableStatusManager {
             // Tính thời gian hết hạn (1 phút trước thời điểm hiện tại)
             $currentTime = date('Y-m-d H:i:s');
             
-            // Tìm các đơn đặt bàn quá hạn (thêm 7 giờ cho UTC -> Vietnam time)
+            // Tìm các đơn đặt bàn quá hạn (đã qua thời gian bắt đầu hơn 60 giây)
             $sql = "SELECT dd.MaDon, dd.ThoiGianBatDau, dd.MaCoSo, cs.TenCoSo
                     FROM dondatban dd
                     JOIN coso cs ON dd.MaCoSo = cs.MaCoSo
                     WHERE dd.TrangThai IN ('cho_xac_nhan', 'da_xac_nhan')
-                    AND TIMESTAMPDIFF(SECOND, dd.ThoiGianBatDau, DATE_ADD(NOW(), INTERVAL 7 HOUR)) > 40 ";
-            //  $sql = "SELECT dd.MaDon, dd.ThoiGianBatDau, dd.MaCoSo, cs.TenCoSo
-            //     FROM dondatban dd
-            //     JOIN coso cs ON dd.MaCoSo = cs.MaCoSo
-            //     WHERE dd.TrangThai IN ('cho_xac_nhan', 'da_xac_nhan')
-            //     AND NOW() > DATE_ADD(dd.ThoiGianBatDau, INTERVAL 30 SECOND)"; // Quá hạn 30 giây để dễ test
+                    AND TIMESTAMPDIFF(SECOND, dd.ThoiGianBatDau, NOW()) > 30";
+            
             
             // Nếu có mã cơ sở cụ thể
             if ($maCoSo !== null) {
@@ -534,19 +573,26 @@ class TableStatusManager {
             $updatedDon = mysqli_stmt_affected_rows($updateDonStmt);
             
             mysqli_commit($conn);
-            
+
+            $deletedBanSql = "DELETE FROM dondatban_ban WHERE MaDon IN ($placeholders)";
+            $deletedBanStmt = mysqli_prepare($conn, $deletedBanSql);
+            mysqli_stmt_bind_param($deletedBanStmt, $paramTypes, ...$maDonList);
+            mysqli_stmt_execute($deletedBanStmt);
+            $deletedBan = mysqli_stmt_affected_rows($deletedBanStmt);
+
+            mysqli_commit($conn);
+
             // Log thông tin cleanup
-            error_log("TableStatusManager: Đã cleanup " . count($maDonList) . " đơn đặt bàn quá hạn");
-            foreach ($expiredOrders as $order) {
-                error_log("- MaDon: {$order['MaDon']}, ThoiGianBatDau: {$order['ThoiGianBatDau']}, CoSo: {$order['TenCoSo']}");
-            }
+            // error_log("TableStatusManager: Đã cleanup " . count($maDonList) . " đơn đặt bàn quá hạn");
+            // foreach ($expiredOrders as $order) {
+            //     error_log("- MaDon: {$order['MaDon']}, ThoiGianBatDau: {$order['ThoiGianBatDau']}, CoSo: {$order['TenCoSo']}");
+            // }
             
             return [
                 'success' => true,
                 'deleted_count' => count($maDonList),
                 'expired_orders' => $expiredOrders,
                 'details' => [
-                    'chi_tiet_deleted' => $deletedChiTiet,
                     'ban_deleted' => $deletedBan,
                     'don_updated' => $updatedDon
                 ],

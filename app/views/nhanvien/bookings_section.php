@@ -388,14 +388,14 @@ tr:hover {
     <!-- Pagination -->
     <?php if ($totalPages > 1): ?>
         <div class="pagination">
-            <?php if ($page > 1): ?>
-                <a href="?page=nhanvien&action=dashboard&section=bookings&booking_page=<?php echo $page - 1; ?>&status_filter=<?php echo urlencode($statusFilter); ?>&search=<?php echo urlencode($searchKeyword); ?>&time_filter=<?php echo urlencode($timeFilter); ?>">
+            <?php if ($currentPage > 1): ?>
+                <a href="?page=nhanvien&action=dashboard&section=bookings&booking_page=<?php echo $currentPage - 1; ?>&status_filter=<?php echo urlencode($statusFilter); ?>&search=<?php echo urlencode($searchKeyword); ?>&time_filter=<?php echo urlencode($timeFilter); ?>">
                     <i class="fas fa-chevron-left"></i> Trước
                 </a>
             <?php endif; ?>
             
-            <?php for ($i = max(1, $page - 2); $i <= min($totalPages, $page + 2); $i++): ?>
-                <?php if ($i === $page): ?>
+            <?php for ($i = max(1, $currentPage - 2); $i <= min($totalPages, $currentPage + 2); $i++): ?>
+                <?php if ($i === $currentPage): ?>
                     <span class="current"><?php echo $i; ?></span>
                 <?php else: ?>
                     <a href="?page=nhanvien&action=dashboard&section=bookings&booking_page=<?php echo $i; ?>&status_filter=<?php echo urlencode($statusFilter); ?>&search=<?php echo urlencode($searchKeyword); ?>&time_filter=<?php echo urlencode($timeFilter); ?>">
@@ -404,8 +404,8 @@ tr:hover {
                 <?php endif; ?>
             <?php endfor; ?>
             
-            <?php if ($page < $totalPages): ?>
-                <a href="?page=nhanvien&action=dashboard&section=bookings&booking_page=<?php echo $page + 1; ?>&status_filter=<?php echo urlencode($statusFilter); ?>&search=<?php echo urlencode($searchKeyword); ?>&time_filter=<?php echo urlencode($timeFilter); ?>">
+            <?php if ($currentPage < $totalPages): ?>
+                <a href="?page=nhanvien&action=dashboard&section=bookings&booking_page=<?php echo $currentPage + 1; ?>&status_filter=<?php echo urlencode($statusFilter); ?>&search=<?php echo urlencode($searchKeyword); ?>&time_filter=<?php echo urlencode($timeFilter); ?>">
                     Sau <i class="fas fa-chevron-right"></i>
                 </a>
             <?php endif; ?>
