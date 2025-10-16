@@ -1,52 +1,236 @@
-## Cấu trúc hiện tại
+# HƯỚNG DẪN CÀI ĐẶT VÀ CẤU HÌNH DỰ ÁN
+## Website đặt bàn & thực đơn nhà hàng - Booking Web App
+
+### I. TỔNG QUAN DỰ ÁN
+
+Đây là một hệ thống đặt bàn nhà hàng xây dựng bằng PHP với mô hình MVC, hỗ trợ:
+
+- **Quản lý đa cơ sở nhà hàng**
+- **Hệ thống đặt bàn online**  
+- **Menu theo từng cơ sở**
+- **Quản lý nhân viên và admin**
+- **Tích hợp thanh toán trực tuyến QR code**
+- **Quản lý khuyến mãi và ưu đãi**
+
+---
+
+## II. YÊU CẦU HỆ THỐNG
+
+### Server Requirements
+- **PHP**: >= 7.4 (Khuyến nghị 8.0)
+- **MySQL/MariaDB**: >= 5.7 
+- **Apache/Nginx**: Web server
+- **XAMPP/LAMP**: Cho môi trường phát triển
+---
+
+## III. CÀI ĐẶT MÔI TRƯỜNG
+
+### 1. Cài đặt XAMPP (Windows)
+```bash
+# Tải XAMPP
+# Cài đặt và khởi động:
+- Apache (Port 80)
+- MySQL (Port 3306)
+```
+
+### 2. Clone/Copy dự án
+```bash
+# Đặt dự án vào thư mục htdocs của XAMPP
+C:\xampp\htdocs\booking-web-app\
+```
+
+### 3. Cấu trúc thư mục chính
 ```
 booking-web-app/
-├── app/                                # Mã nguồn chính (MVC)
-│   ├── controllers/                    # Controller điều hướng luồng, gọi model + render view
-│   │   ├── AdminController.php         # Bảo vệ truy cập admin, render dashboard
-│   │   ├── AuthController.php          # Luồng đăng nhập/đăng xuất/middleware (khung sẵn)
-│   │   ├── BookingController.php       # Khung đặt bàn (index/create/store/success)
-│   │   ├── BranchController.php        # Danh sách cơ sở, API JSON, chi tiết, admin view
-│   │   ├── ContactController.php       # Khung liên hệ (index/send)
-│   │   ├── HomeController.php          # Trang chủ: load cơ sở, nhóm theo địa chỉ
-│   │   └── MenuController.php          # Menu + trang menu2, API JSON lọc danh mục
-│   ├── models/                         # Model thao tác CSDL (PDO)
-│   │   ├── CoSo.php                    # CRUD bảng coso (getAll/getByAddress/getById/…)
-│   │   └── User.php                    # Bảng nhanvien: login, đổi mật khẩu, branch name
-│   └── views/                          # View hiển thị (kèm layout)
-│       ├── admin/                      # Khu vực quản trị (dashboard + module CRUD)
-│       │   ├── branches/               # Quản lý cơ sở (admin)
-│       │   ├── categories/             # Quản lý danh mục: form + process-*.php
-│       │   ├── menu/                   # Quản lý món/menu: form + process-*.php
-│       │   └── user/                   # Quản lý người dùng: form + process-*.php
-│       ├── branches/                   # Trang danh sách/chi tiết cơ sở (frontend)
-│       ├── coso/                       # Tài liệu HTML liên quan cơ sở (tĩnh)
-│       ├── datban/                     # Trang đặt bàn (tĩnh/khung)
-│       ├── home/                       # Trang chủ
-│       ├── layouts/                    # Layout, header, footer, khai báo CSS/JS
-│       ├── menu/                       # Trang menu cơ bản
-│       └── menu2/                      # Trang menu nâng cao (filter, AJAX)
-├── config/                             # Cấu hình ứng dụng
-│   ├── config.php                      # Hằng số, helper (vd: asset())
-│   └── database.php                    # Kết nối PDO (UTF-8, ERRMODE_EXCEPTION)
-├── database/                           # Script SQL dựng dữ liệu/mẫu
-│   ├── booking_restaurant.sql          # Schema chính
-│   ├── add_sample_users.sql            # Dữ liệu mẫu user/nhân viên
-│   ├── add_sample_menu_data.sql        # Dữ liệu mẫu menu
-│   ├── add_more_menu_items.sql         # Thêm món mẫu
-│   ├── coso.sql                        # Dữ liệu mẫu cơ sở
-│   └── update_*.sql                    # Các script cập nhật bảng
-├── includes/                           # Thành phần dùng chung
-│   ├── BaseController.php              # Base controller: render/redirect/json
-│   └── auth.php                        # (Hiện trống/chưa dùng)
-├── public/                             # Tài nguyên tĩnh (static assets)
-│   ├── css/                            # CSS chia theo pages/components/layout
-│   ├── fonts/                          # Phông chữ
-│   ├── images/                         # Ảnh nền/ảnh trang
-│   ├── js/                             # JS frontend (menu2.js, script.js)
-│   └── videos/                         # Video nền/trình chiếu
-├── ADMIN_GUIDE.md                      # Hướng dẫn quản trị
-├── README.md                           # Hướng dẫn dự án (cấu trúc, chạy, mô tả)
-├── index.php                           # Entry point + router (?page=&action=)
-└── login.php                           # Trang đăng nhập Admin độc lập (POST + UI)
+├── app/                    # Mã nguồn MVC
+│   ├── controllers/        # Các Controller (Admin, Auth, Booking, Menu...)
+│   ├── models/            # Các Model (Booking, Branch, Menu, Table...)  
+│   └── views/             # Các View (admin (nhân viên), client)
+├── config/                # File cấu hình (database, config, connect)
+├── database/              # FIle SQL
+├── public/                # Assets (CSS, JS, Images, Fonts, Videos)
+├── includes/              # Dịch vụ gửi Mail
+├── libs/                  # Thư viện bên thứ 3 (PHPMailer)
+├── sepay/                 # Tích hợp thanh toán trực tuyến QR code (payment, webhook, invoice)
+├── index.php              # File chính điều hướng
+├── login.php              # Trang đăng nhập Admin/Nhân viên
+└── *README.md                   # File README hướng dẫn
 ```
+
+---
+
+## IV. CẤU HÌNH DATABASE
+
+### 1. Tạo Database
+```sql
+-- Truy cập phpMyAdmin: http://localhost/phpmyadmin
+-- Tạo database mới tên là `booking_restaurant`
+```
+
+### 2. Import file SQL
+```bash
+# Import file SQL chính:
+1. Mở phpMyAdmin
+2. Chọn database 'booking_restaurant'  
+3. Click tab 'Import'
+4. Chọn file: database/booking_restaurant.sql
+5. Click Ok để import
+```
+
+### 3. Cấu trúc Database chính
+
+**Các bảng quan trọng:**
+
+**Quản lý cơ sở:**
+- `coso` - Thông tin các cơ sở nhà hàng (tên, địa chỉ, SĐT, hình ảnh)
+- `ban` - Danh sách bàn theo từng cơ sở (tên bàn, sức chứa)
+
+**Quản lý menu:**
+- `danhmuc` - Danh mục món ăn
+- `monan` - Danh sách món ăn tổng (tên món, mô tả, hình ảnh)
+- `menu_coso` - Giá món ăn và tình trạng theo từng cơ sở (hỗ trợ giá khác nhau cho cùng món)
+
+**Quản lý đặt bàn:**
+- `khachhang` - Thông tin khách hàng (tên, email, SĐT)
+- `dondatban` - Đơn đặt bàn chính (khách hàng, cơ sở, thời gian, trạng thái, ghi chú)
+- `dondatban_ban` - Liên kết đơn đặt với bàn cụ thể (hỗ trợ đặt nhiều bàn)
+- `chitietdondatban` - Chi tiết món ăn trong đơn (món, số lượng, đơn giá)
+
+**Quản lý hệ thống:**
+- `nhanvien` - Tài khoản nhân viên/admin (username, password, chức vụ, cơ sở làm việc)
+- `uudai` - Mã giảm giá và ưu đãi (tên mã, giá trị giảm, loại giảm theo % hoặc số tiền, điều kiện, thời gian hiệu lực)
+
+---
+
+## V. CẤU HÌNH ỨNG DỤNG
+
+### 1. Cấu hình Database Connection
+
+**Cần cấu hình các trường kết nối ở file: `config/database.php`**
+```php
+<?php
+class Database {
+    private $host = "localhost";        // MySQL Host
+    private $db_name = "booking_restaurant";  // Tên Database  
+    private $username = "root";         // MySQL Username
+    private $password = "";             // MySQL Password (XAMPP default: rỗng)
+    public $conn;
+}
+```
+
+### 2. Cấu hình URL và SMTP
+
+**File: `config/config.php`** 
+```php
+// Cập nhật URL base cho môi trường của bạn:
+define('BASE_URL', 'http://localhost/booking-web-app');  // URL webside
+define('ASSETS_URL', BASE_URL . '/public');
+
+// Cấu hình email SMTP (cần thiết để gửi mail thanh toán):
+define('SMTP_HOST', 'smtp.gmail.com');
+define('SMTP_PORT', 465);
+define('SMTP_USERNAME', 'your-email@gmail.com');
+define('SMTP_PASSWORD', 'password');
+```
+
+### 3. Tài khoản mặc định trong Dashboard quản trị (user/pass) như sau:
+
+**Tài khoản Admin:** admin/admin
+
+**Tài khoản Nhân viên:** dung/dung
+
+---
+
+## VI. CHẠY DỰ ÁN
+
+### 1. Khởi động Services
+```bash
+# Khởi động XAMPP:
+1. Mở XAMPP Control Panel
+2. Start Apache  
+3. Start MySQL
+4. Kiểm tra trạng thái: Running và hiện Port
+```
+
+### 2. Truy cập ứng dụng
+
+**Frontend (Client):**
+```
+http://localhost/booking-web-app/
+
+hoặc
+
+https://mydomain.com (cần tự cấu hình)
+```
+
+**Admin Panel:**
+```
+http://localhost/booking-web-app/login.php
+
+hoặc
+
+http://localhost/booking-web-app/?page=admin
+
+- Username: admin
+- Password: admin
+```
+---
+
+## VII. HƯỚNG DẪN SỬ DỤNG
+
+### A. Khách hàng (Frontend)
+
+**1. Xem danh sách cơ sở**
+- Truy cập: `http://localhost/booking-web-app/`
+- Các cơ sở được nhóm theo địa chỉ
+
+**2. Xem menu**  
+- Click "Xem menu" tại cơ sở
+- Menu được phân theo danh mục món
+
+**3. Đặt bàn**
+- Chọn cơ sở muốn đặt
+- Điền thông tin: Tên, SĐT, Email (để nhận mail thanh toán), Số khách, Thời gian
+- Chọn món ăn
+- Áp dụng mã giảm giá (tùy chọn)
+
+### B. Admin/Nhân viên (Backend)
+
+**1. Đăng nhập Admin**
+```
+URL: /login.php
+Username: admin  
+Password: admin123
+```
+
+**2. Dashboard chính**
+- Tổng quan thống kê
+- Chức năng thao tác nhanh
+
+**3. Quản lý cơ sở**
+- Thêm/sửa/xóa cơ sở
+- Quản lý thông tin liên hệ
+
+**4. Quản lý danh mục, menu món**
+- Tạo danh mục món ăn
+- Thêm món ăn mới  
+- Thiết lập giá theo từng cơ sở
+- Trạng thái còn hàng/hết hàng
+
+**5. Quản lý đặt bàn**
+- Xem danh sách đơn đặt
+- Xác nhận/hủy đơn
+- Quản lý trạng thái bàn
+- Tạo hóa đơn (Nhân viên)
+
+**6. Quản lý khuyến mãi**
+- Tạo mới/Sửa/Xóa mã giảm giá
+---
+
+## VIII. Team
+
+- **Nhóm 03** - WEBSITE ĐẶT BÀN & THỰC ĐƠN NHÀ HÀNG
+1.	Vũ Văn Tín	MSSV: 2221050564
+2.	Đặng Trí Dũng	MSSV: 2221050407
+3.  Nguyễn Hữu Tuấn MSSV: 2121051096
+4.  Phạm Tuấn Bảo MSSV: 2121050893
