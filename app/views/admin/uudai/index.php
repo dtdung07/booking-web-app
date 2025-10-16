@@ -1,6 +1,11 @@
 <?php
 include __DIR__ . "/connect.php";
 
+$stats = [
+    'active' => 0,
+    'expired' => 0
+];
+
 // Xử lý các action
 if(isset($_GET['action'])){
     switch ($_GET['action']) {
