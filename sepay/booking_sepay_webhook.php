@@ -7,6 +7,8 @@ Endpoint nhận webhook sẽ là: https://yourdomain.com/booking-web-app/sepay/b
 
 // Include cấu hình database của hệ thống đặt bàn
 include __DIR__ . '/../config/connect.php';
+include __DIR__ . '/../config/config.php';
+include __DIR__ . '/../includes/EmailService.php';
 
 // Lấy dữ liệu từ webhook SePay
 $data = json_decode(file_get_contents('php://input'));
@@ -135,6 +137,63 @@ if (mysqli_query($conn, $updateBookingQuery)) {
                        WHERE MaDon = '$bookingId'";
     
     mysqli_query($conn, $updateNoteQuery);
+    
+    // GỬI EMAIL THÔNG BÁO THANH TOÁN THÀNH CÔN
+    try {
+        // Lấy thông tin đơn đặt bàn
+        $emailQuery = "SELECT d.*, kh.TenKH, kh.SDT, kh.Email, cs.TenCoSo,
+                              GROUP_CONCAT(CONCAT(b.TenBan, ' (', b.SucChua, ' chỗ)') SEPARATOR ', ') as DanhSachBan
+                       FROM dondatban d
+                       LEFT JOIN khachhang kh ON d.MaKH = kh.MaKH  
+                       LEFT JOIN coso cs ON d.MaCoSo = cs.MaCoSo
+                       LEFT JOIN dondatban_ban ddb ON d.MaDon = ddb.MaDon
+                       LEFT JOIN ban b ON ddb.MaBan = b.MaBan
+                       WHERE d.MaDon = '$bookingId'
+                       GROUP BY d.MaDon";
+        
+        $emailResult = mysqli_query($conn, $emailQuery);
+        $thongTinDon = mysqli_fetch_assoc($emailResult);
+        
+        if ($thongTinDon && !empty($thongTinDon['Email'])) {
+            
+            // Lấy danh sách món ăn đơn giản
+            $monQuery = "SELECT m.TenMon, ct.SoLuong, ct.DonGia
+                         FROM chitietdondatban ct
+                         JOIN monan m ON ct.MaMon = m.MaMon
+                         WHERE ct.MaDon = '$bookingId'";
+            
+            $monResult = mysqli_query($conn, $monQuery);
+            $danhSachMon = [];
+            
+            while ($mon = mysqli_fetch_assoc($monResult)) {
+                $danhSachMon[] = $mon;
+            }
+            
+            // Gọi hàm gửi email đơn giản
+            $emailThanhCong = gui_email_thanh_toan_thanh_cong(
+                $thongTinDon['Email'],
+                $thongTinDon['TenKH'], 
+                $bookingId,
+                $thongTinDon['TenCoSo'],
+                date('d/m/Y H:i', strtotime($thongTinDon['ThoiGianBatDau'])),
+                $thongTinDon['SoLuongKH'],
+                $thongTinDon['DanhSachBan'] ?: 'Sẽ sắp xếp khi đến',
+                $danhSachMon,
+                $amount_in,
+                $thongTinDon['GhiChu'] ?: ''
+            );
+            
+            if ($emailThanhCong) {
+                error_log("Gửi email thành công cho đơn #{$bookingId}");
+            } else {
+                error_log("Gửi email thất bại cho đơn #{$bookingId}");
+            }
+        }
+        
+    } catch (Exception $e) {
+        error_log("Lỗi gửi email đơn #{$bookingId}: " . $e->getMessage());
+        // Không ảnh hưởng đến webhook chính
+    }
     
     echo json_encode([
         'success' => true, 
