@@ -14,14 +14,8 @@
           <div class="form-group mb-3">
             <label for="TenDM">Tên Danh Mục</label>
             <input type="text" class="form-control" id="TenDM" name="TenDM" required 
-                   placeholder="Ví dụ: Hải sản, Đồ nướng, Lẩu...">
-            <small class="text-muted">Tên danh mục không được trùng lặp.</small>
-          </div>
-
-          <div class="form-group mb-3">
-            <label for="MoTa">Mô Tả (Tùy chọn)</label>
-            <textarea class="form-control" id="MoTa" name="MoTa" rows="3" 
-                      placeholder="Mô tả ngắn gọn về danh mục món ăn này..."></textarea>
+                   placeholder="Ví dụ: Hải sản, Đồ nướng, Lẩu..." maxlength="100">
+            <small class="text-muted">Tên danh mục không được trùng lặp. Tối đa 100 ký tự.</small>
           </div>
         </form>
       </div>

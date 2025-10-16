@@ -1,13 +1,5 @@
 <?php
-// Kết nối database để lấy thống kê (sử dụng mysqli)
-$host = 'localhost';
-$user = 'root';
-$pass = '';
-$database = 'booking_restaurant';
-$port = '3306';
-
-$conn = mysqli_connect($host, $user, $pass, $database, $port);
-mysqli_set_charset($conn, "utf8");
+include dirname(__DIR__,3) . "/config/connect.php";
 
 // Lấy thống kê
 if ($conn) {
@@ -42,17 +34,6 @@ if ($conn) {
 
 // Lấy tham số để quyết định hiển thị content nào
 $section = $_GET['section'] ?? 'dashboard';
-$action = $_GET['action'] ?? null;
-
-// Xử lý các action (create, update, delete) trước khi bất kỳ HTML nào được xuất ra
-if ($section === 'uudai' && in_array($action, ['process-create', 'process-update', 'delete'])) {
-    if ($action === 'delete') {
-        include __DIR__ . '/uudai/process-delete.php';
-    } else {
-        include __DIR__ . '/uudai/' . $action . '.php';
-    }
-    // Các file process đã có exit() nên không cần thêm ở đây.
-}
 ?>
 
 <!DOCTYPE html>
@@ -250,7 +231,7 @@ if ($section === 'uudai' && in_array($action, ['process-create', 'process-update
             <li class="nav-item">
                 <a class="nav-link <?php echo $section === 'table' ? 'active' : ''; ?>" href="?page=admin&section=table">
                     <i class="fas fa-chair me-2"></i>
-                    Quản lý Bàn ăn 
+                    Quản lý Bàn ăn
                 </a>
             </li>
             <li class="nav-item">
@@ -325,6 +306,10 @@ if ($section === 'uudai' && in_array($action, ['process-create', 'process-update
                 case 'menu':
                     include __DIR__ . '/menu/index.php';
                     break;
+                
+                case 'menu_branch':
+                    include __DIR__ . '/menu_branch/index.php';
+                    break;
                     
                 case 'categories':
                     include __DIR__ . '/categories/index.php';
@@ -341,11 +326,11 @@ if ($section === 'uudai' && in_array($action, ['process-create', 'process-update
                 case 'table':
                     include __DIR__ . '/table/index.php';
                     break;
-                
+
                 case 'uudai':
                     include __DIR__ . '/uudai/index.php';
                     break;
-               
+                    
                 default: // dashboard
             ?>
             <!-- Welcome Section -->
@@ -464,7 +449,35 @@ if ($section === 'uudai' && in_array($action, ['process-create', 'process-update
                         </div>
                     </a>
                 </div>
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <a href="?page=admin&section=branches" class="quick-action d-block">
+                        <div class="text-center">
+                            <i class="fas fa-store fa-2x mb-2" style="color: var(--colorYellow);"></i>
+                            <h6>Quản lý cơ sở</h6>
+                            <small class="text-muted">Quản lý cơ sở</small>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <a href="?page=admin&section=table" class="quick-action d-block">
+                        <div class="text-center">
+                            <i class="fas fa-table fa-2x mb-2" style="color: var(--colorYellow);"></i>
+                            <h6>Quản lý bàn ăn</h6>
+                            <small class="text-muted">Quản lý bàn ăn</small>
+                        </div>
+                    </a>
+                </div>
+
                 
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <a href="?page=admin&section=uudai" class="quick-action d-block">
+                        <div class="text-center">
+                            <i class="fas fa-percent fa-2x mb-2" style="color: var(--colorYellow);"></i>
+                            <h6>Quản lý ưu đãi</h6>
+                            <small class="text-muted">Quản lý ưu đãi</small>
+                        </div>
+                    </a>
+                </div>
                 <div class="col-lg-3 col-md-6 mb-3">
                     <a href="index.php" target="_blank" class="quick-action d-block">
                         <div class="text-center">
@@ -474,17 +487,7 @@ if ($section === 'uudai' && in_array($action, ['process-create', 'process-update
                         </div>
                     </a>
                 </div>
-                <div class="col-lg-3 col-md-6 mb-3">
-                    <a href="index.php" target="_blank" class="quick-action d-block">
-                        <div class="text-center">
-                            <i class="fas fa-eye fa-2x mb-2" style="color: #E67E22;"></i>
-                            <h6>Quản lý ưu đãi</h6>
-                            <small class="text-muted">Quản lý ưu đãi</small>
-                        </div>
-                    </a>
-                </div>
             </div>
-            
 
             <!-- Charts Row -->
             <!-- <div class="row">

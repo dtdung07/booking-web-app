@@ -34,8 +34,9 @@ while($row = mysqli_fetch_array($result)){
           <input type="text" class="form-control" placeholder="Ví dụ: T1-01 (Tầng 1 - Bàn 1)" id="TenBan" name="TenBan" required>
         </div>
         <div class="col-md-6">
-          <label class="form-label">Sức chứa</label>
-          <input type="text" class="form-control" placeholder="Ví dụ: 4, 6, 8" id="SucChua" name="SucChua" required>
+          <label class="form-label">Sức chứa (người)</label>
+          <input type="number" class="form-control" placeholder="Ví dụ: 4, 6, 8" id="SucChua" name="SucChua" min="1" max="100" required>
+          <small class="text-muted">Số người tối thiểu: 1</small>
         </div>
         
       </div>

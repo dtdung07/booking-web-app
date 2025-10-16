@@ -1,5 +1,5 @@
 <?php
-include "connect.php";
+include dirname(__DIR__,4) . "/config/connect.php";
 ?>
 
 <?php
@@ -15,8 +15,8 @@ include "connect.php";
         $sql = "INSERT INTO `monan`(`MaDM`, `TenMon`, `MoTa`, `HinhAnhURL`) VALUES ('$danhmuc','$tenmon','$mota','$anhmon')";
 
         mysqli_query($conn, $sql);
-        header("location: ?page=admin&section=menu");
-        exit(); // Dừng thực thi để tránh output thêm
+        echo "<script>window.location.href='?page=admin&section=menu';</script>";
+        exit();
     }
     else{
         echo "Vui lòng nhập đầy đủ thông tin";

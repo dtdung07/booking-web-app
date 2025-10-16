@@ -21,9 +21,8 @@ class BranchModel {
      */
     public function getAll() {
         $query = "SELECT * FROM " . $this->table_name . " WHERE TenCoSo != '' ORDER BY MaCoSo ASC";
-        $stmt = $this->conn->prepare($query);
-        $stmt->execute();
-        return $stmt;
+        $result = mysqli_query($this->conn, $query);
+        return $result;
     }
 
     /**
@@ -31,11 +30,11 @@ class BranchModel {
      */
     public function getByAddress($address) {
         $query = "SELECT * FROM " . $this->table_name . " WHERE DiaChi LIKE ? AND TenCoSo != '' ORDER BY MaCoSo ASC";
-        $stmt = $this->conn->prepare($query);
+        $stmt = mysqli_prepare($this->conn, $query);
         $searchTerm = '%' . $address . '%';
-        $stmt->bindParam(1, $searchTerm);
-        $stmt->execute();
-        return $stmt;
+        mysqli_stmt_bind_param($stmt, "s", $searchTerm);
+        mysqli_stmt_execute($stmt);
+        return mysqli_stmt_get_result($stmt);
     }
     
     /**
@@ -45,9 +44,8 @@ class BranchModel {
         $query = "SELECT DiaChi AS address, COUNT(*) AS count 
                   FROM " . $this->table_name . " 
                   GROUP BY DiaChi";
-        $stmt = $this->conn->prepare($query);
-        $stmt->execute();
-        return $stmt;
+        $result = mysqli_query($this->conn, $query);
+        return $result;
     }
 
     /**
@@ -55,19 +53,30 @@ class BranchModel {
      */
     public function getById($id) {
         $query = "SELECT * FROM " . $this->table_name . " WHERE MaCoSo = ? LIMIT 0,1";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(1, $id);
-        $stmt->execute();
+        $stmt = mysqli_prepare($this->conn, $query);
+        mysqli_stmt_bind_param($stmt, "i", $id);
+        mysqli_stmt_execute($stmt);
+
         
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        $result = mysqli_stmt_get_result($stmt);
+        $row = mysqli_fetch_assoc($result);
         
         if($row) {
+        error_log("Executing query: " . $query . " with ID: " . $id);
+
             $this->MaCoSo = $row['MaCoSo'];
             $this->TenCoSo = $row['TenCoSo'];
             $this->DiaChi = $row['DiaChi'];
             $this->DienThoai = $row['DienThoai'];
             $this->AnhUrl = $row['AnhUrl'];
-            return true;
+            
+            return [
+                'MaCoSo' => $this->MaCoSo,
+                'TenCoSo' => $this->TenCoSo,
+                'DiaChi' => $this->DiaChi,
+                'DienThoai' => $this->DienThoai,
+                'AnhUrl' => $this->AnhUrl
+            ];
         }
         return false;
     }
@@ -78,9 +87,9 @@ class BranchModel {
      */
     public function create() {
         $query = "INSERT INTO " . $this->table_name . " 
-                 SET TenCoSo=:TenCoSo, DiaChi=:DiaChi, DienThoai=:DienThoai, AnhUrl=:AnhUrl";
+                 SET TenCoSo=?, DiaChi=?, DienThoai=?, AnhUrl=?";
 
-        $stmt = $this->conn->prepare($query);
+        $stmt = mysqli_prepare($this->conn, $query);
 
         // Làm sạch dữ liệu đầu vào
         $this->TenCoSo = htmlspecialchars(strip_tags($this->TenCoSo));
@@ -89,12 +98,9 @@ class BranchModel {
         $this->AnhUrl = htmlspecialchars(strip_tags($this->AnhUrl));
 
         // Bind parameters
-        $stmt->bindParam(":TenCoSo", $this->TenCoSo);
-        $stmt->bindParam(":DiaChi", $this->DiaChi);
-        $stmt->bindParam(":DienThoai", $this->DienThoai);
-        $stmt->bindParam(":AnhUrl", $this->AnhUrl);
+        mysqli_stmt_bind_param($stmt, "ssss", $this->TenCoSo, $this->DiaChi, $this->DienThoai, $this->AnhUrl);
 
-        if($stmt->execute()) {
+        if(mysqli_stmt_execute($stmt)) {
             return true;
         }
         return false;
@@ -106,10 +112,10 @@ class BranchModel {
     public function update() {
         // SỬA LỖI: Bỏ dấu phẩy thừa trước AnhUrl và thêm MaCoSo vào bindParam
         $query = "UPDATE " . $this->table_name . " 
-                 SET TenCoSo=:TenCoSo, DiaChi=:DiaChi, DienThoai=:DienThoai, AnhUrl=:AnhUrl
-                 WHERE MaCoSo=:MaCoSo";
+                 SET TenCoSo=?, DiaChi=?, DienThoai=?, AnhUrl=?
+                 WHERE MaCoSo=?";
 
-        $stmt = $this->conn->prepare($query);
+        $stmt = mysqli_prepare($this->conn, $query);
 
         // Làm sạch dữ liệu
         $this->MaCoSo = htmlspecialchars(strip_tags($this->MaCoSo));
@@ -119,13 +125,9 @@ class BranchModel {
         $this->AnhUrl = htmlspecialchars(strip_tags($this->AnhUrl));
 
         // Bind parameters
-        $stmt->bindParam(":MaCoSo", $this->MaCoSo);
-        $stmt->bindParam(":TenCoSo", $this->TenCoSo);
-        $stmt->bindParam(":DiaChi", $this->DiaChi);
-        $stmt->bindParam(":DienThoai", $this->DienThoai);
-        $stmt->bindParam(":AnhUrl", $this->AnhUrl);
+        mysqli_stmt_bind_param($stmt, "ssssi", $this->TenCoSo, $this->DiaChi, $this->DienThoai, $this->AnhUrl, $this->MaCoSo);
 
-        if($stmt->execute()) {
+        if(mysqli_stmt_execute($stmt)) {
             return true;
         }
         return false;
@@ -136,13 +138,13 @@ class BranchModel {
      */
     public function delete() {
         $query = "DELETE FROM " . $this->table_name . " WHERE MaCoSo = ?";
-        $stmt = $this->conn->prepare($query);
+        $stmt = mysqli_prepare($this->conn, $query);
         
         $this->MaCoSo = htmlspecialchars(strip_tags($this->MaCoSo));
         
-        $stmt->bindParam(1, $this->MaCoSo);
+        mysqli_stmt_bind_param($stmt, "i", $this->MaCoSo);
 
-        if($stmt->execute()) {
+        if(mysqli_stmt_execute($stmt)) {
             return true;
         }
         return false;

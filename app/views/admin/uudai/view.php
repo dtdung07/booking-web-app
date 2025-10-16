@@ -310,15 +310,15 @@ document.addEventListener('DOMContentLoaded', function() {
 include __DIR__ . "/connect.php";
 
 // Kiểm tra xem MaUuDai có được truyền qua URL hay không
-if (!isset($_GET['MaUuDai']) || empty($_GET['MaUuDai'])) {
+if (!isset($_GET['MaUD']) || empty($_GET['MaUD'])) {
     echo '<div class="alert alert-danger">Lỗi: Không tìm thấy Mã Ưu đãi.</div>';
     exit;
 }
 
-$mauudai = mysqli_real_escape_string($conn, $_GET['MaUuDai']);
+$mauudai = mysqli_real_escape_string($conn, $_GET['MaUD']);
 
 // Truy vấn thông tin chi tiết Ưu đãi
-$sql = "SELECT * FROM `uudai` WHERE MaUuDai = '$mauudai'";
+$sql = "SELECT * FROM `uudai` WHERE MaUD = '$mauudai'";
 $result = mysqli_query($conn, $sql);
 
 if (mysqli_num_rows($result) == 0) {
@@ -329,20 +329,20 @@ if (mysqli_num_rows($result) == 0) {
 $uudai = mysqli_fetch_array($result);
 
 // Định dạng ngày tháng
-$ngay_bd_hien_thi = date('d/m/Y', strtotime($uudai['NgayBatDau']));
-$ngay_kt_hien_thi = date('d/m/Y', strtotime($uudai['NgayKetThuc']));
+$ngay_bd_hien_thi = date('d/m/Y', strtotime($uudai['NgayBD']));
+$ngay_kt_hien_thi = date('d/m/Y', strtotime($uudai['NgayKT']));
 ?>
 
 <div class="card shadow p-4">
     <h3 class="mb-4 text-success">
-        <i class="fas fa-eye me-2"></i> Chi tiết Ưu đãi: **<?= htmlspecialchars($uudai['TenUuDai']) ?>**
+        <i class="fas fa-eye me-2"></i> Chi tiết Ưu đãi: <strong><?= htmlspecialchars($uudai['TenMaUD']) ?></strong>
     </h3>
     
     <div class="row">
         <div class="col-md-4 text-center mb-4">
-            <img src="<?= htmlspecialchars($uudai['AnhUuDai']) ?>" 
-                 alt="<?= htmlspecialchars($uudai['TenUuDai']) ?>" 
-                 class="img-fluid rounded shadow-sm" style="max-height: 250px; object-fit: cover;">
+            <div class="bg-light rounded shadow-sm d-flex align-items-center justify-content-center" style="height: 250px;">
+                <i class="fas fa-gift fa-5x text-muted"></i>
+            </div>
         </div>
 
         <div class="col-md-8">
@@ -350,15 +350,15 @@ $ngay_kt_hien_thi = date('d/m/Y', strtotime($uudai['NgayKetThuc']));
                 <tbody>
                     <tr>
                         <th width="30%">Mã Ưu đãi (ID)</th>
-                        <td><?= htmlspecialchars($uudai['MaUuDai']) ?></td>
+                        <td><?= htmlspecialchars($uudai['MaUD']) ?></td>
                     </tr>
                     <tr>
-                        <th>Tên Ưu đãi</th>
-                        <td><?= htmlspecialchars($uudai['TenUuDai']) ?></td>
+                        <th>Tiêu đề Ưu đãi</th>
+                        <td><strong><?= htmlspecialchars($uudai['TenMaUD']) ?></strong></td>
                     </tr>
                     <tr>
-                        <th>Giá trị/Mức giảm</th>
-                        <td class="fw-bold text-danger"><?= htmlspecialchars($uudai['GiaTri']) ?></td>
+                        <th>Mức giảm giá</th>
+                        <td class="fw-bold text-danger"><?= htmlspecialchars($uudai['GiaTriGiam']) ?><?= $uudai['LoaiGiamGia'] == 'phantram' ? '%' : ' VNĐ' ?></td>
                     </tr>
                     <tr>
                         <th>Ngày Bắt đầu</th>
@@ -373,18 +373,17 @@ $ngay_kt_hien_thi = date('d/m/Y', strtotime($uudai['NgayKetThuc']));
         </div>
     </div>
 
-    <h5 class="mt-4 border-bottom pb-2">Mô tả và Điều kiện áp dụng</h5>
+    <h5 class="mt-4 border-bottom pb-2">Mô tả chi tiết và điều kiện áp dụng</h5>
     <div class="p-3 bg-light rounded">
-        <p style="white-space: pre-wrap;"><?= htmlspecialchars($uudai['MoTaUuDai']) ?></p>
+        <p style="white-space: pre-wrap;"><?= htmlspecialchars($uudai['MoTa']) ?></p>
     </div>
 
     <div class="mt-4 text-end">
         <a href="?page=admin&section=uudai" class="btn btn-secondary">
             <i class="fas fa-arrow-left"></i> Quay lại Danh sách
         </a>
-        <button class="btn btn-warning ms-2" data-bs-toggle="modal" data-bs-target="#updateUuDaiModal" 
-                onclick="loadUuDaiData('<?= $mauudai ?>', '<?= htmlspecialchars($uudai['TenUuDai'], ENT_QUOTES) ?>', '<?= htmlspecialchars($uudai['GiaTri'], ENT_QUOTES) ?>', '<?= htmlspecialchars($uudai['NgayBatDau'], ENT_QUOTES) ?>', '<?= htmlspecialchars($uudai['NgayKetThuc'], ENT_QUOTES) ?>', '<?= htmlspecialchars($uudai['AnhUuDai'], ENT_QUOTES) ?>', '<?= htmlspecialchars($uudai['MoTaUuDai'], ENT_QUOTES) ?>')">
+        <a href="?page=admin&section=uudai&action=edit&MaUD=<?= $mauudai ?>" class="btn btn-warning ms-2">
             <i class="fas fa-edit"></i> Sửa Ưu đãi này
-        </button>
+        </a>
     </div>
 </div>

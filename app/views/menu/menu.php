@@ -3,7 +3,7 @@ $title = "Quán Nhậu Tự Do - Thực Đơn";
 $page_title = "Quán Nhậu Tự Do - Thực Đơn";
 ?>
 
-<link rel="stylesheet" href="<?= dirname(__DIR__,3) . '/public/css/pages/menu.css'?>">
+<link rel="stylesheet" href="public/css/pages/menu.css">
 
 <!-- Modal chọn cơ sở -->
 <div id="branchModal" class="branch-modal">

@@ -1,5 +1,5 @@
 <?php
-include __DIR__ . "/connect.php";
+include dirname(__DIR__,4) . "/config/connect.php";
 
 // Xử lý các action
 if(isset($_GET['action'])){
@@ -31,6 +31,9 @@ include __DIR__ . "/create.php";
       </small> -->
     </div>
     <div class="col-md-6 text-end">
+      <a href="?page=admin&section=menu_branch" class="btn btn-info">
+        <i class="fas fa-store"></i> Quản lý Menu theo Cơ sở
+      </a>
       <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addBranchModal">
         <i class="fas fa-plus"></i> Thêm món ăn mới
       </button>

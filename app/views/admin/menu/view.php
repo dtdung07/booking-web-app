@@ -1,5 +1,5 @@
 <?php
-include __DIR__ . "/connect.php";
+include dirname(__DIR__,4) . "/config/connect.php";
 
 // Include modal sửa món ăn
 include __DIR__ . "/update.php";
@@ -61,7 +61,7 @@ while($row = mysqli_fetch_array($result)){
               <i class="fas fa-edit"></i> Sửa
               </button>
 
-              <a class="btn btn-danger" href="?page=admin&section=menu&action=delete&MaMon=<?=$row['MaMon']?>"><i class="fas fa-trash"></i> Xoá</a>
+              <a class="btn btn-danger" href="?page=admin&section=menu&action=delete&MaMon=<?=$row['MaMon']?>" onclick="return confirm('Bạn có chắc chắn muốn xóa món ăn \'<?=htmlspecialchars($row['TenMon'], ENT_QUOTES)?>\' không?');"><i class="fas fa-trash"></i> Xoá</a>
               </div>
             </td>
             </tr>

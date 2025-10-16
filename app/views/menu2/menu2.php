@@ -111,14 +111,37 @@
 <div id="menu2-bookingOverlay" class="menu2-booking-overlay">
     <div class="menu2-booking-form-container">
         <h1 class="menu2-form-title">Đặt bàn</h1>
-        <form id="menu2-bookingForm">
+        <form id="menu2-bookingForm" action="app/views/menu2/process-create.php" method="POST">
             <div class="menu2-form-section">
                 <h3 class="menu2-form-section-title"><i class="fas fa-user"></i>Thông tin của bạn</h3>
                 <div class="menu2-form-group">
-                    <input type="text" class="menu2-form-input" placeholder="Tên của bạn" required>
+                    <input name="customer_name" 
+                           type="text" 
+                           class="menu2-form-input" 
+                           placeholder="Tên của bạn" 
+                           pattern="^[a-zA-ZÀ-ỹ\s]{2,50}$"
+                           title="Tên chỉ chứa chữ cái và khoảng trắng, từ 2-50 ký tự"
+                           minlength="2"
+                           maxlength="50"
+                           required>
                 </div>
                 <div class="menu2-form-group">
-                    <input type="tel" class="menu2-form-input" placeholder="Số điện thoại" required>
+                    <input name="customer_phone" 
+                           type="tel" 
+                           class="menu2-form-input" 
+                           placeholder="Số điện thoại" 
+                           pattern="^0[0-9]{9}$"
+                           title="Số điện thoại phải có 10 số và bắt đầu bằng số 0"
+                           maxlength="10"
+                           required>
+                </div>
+                <div class="menu2-form-group">
+                    <input name="customer_email" 
+                           type="email" 
+                           class="menu2-form-input" 
+                           placeholder="Email (không bắt buộc)"
+                           pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+                           title="Email không hợp lệ">
                 </div>
             </div>
 
@@ -132,6 +155,7 @@
                             <div class="menu2-quantity-display" id="menu2-booking-guests-display">1</div>
                             <button type="button" data-action="increase-guests">+</button>
                         </div>
+                        <input type="hidden" name="guest_count" id="menu2-guest-count-hidden" value="1">
                     </div>
                     <div class="menu2-form-group">
                         <label for="menu2-date-display-input">Chọn ngày</label>
@@ -139,20 +163,22 @@
                             <input type="text" class="menu2-form-input" id="menu2-date-display-input" readonly>
                             <i class="fas fa-calendar-alt"></i>
                         </div>
+                        <input type="hidden" name="booking_date" id="menu2-booking-date-hidden">
                     </div>
                     <div class="menu2-form-group">
                         <label>Chọn giờ</label>
-                        <select class="menu2-form-select" required>
-                            <option value="" selected disabled>Chọn giờ</option>
-                            <option value="17:00">17:00</option>
-                            <option value="17:30">17:30</option>
-                            <option value="18:00">18:00</option>
-                            <option value="21:00">21:00</option>
-                        </select>
+                        <input type="time" name="booking_time" class="menu2-form-input" id="menu2-time-select" required>
                     </div>
                 </div>
             </div>
-            <textarea class="menu2-form-textarea" placeholder="Ghi chú"></textarea>
+            <textarea name="notes" class="menu2-form-textarea" placeholder="Ghi chú"></textarea>
+            
+            <!-- Hidden inputs để truyền dữ liệu -->
+            <input type="hidden" name="branch_id" id="menu2-branch-id-hidden">
+            <input type="hidden" name="total_amount" id="menu2-total-amount-hidden">
+            <input type="hidden" name="discount_id" id="menu2-discount-id-hidden" value="">
+            <input type="hidden" name="final_amount" id="menu2-final-amount-hidden" value="">
+            <input type="hidden" name="cart_items" id="menu2-cart-items-hidden">
             
             <div class="menu2-form-actions">
                 <button type="button" class="menu2-btn menu2-btn-secondary" data-action="close-booking-form">Đóng</button>
@@ -193,56 +219,3 @@
     </div>
 </div>
 
-<div id="menu2-sticky-cart-widget">
-    <div class="menu2-cart-info">
-        <span id="menu2-cart-item-count">0 món tạm tính</span>
-        <strong id="menu2-cart-total-price">0đ</strong>
-    </div>
-</div>
-
-<div id="menu2-billOverlay" class="menu2-bill-overlay">
-    <div class="menu2-bill-modal">
-        <header class="menu2-bill-header">
-            <div class="menu2-bill-title"><i class="fas fa-receipt"></i><span>Tạm tính</span></div>
-            <div class="menu2-header-actions">
-                <button class="menu2-save-button"><i class="fas fa-download"></i> LƯU VỀ MÁY</button>
-                <button id="menu2-billCloseBtn" class="menu2-close-button"><i class="fas fa-times"></i></button>
-            </div>
-        </header>
-        <section class="menu2-bill-body">
-            <div class="menu2-bill-total-summary">
-                <div class="menu2-total-left">
-                    <h3 class="menu2-total-title">Tổng tiền</h3>
-                    <p class="menu2-total-note">Đơn giá tạm tính chỉ mang tính chất tham khảo.</p>
-                </div>
-                <div class="menu2-total-right">
-                    <div id="menu2-billTotalPriceDisplay" class="menu2-total-price">0đ</div>
-                    <a id="menu2-billClearAllBtn" href="#" class="menu2-clear-bill"><i class="fas fa-trash-alt"></i> Xoá hết tạm tính</a>
-                </div>
-            </div>
-            <div id="menu2-billItemsContainer" class="menu2-bill-items"></div>
-        </section>
-        <footer class="menu2-bill-footer">
-            <button id="menu2-proceedToBookingBtn" class="menu2-cta-button">ĐẶT BÀN VỚI THỰC ĐƠN NÀY</button>
-            <p class="menu2-footer-note">Hoặc gọi <span>*1986</span> để đặt bàn</p>
-        </footer>
-    </div>
-</div>
-
-<div id="menu2-datePickerOverlay" class="menu2-date-picker-overlay">
-    <div id="menu2-datePickerModal" class="menu2-date-picker-modal">
-        <div class="menu2-dp-header">
-            <button type="button" id="menu2-dp-prev-month" class="menu2-dp-nav"><i class="fas fa-chevron-left"></i></button>
-            <span id="menu2-dp-current-month-year"></span>
-            <button type="button" id="menu2-dp-next-month" class="menu2-dp-nav"><i class="fas fa-chevron-right"></i></button>
-        </div>
-        <div class="menu2-dp-weekdays">
-            <div>CN</div><div>T2</div><div>T3</div><div>T4</div><div>T5</div><div>T6</div><div>T7</div>
-        </div>
-        <div id="menu2-dp-days-grid" class="menu2-dp-days-grid"></div>
-        <div class="menu2-dp-footer">
-            <button type="button" id="menu2-dp-today-btn" class="menu2-dp-btn menu2-dp-btn-secondary">Hôm nay</button>
-            <button type="button" id="menu2-dp-close-btn" class="menu2-dp-btn menu2-dp-btn-primary">Đóng</button>
-        </div>
-    </div>
-</div>

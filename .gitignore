@@ -1,5 +1,5 @@
 # Ignore config folder
-config/
+
 
 # Ignore common development files
 .env
@@ -11,6 +11,10 @@ config/
 # Ignore logs
 *.log
 logs/
+sepay/
+
+# Ignore file docs
+docs
 
 # Ignore temporary files
 *.tmp

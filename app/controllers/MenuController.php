@@ -45,7 +45,7 @@ class MenuController extends BaseController
         $groupedMenuItems = $this->menuModel->findMenuItemsGroupedByCategory($maCoSo);
         
         // Script riêng cho menu2
-        $additional_scripts = '<script src="' . asset('js/menu2.js') . '"></script>';
+        // $additional_scripts = '<script src="' . asset('js/menu2.js') . '"></script>';
         
         // Truyền dữ liệu cho View
         $this->render('menu2/menu2', [
@@ -54,7 +54,7 @@ class MenuController extends BaseController
             'groupedMenuItems' => $groupedMenuItems,
             'selectedCategory' => $selectedCategory,
             'maCoSo' => $maCoSo,
-            'additional_scripts' => $additional_scripts
+            // 'additional_scripts' => $additional_scripts
         ]);
     }
     
@@ -105,13 +105,93 @@ class MenuController extends BaseController
     }
     
     /**
+     * API: Kiểm tra và áp dụng mã giảm giá
+     */
+    public function validateDiscount()
+    {
+        header('Content-Type: application/json');
+        
+        // Lấy mã giảm giá từ request
+        $discountCode = $_POST['code'] ?? '';
+        $totalAmount = floatval($_POST['total'] ?? 0);
+        
+        if (empty($discountCode)) {
+            echo json_encode([
+                'success' => false,
+                'message' => 'Vui lòng nhập mã giảm giá'
+            ]);
+            return;
+        }
+        
+        // Chuẩn hóa mã (viết hoa, bỏ khoảng trắng)
+        $discountCode = strtoupper(trim($discountCode));
+        
+        // Truy vấn mã giảm giá từ database
+        // Tìm theo cột TenMaUD (mã khách hàng nhập: GIAM10, GIAM20...)
+        $sql = "SELECT MaUD, TenMaUD, MoTa, GiaTriGiam, LoaiGiamGia, DieuKien, NgayBD, NgayKT 
+                FROM uudai 
+                WHERE TenMaUD = ? 
+                AND NgayBD <= CURDATE() 
+                AND NgayKT >= CURDATE()";
+        
+        $stmt = mysqli_prepare($this->db, $sql);
+        mysqli_stmt_bind_param($stmt, 's', $discountCode);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+        
+        if ($row = mysqli_fetch_assoc($result)) {
+            // Tính toán giá trị giảm
+            $discountValue = floatval($row['GiaTriGiam']);
+            $discountType = $row['LoaiGiamGia'];
+            
+            if ($discountType === 'phantram') {
+                // Giảm theo phần trăm
+                $discountAmount = ($totalAmount * $discountValue) / 100;
+                $discountPercent = $discountValue;
+            } else {
+                // Giảm theo số tiền cố định
+                $discountAmount = $discountValue;
+                $discountPercent = ($totalAmount > 0) ? ($discountValue / $totalAmount) * 100 : 0;
+            }
+            
+            // Đảm bảo số tiền giảm không vượt quá tổng tiền
+            $discountAmount = min($discountAmount, $totalAmount);
+            $finalAmount = max(0, $totalAmount - $discountAmount);
+            
+            echo json_encode([
+                'success' => true,
+                'message' => 'Áp dụng mã giảm giá thành công!',
+                'data' => [
+                    'id' => $row['MaUD'],  // ID số (để lưu vào đơn hàng)
+                    'code' => $row['TenMaUD'],  // Mã giảm giá (GIAM10, GIAM20...)
+                    'description' => $row['MoTa'],
+                    'discountType' => $discountType,
+                    'discountValue' => $discountValue,
+                    'discountAmount' => $discountAmount,
+                    'discountPercent' => round($discountPercent, 1),
+                    'subtotal' => $totalAmount,
+                    'finalAmount' => $finalAmount
+                ]
+            ]);
+        } else {
+            echo json_encode([
+                'success' => false,
+                'message' => 'Mã giảm giá không hợp lệ hoặc đã hết hạn'
+            ]);
+        }
+    }
+    
+    /**
      * Lấy danh sách tất cả cơ sở
      */
     private function getBranches() 
     {
         $sql = "SELECT MaCoSo, TenCoSo, DiaChi FROM coso WHERE TenCoSo != '' ORDER BY MaCoSo ASC";
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $result = mysqli_query($this->db, $sql);
+        $branches = [];
+        while ($row = mysqli_fetch_assoc($result)) {
+            $branches[] = $row;
+        }
+        return $branches;
     }
 }

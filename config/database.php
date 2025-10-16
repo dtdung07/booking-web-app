@@ -5,15 +5,33 @@ class Database {
     private $username = "root";
     private $password = "";
     public $conn;
-    public function getConnection() {
-        $this->conn = null;
-        try {
-            $this->conn = new PDO("mysql:host=" . $this->host . ";dbname=" . $this->db_name . ";charset=utf8", $this->username, $this->password);
-            $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        } catch(PDOException $exception) {
-            echo "Lỗi kết nối: " . $exception->getMessage();
+   public function getConnection() {
+    $this->conn = null;
+    try {
+        // Tạo kết nối MySQLi
+        $this->conn = new mysqli(
+            $this->host,
+            $this->username,
+            $this->password,
+            $this->db_name
+        );
+
+        // Kiểm tra lỗi kết nối
+        if ($this->conn->connect_error) {
+            throw new Exception("Lỗi kết nối: " . $this->conn->connect_error);
         }
-        return $this->conn;
+
+        // Đặt charset UTF-8
+        if (!$this->conn->set_charset("utf8")) {
+            throw new Exception("Không thể set charset UTF-8: " . $this->conn->error);
+        }
+
+    } catch (Exception $exception) {
+        echo "Lỗi kết nối: " . $exception->getMessage();
     }
+
+    return $this->conn;
+}
+
 }
 ?>

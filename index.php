@@ -64,6 +64,11 @@ switch ($request) {
     case 'admin':
         $controller = new AdminController();
         break;
+        
+    case 'nhanvien':
+        $controller = new NhanVienController();
+        $action = $_GET['action'];
+        break;
     
     default:
         $controller = new HomeController();
@@ -74,6 +79,8 @@ switch ($request) {
 if (method_exists($controller, $action)) {
     $controller->$action();
 } else {
+    // Debug: Log missing method
+    error_log("Method '$action' not found in " . get_class($controller));
     $controller->index();
 }
 ?>
