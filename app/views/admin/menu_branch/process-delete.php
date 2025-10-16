@@ -1,36 +1,19 @@
 <?php
-// File này được gọi khi người dùng nhấn vào link Xóa
+// File xử lý xóa món ăn khỏi menu cơ sở
+include dirname(__DIR__,4) . "/config/connect.php";
 
-// 1. Kiểm tra và lấy dữ liệu từ URL
-$maCoSo = isset($_GET['branch_id']) ? (int)$_GET['branch_id'] : 0;
-$maMon = isset($_GET['MaMon']) ? (int)$_GET['MaMon'] : 0;
-
-// 2. Validate dữ liệu
-if ($maCoSo > 0 && $maMon > 0) {
+if(isset($_GET['MaCoSo']) && isset($_GET['MaMon'])){
+    $maCoSo = $_GET['MaCoSo'];
+    $maMon = $_GET['MaMon'];
     
-    // 3. Thực hiện DELETE
-    $delete_sql = "DELETE FROM menu_coso WHERE MaCoSo = ? AND MaMon = ?";
-    $stmt = mysqli_prepare($conn, $delete_sql);
+    // Xóa món khỏi menu cơ sở (không xóa khỏi bảng monan)
+    $sql = "DELETE FROM menu_coso WHERE MaCoSo = '$maCoSo' AND MaMon = '$maMon'";
+    mysqli_query($conn, $sql);
     
-    if ($stmt) {
-        mysqli_stmt_bind_param($stmt, "ii", $maCoSo, $maMon);
-        
-        if (!mysqli_stmt_execute($stmt)) {
-            // Ghi lại lỗi nếu thực thi thất bại
-            error_log("MySQLi execute error: " . mysqli_stmt_error($stmt));
-        }
-        mysqli_stmt_close($stmt);
-    } else {
-        // Ghi lại lỗi nếu chuẩn bị câu lệnh thất bại
-        error_log("MySQLi prepare error: " . mysqli_error($conn));
-    }
+    // Quay lại trang quản lý menu cơ sở (dùng JS để tránh lỗi header)
+    echo "<script>window.location.href='?page=admin&section=menu_branch&branch_id=$maCoSo';</script>";
+    exit();
 } else {
-    // Ghi lại lỗi nếu dữ liệu không hợp lệ
-    error_log("Invalid data received for menu_coso delete.");
+    echo "Thiếu thông tin để xóa!";
 }
-
-// 4. Chuyển hướng người dùng trở lại trang quản lý của cơ sở đó
-header("Location: ?page=admin&section=menu_branch&branch_id=" . $maCoSo);
-exit();
 ?>
-

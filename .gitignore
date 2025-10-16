@@ -13,6 +13,9 @@
 logs/
 sepay/
 
+# Ignore file docs
+docs
+
 # Ignore temporary files
 *.tmp
 *.temp

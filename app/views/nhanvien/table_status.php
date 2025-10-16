@@ -55,7 +55,7 @@
 </style>
 
 <div class="card shadow p-4">
-    <h4 class="mb-4">Quản lý trạng thái bàn theo thời gian</h4>
+    <h4 class="mb-4">Quản lý trạng thái bàn theo thời gian thực</h4>
     
     <!-- Hiển thị thông báo -->
     <?php if (isset($_SESSION['success_message'])): ?>
@@ -90,7 +90,7 @@
         
         <div class="row">
             <!-- Hiển thị thông tin cơ sở của nhân viên -->
-            <div class="col-md-3">
+            <div class="col-md-9">
                 <label class="form-label">Cơ sở làm việc:</label>
                 <div class="form-control-plaintext bg-light p-2 rounded">
                     <strong><?=htmlspecialchars($thongTinCoSo['TenCoSo'] ?? '')?></strong>
@@ -98,35 +98,19 @@
             </div>
             
             <div class="col-md-3">
-                <label class="form-label">Thời gian bắt đầu:</label>
-                <input type="datetime-local" name="thoiGianBatDau" class="form-control" 
-                       value="<?=htmlspecialchars($thoiGianBatDau ?? date('Y-m-d H:i'))?>" required>
-            </div>
-            
-            <div class="col-md-3">
-                <label class="form-label">Thời gian kết thúc:</label>
-                <input type="datetime-local" name="thoiGianKetThuc" class="form-control" 
-                       value="<?=htmlspecialchars($thoiGianKetThuc ?? date('Y-m-d H:i', strtotime('+2 hours')))?>" required>
-            </div>
-            
-            <div class="col-md-3">
                 <label class="form-label">&nbsp;</label>
                 <button type="submit" class="btn btn-primary d-block w-100">
-                    <i class="fas fa-search"></i> Xem
+                    <i class="fas fa-sync-alt"></i> Làm mới
                 </button>
             </div>
         </div>
     </form>
 
-    <!-- Hiển thị thông tin cơ sở và thời gian -->
+    <!-- Hiển thị thông tin cơ sở và logic trạng thái -->
     <div class="alert alert-info">
         <strong>Cơ sở:</strong> <?=htmlspecialchars($thongTinCoSo['TenCoSo'] ?? '')?> | 
-        <strong>Thời gian:</strong> 
-        <?php if (isset($thoiGianBatDau) && isset($thoiGianKetThuc)): ?>
-            <?=date('d/m/Y H:i', strtotime($thoiGianBatDau))?> - <?=date('d/m/Y H:i', strtotime($thoiGianKetThuc))?>
-        <?php else: ?>
-            <?=date('d/m/Y H:i')?> - <?=date('d/m/Y H:i', strtotime('+2 hours'))?>
-        <?php endif; ?>
+        <strong>Thời gian hiện tại:</strong> <?=date('d/m/Y H:i')?><br>
+        <small><i class="fas fa-info-circle"></i> Bàn được coi là "Đã đặt" nếu có đơn đặt bàn trong vòng 2 giờ tới (tránh đặt trùng thời gian)</small>
     </div>
 
     <!-- Bảng danh sách bàn -->
@@ -234,8 +218,6 @@
 <!-- Form ẩn để cập nhật trạng thái -->
 <form id="updateStatusForm" method="POST" action="index.php?page=nhanvien&action=update_table_status" style="display: none;">
     <input type="hidden" name="maBan" id="updateMaBan">
-    <input type="hidden" name="thoiGianBatDau" id="updateThoiGianBatDau" value="<?=htmlspecialchars($thoiGianBatDau ?? date('Y-m-d H:i'))?>">
-    <input type="hidden" name="thoiGianKetThuc" id="updateThoiGianKetThuc" value="<?=htmlspecialchars($thoiGianKetThuc ?? date('Y-m-d H:i', strtotime('+2 hours')))?>">
     <input type="hidden" name="trangThai" id="updateTrangThai">
 </form>
 
@@ -276,7 +258,7 @@ function showTableDetails(maBan, tenBan, trangThai) {
                     <p><strong>Tên bàn:</strong> ${tenBan}</p>
                     <p><strong>Sức chứa:</strong> ${data.SucChua || 'N/A'} người</p>
                     <p><strong>Trạng thái:</strong> <span class="badge bg-${statusClass}">${statusText}</span></p>
-                    <p><strong>Thời gian:</strong> ${document.querySelector('input[name="thoiGianBatDau"]').value} - ${document.querySelector('input[name="thoiGianKetThuc"]').value}</p>
+                    <p><strong>Thời gian hiện tại:</strong> <?=date('d/m/Y H:i')?></p>
                 </div>
             `;
             
@@ -318,14 +300,5 @@ function showTableDetails(maBan, tenBan, trangThai) {
 // Đảm bảo thời gian form được cập nhật khi submit
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Table status page loaded successfully');
-    
-    // Cập nhật giá trị thời gian vào form ẩn khi trang load
-    const thoiGianBatDau = document.querySelector('input[name="thoiGianBatDau"]');
-    const thoiGianKetThuc = document.querySelector('input[name="thoiGianKetThuc"]');
-    
-    if (thoiGianBatDau && thoiGianKetThuc) {
-        document.getElementById('updateThoiGianBatDau').value = thoiGianBatDau.value;
-        document.getElementById('updateThoiGianKetThuc').value = thoiGianKetThuc.value;
-    }
 });
 </script>

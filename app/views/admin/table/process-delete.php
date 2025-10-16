@@ -2,7 +2,7 @@
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
-include "connect.php";
+include dirname(__DIR__,4) . "/config/connect.php";
 
 if(isset($_GET['MaBan'])){
     $maban = $_GET['MaBan'];
@@ -44,20 +44,20 @@ if(isset($_GET['MaBan'])){
         
         // Redirect với thông báo thành công
         $_SESSION['success_message'] = 'Xóa bàn thành công!';
-        header("location: ?page=admin&section=table");
+        echo "<script>window.location.href='?page=admin&section=table';</script>";
         exit();
         
     } catch (Exception $e) {
         // Rollback nếu có lỗi
         mysqli_rollback($conn);
         $_SESSION['error_message'] = 'Có lỗi xảy ra khi xóa bàn: ' . $e->getMessage();
-        header("location: ?page=admin&section=table");
+        echo "<script>window.location.href='?page=admin&section=table';</script>";
         exit();
     }
 }
 else{
     $_SESSION['error_message'] = 'Vui lòng nhập đầy đủ thông tin';
-    header("location: ?page=admin&section=table");
+    echo "<script>window.location.href='?page=admin&section=table';</script>";
     exit();
 }
 ?>

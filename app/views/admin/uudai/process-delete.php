@@ -1,8 +1,8 @@
 <?php
 include "connect.php"; // Kết nối CSDL
 
-if (isset($_GET['MaUuDai'])) {
-    $maUuDai = $_GET['MaUuDai'];
+if (isset($_GET['MaUD'])) {
+    $maUuDai = $_GET['MaUD'];
 
     $sql = "DELETE FROM uudai WHERE MaUD = ?";
     
@@ -10,13 +10,13 @@ if (isset($_GET['MaUuDai'])) {
     $stmt->bind_param("i", $maUuDai);
     
     if ($stmt->execute()) {
-        header("Location: ?page=admin&section=uudai&status=delete_success");
+        echo "<script>alert('Xóa ưu đãi thành công!'); window.location.href='?page=admin&section=uudai&status=delete_success';</script>";
     } else {
-        header("Location: ?page=admin&section=uudai&status=delete_failed");
+        echo "<script>alert('Lỗi: Không thể xóa ưu đãi!'); window.location.href='?page=admin&section=uudai&status=delete_failed';</script>";
     }
     $stmt->close();
 } else {
-    header("Location: ?page=admin&section=uudai");
+    echo "<script>window.location.href='?page=admin&section=uudai';</script>";
 }
 exit();
 ?>

@@ -18,7 +18,8 @@
 
                     <div class="mb-3">
                         <label for="update_Gia" class="form-label">Giá bán (VNĐ):</label>
-                        <input type="number" class="form-control" id="update_Gia" name="Gia" placeholder="Ví dụ: 50000" min="0" required>
+                        <input type="number" class="form-control" id="update_Gia" name="Gia" placeholder="Ví dụ: 50000" min="0" step="1" required>
+                        <small class="text-muted">Nhập giá từ 0 trở lên (VND chỉ số nguyên)</small>
                     </div>
 
                     <div class="mb-3">
@@ -39,4 +40,3 @@
         </div>
     </div>
 </div>
-

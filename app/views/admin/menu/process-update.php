@@ -1,5 +1,5 @@
 <?php
-include __DIR__ . "/connect.php";
+include dirname(__DIR__,4) . "/config/connect.php";
 
 if(
     !empty($_POST['TenMonAn']) &&
@@ -16,8 +16,8 @@ if(
         $sql = "UPDATE `monan` SET `TenMon`='$tenmon', `HinhAnhURL`='$anhmmon', `MoTa`='$mota', `MaDM`='$madm' WHERE `MaMon`='$mamon'";
         
         if(mysqli_query($conn, $sql)){
-            header("location: ?page=admin&section=menu");
-            exit(); // Dừng thực thi để tránh output thêm
+            echo "<script>window.location.href='?page=admin&section=menu';</script>";
+            exit();
         } else {
             echo "Lỗi cập nhật: " . mysqli_error($conn);
         }

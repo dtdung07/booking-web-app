@@ -1,71 +1,110 @@
 <?php
-// File này được include từ view.php, nên đã có sẵn $conn và $selected_branch_id
-
-// 1. Lấy danh sách ID các món ăn đã có tại cơ sở này
-$sql_existing_dishes = "SELECT MaMon FROM menu_coso WHERE MaCoSo = $selected_branch_id";
-$result_existing_dishes = mysqli_query($conn, $sql_existing_dishes);
-$existing_dish_ids = [];
-while ($row = mysqli_fetch_assoc($result_existing_dishes)) {
-    $existing_dish_ids[] = $row['MaMon'];
-}
-
-// 2. Lấy danh sách tất cả các món ăn chung mà CHƯA CÓ tại cơ sở này
-$sql_available_dishes = "SELECT MaMon, TenMon FROM monan";
-if (!empty($existing_dish_ids)) {
-    $excluded_ids = implode(',', $existing_dish_ids);
-    $sql_available_dishes .= " WHERE MaMon NOT IN ($excluded_ids)";
-}
-$sql_available_dishes .= " ORDER BY TenMon";
-
-$result_available_dishes = mysqli_query($conn, $sql_available_dishes);
+// Lấy danh sách món ăn chưa có ở cơ sở này
+$sql = "SELECT m.MaMon, m.TenMon, m.HinhAnhURL, dm.TenDM 
+        FROM monan m 
+        LEFT JOIN danhmuc dm ON m.MaDM = dm.MaDM 
+        WHERE m.MaMon NOT IN (
+            SELECT MaMon FROM menu_coso WHERE MaCoSo = $selected_branch_id
+        )
+        ORDER BY m.TenMon";
+$result = mysqli_query($conn, $sql);
 $available_dishes = [];
-while ($row = mysqli_fetch_assoc($result_available_dishes)) {
+while ($row = mysqli_fetch_assoc($result)) {
     $available_dishes[] = $row;
 }
 ?>
 
-<!-- Modal Thêm món vào Menu cơ sở -->
+<!-- Modal thêm món vào cơ sở -->
 <div class="modal fade" id="addDishToBranchModal" tabindex="-1">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header bg-success text-white">
-                <h5 class="modal-title"><i class="fas fa-plus-circle me-2"></i> Thêm món vào thực đơn cơ sở</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <h5 class="modal-title">Thêm món vào thực đơn cơ sở</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <form action="?page=admin&section=menu_branch&action=process-create&branch_id=<?php echo $selected_branch_id; ?>" method="POST">
                 <div class="modal-body">
                     <input type="hidden" name="MaCoSo" value="<?php echo $selected_branch_id; ?>">
 
-                    <div class="mb-3">
-                        <label for="MaMon" class="form-label">Chọn món ăn:</label>
-                        <select class="form-select" id="MaMon" name="MaMon" required>
-                            <option value="">-- Chọn từ danh sách món ăn chung --</option>
-                            <?php foreach ($available_dishes as $dish) : ?>
-                                <option value="<?php echo $dish['MaMon']; ?>"><?php echo htmlspecialchars($dish['TenMon']); ?></option>
+                    <?php if (empty($available_dishes)): ?>
+                        <div class="alert alert-warning">
+                            Tất cả các món ăn đã được thêm vào cơ sở này.
+                        </div>
+                    <?php else: ?>
+                        
+                        <!-- Ô tìm kiếm -->
+                        <div class="mb-3">
+                            <input type="text" class="form-control" id="searchDish" placeholder="Tìm kiếm món ăn...">
+                        </div>
+
+                        <!-- Danh sách món ăn -->
+                        <input type="hidden" name="MaMon" id="selectedDishId" required>
+                        <div style="max-height: 400px; overflow-y: auto;" class="border rounded p-2">
+                            <div class="row g-2">
+                            <?php foreach ($available_dishes as $dish): ?>
+                                <div class="col-md-6 dish-item">
+                                    <div class="card dish-card h-100" onclick="selectDish(this)" style="cursor: pointer;">
+                                        <div class="card-body p-2">
+                                            <div class="d-flex align-items-center">
+                                                <!-- 1. Bọc radio button trong một div để kiểm soát vị trí -->
+                                                <div class="me-2">
+                                                    <input class="form-check-input" type="radio" name="MaMon"
+                                                        id="dish<?php echo $dish['MaMon']; ?>"
+                                                        value="<?php echo $dish['MaMon']; ?>" required>
+                                                </div>
+
+                                                <!-- 2. Bọc hình ảnh và text trong một div chiếm hết phần còn lại -->
+                                                <div class="flex-grow-1">
+                                                    <div class="row g-0">
+                                                        <div class="col-4">
+                                                            <img src="<?php echo htmlspecialchars($dish['HinhAnhURL']); ?>"
+                                                                class="img-fluid rounded"
+                                                                style="height: 80px; width: 100%; object-fit: cover;">
+                                                        </div>
+                                                        <div class="col-8">
+                                                            <div class="ps-2">
+                                                                <h6 class="card-title mb-1" style="font-size: 0.9rem;">
+                                                                    <?php echo htmlspecialchars($dish['TenMon']); ?>
+                                                                </h6>
+                                                                <p class="card-text mb-0">
+                                                                    <small class="text-muted">
+                                                                        <?php echo htmlspecialchars($dish['TenDM'] ?? 'Chưa phân loại'); ?>
+                                                                    </small>
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             <?php endforeach; ?>
-                        </select>
-                        <?php if (empty($available_dishes)) : ?>
-                            <small class="form-text text-warning">Tất cả các món ăn đã được thêm vào cơ sở này.</small>
-                        <?php endif; ?>
-                    </div>
+                            </div>
+                        </div>
 
-                    <div class="mb-3">
-                        <label for="Gia" class="form-label">Giá bán (VNĐ):</label>
-                        <input type="number" class="form-control" id="Gia" name="Gia" placeholder="Ví dụ: 50000" min="0" required>
-                    </div>
+                        <hr>
 
-                    <div class="mb-3">
-                        <label for="TinhTrang" class="form-label">Tình trạng:</label>
-                        <select class="form-select" id="TinhTrang" name="TinhTrang" required>
-                            <option value="con_hang" selected>Còn hàng</option>
-                            <option value="het_hang">Hết hàng</option>
-                        </select>
-                    </div>
+                        <!-- Thông tin giá và tình trạng -->
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label class="form-label">Giá bán (VNĐ):</label>
+                                <input type="number" class="form-control" name="Gia" min="0" step="1" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Tình trạng:</label>
+                                <select class="form-select" name="TinhTrang" required>
+                                    <option value="con_hang">Còn hàng</option>
+                                    <option value="het_hang">Hết hàng</option>
+                                </select>
+                            </div>
+                        </div>
+                    <?php endif; ?>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fas fa-times"></i> Hủy</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
                     <button type="submit" class="btn btn-success" <?php echo empty($available_dishes) ? 'disabled' : ''; ?>>
-                        <i class="fas fa-save"></i> Lưu
+                        Lưu
                     </button>
                 </div>
             </form>
@@ -73,3 +112,19 @@ while ($row = mysqli_fetch_assoc($result_available_dishes)) {
     </div>
 </div>
 
+<script>
+// Tìm kiếm món ăn đơn giản
+document.getElementById('searchDish').addEventListener('keyup', function() {
+    let keyword = this.value.toLowerCase();
+    let items = document.querySelectorAll('.dish-item');
+    
+    items.forEach(function(item) {
+        let text = item.textContent.toLowerCase();
+        if (text.includes(keyword)) {
+            item.style.display = '';
+        } else {
+            item.style.display = 'none';
+        }
+    });
+});
+</script>

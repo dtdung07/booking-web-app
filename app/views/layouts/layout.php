@@ -71,6 +71,33 @@
                         <a id="menu2-billClearAllBtn" href="#" class="menu2-clear-bill"><i class="fas fa-trash-alt"></i> Xoá hết tạm tính</a>
                     </div>
                 </div>
+                
+                <!-- Phần mã giảm giá -->
+                <div class="menu2-discount-section">
+                    <div class="menu2-discount-input-wrapper">
+                        <input type="text" id="menu2-discountCode" class="menu2-discount-input" placeholder="Nhập mã giảm giá">
+                        <button type="button" id="menu2-applyDiscountBtn" class="menu2-apply-discount-btn">Áp dụng</button>
+                    </div>
+                    <div id="menu2-discountMessage" class="menu2-discount-message"></div>
+                    <div id="menu2-discountDetails" class="menu2-discount-details" style="display: none;">
+                        <div class="menu2-discount-row">
+                            <span>Tạm tính:</span>
+                            <span id="menu2-subtotalPrice">0đ</span>
+                        </div>
+                        <div class="menu2-discount-row discount-highlight">
+                            <span>Giảm giá (<span id="menu2-discountPercent">0%</span>):</span>
+                            <span id="menu2-discountAmount">-0đ</span>
+                        </div>
+                        <div class="menu2-discount-row total-row">
+                            <span><strong>Tổng thanh toán:</strong></span>
+                            <span id="menu2-finalPrice"><strong>0đ</strong></span>
+                        </div>
+                        <button type="button" id="menu2-removeDiscountBtn" class="menu2-remove-discount-btn">
+                            <i class="fas fa-times"></i> Bỏ mã giảm giá
+                        </button>
+                    </div>
+                </div>
+
                 <div id="menu2-billItemsContainer" class="menu2-bill-items"></div>
             </section>
             <footer class="menu2-bill-footer">
@@ -115,13 +142,7 @@
                         </div>
                         <div class="menu2-form-group">
                             <label>Chọn giờ</label>
-                            <select class="menu2-form-select" required>
-                                <option value="" selected disabled>Chọn giờ</option>
-                                <option value="17:00">17:00</option>
-                                <option value="17:30">17:30</option>
-                                <option value="18:00">18:00</option>
-                                <option value="21:00">21:00</option>
-                            </select>
+                            <input type="time" class="menu2-form-input" id="menu2-time-select-layout" required>
                         </div>
                     </div>
                 </div>

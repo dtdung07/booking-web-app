@@ -87,21 +87,21 @@ document.addEventListener('DOMContentLoaded', function () {
             const item = shoppingCart[itemId];
             const itemTotalPrice = item.price * item.quantity;
             const itemHtml = `
-                <div class="menu2-bill-item" data-item-id="${itemId}">
-                    <div class="menu2-item-info">
-                        <p class="menu2-item-name">${item.name}</p>
-                        <p class="menu2-item-price">${formatPrice(item.price)}đ</p>
-                    </div>
-                    <div class="menu2-item-controls">
-                        <div class="menu2-quantity-controls">
-                            <button type="button" class="menu2-bill-qty-decrease" data-action="bill-qty-decrease">-</button>
-                            <input type="number" value="${item.quantity}" min="1" readonly>
-                            <button type="button" class="menu2-bill-qty-increase" data-action="bill-qty-increase">+</button>
+                    <div class="menu2-bill-item" data-item-id="${itemId}">
+                        <div class="menu2-item-info">
+                            <p class="menu2-item-name">${item.name}</p>
+                            <p class="menu2-item-price">${formatPrice(item.price)}đ</p>
                         </div>
-                        <div class="menu2-item-total-price">${formatPrice(itemTotalPrice)}đ</div>
-                        <div class="menu2-delete_item" data-action="delete-item"><i class="fas fa-trash-alt"></i></div>
-                    </div>
-                </div>`;
+                        <div class="menu2-item-controls">
+                            <div class="menu2-quantity-controls">
+                                <button type="button" class="menu2-bill-qty-decrease" data-action="bill-qty-decrease">-</button>
+                                <input type="number" value="${item.quantity}" min="1" readonly>
+                                <button type="button" class="menu2-bill-qty-increase" data-action="bill-qty-increase">+</button>
+                            </div>
+                            <div class="menu2-item-total-price">${formatPrice(itemTotalPrice)}đ</div>
+                            <div class="menu2-delete_item" data-action="delete-item"><i class="fas fa-trash-alt"></i></div>
+                        </div>
+                    </div>`;
             billItemsContainer.insertAdjacentHTML('beforeend', itemHtml);
         }
         billTotalPriceDisplay.textContent = formatPrice(totalCartPrice) + 'đ';
@@ -293,6 +293,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const dateHidden = document.getElementById('menu2-booking-date-hidden');
     const branchHidden = document.getElementById('menu2-branch-id-hidden');
     const totalHidden = document.getElementById('menu2-total-amount-hidden');
+    const discountIdHidden = document.getElementById('menu2-discount-id-hidden');
+    const finalAmountHidden = document.getElementById('menu2-final-amount-hidden');
     const cartHidden = document.getElementById('menu2-cart-items-hidden');
     const timeSelect = document.getElementById('menu2-time-select');
 
@@ -319,24 +321,69 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             // 4) TOTAL + CART ITEMS từ shoppingCart
-            if (totalHidden && cartHidden) {
-                let total = 0;
-                const cartForPost = [];
-                for (const id in shoppingCart) {
-                    const item = shoppingCart[id];
-                    total += item.price * item.quantity;
-                    cartForPost.push({
-                        id: parseInt(id, 10),
-                        name: item.name,
-                        price: item.price,
-                        quantity: item.quantity
-                    });
-                }
-                totalHidden.value = Math.round(total);
-                cartHidden.value = JSON.stringify(cartForPost);
+            let total = 0;
+            const cartForPost = [];
+            for (const id in shoppingCart) {
+                const item = shoppingCart[id];
+                total += item.price * item.quantity;
+                cartForPost.push({
+                    id: parseInt(id, 10),
+                    name: item.name,
+                    price: item.price,
+                    quantity: item.quantity
+                });
+            }
+            if (totalHidden) totalHidden.value = Math.round(total);
+            if (cartHidden) cartHidden.value = JSON.stringify(cartForPost);
+
+            // 4.1) Lấy thông tin mã giảm giá (nếu có) từ global-cart-manager.js
+            const currentDiscount = (typeof window.getCurrentDiscount === 'function') ? window.getCurrentDiscount() : null;
+            if (currentDiscount) {
+                if (discountIdHidden) discountIdHidden.value = currentDiscount.id || '';
+                if (finalAmountHidden) finalAmountHidden.value = Math.round(currentDiscount.finalAmount || total);
+            } else {
+                if (discountIdHidden) discountIdHidden.value = '';
+                if (finalAmountHidden) finalAmountHidden.value = Math.round(total);
             }
 
             // 5) Validate form trước khi submit
+
+            // Validate tên khách hàng
+            const nameInput = bookingForm.querySelector('input[name="customer_name"]');
+            if (nameInput && nameInput.value.trim()) {
+                const namePattern = /^[a-zA-ZÀ-ỹ\s]{2,50}$/;
+                if (!namePattern.test(nameInput.value.trim())) {
+                    e.preventDefault();
+                    alert('Tên chỉ được chứa chữ cái và khoảng trắng, từ 2-50 ký tự');
+                    nameInput.focus();
+                    return false;
+                }
+            }
+
+            // Validate số điện thoại
+            const phoneInput = bookingForm.querySelector('input[name="customer_phone"]');
+            if (phoneInput && phoneInput.value.trim()) {
+                const phonePattern = /^0[0-9]{9}$/;
+                if (!phonePattern.test(phoneInput.value.trim())) {
+                    e.preventDefault();
+                    alert('Số điện thoại phải có 10 số và bắt đầu bằng số 0');
+                    phoneInput.focus();
+                    return false;
+                }
+            }
+
+            // Validate email (nếu có nhập)
+            const emailInput = bookingForm.querySelector('input[name="customer_email"]');
+            if (emailInput && emailInput.value.trim()) {
+                const emailPattern = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/i;
+                if (!emailPattern.test(emailInput.value.trim())) {
+                    e.preventDefault();
+                    alert('Email không đúng định dạng');
+                    emailInput.focus();
+                    return false;
+                }
+            }
+
             if (!timeSelect || !timeSelect.value) {
                 e.preventDefault();
                 alert('Vui lòng chọn giờ đặt bàn');
@@ -348,58 +395,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 alert('Giỏ hàng trống, vui lòng chọn món ăn');
                 return false;
             }
-        });
-    }
-
-    // === XỬ LÝ SUBMIT FORM ĐẶT BÀN VỚI SEPAY ===
-    const sepayBookingForm = document.getElementById('menu2-bookingForm');
-    if (sepayBookingForm) {
-        sepayBookingForm.addEventListener('submit', function (e) {
-            e.preventDefault();
-
-            // Kiểm tra giỏ hàng không trống
-            if (totalCartQuantity === 0) {
-                alert('Giỏ hàng trống! Vui lòng thêm món ăn trước khi đặt bàn.');
-                return;
-            }
-
-            // Lấy thông tin từ form
-            const customerName = this.querySelector('input[placeholder="Tên của bạn"]').value;
-            const customerPhone = this.querySelector('input[placeholder="Số điện thoại"]').value;
-            const guestCount = bookingGuestsDisplay ? parseInt(bookingGuestsDisplay.textContent) : 1;
-            const bookingDate = selectedDate ? selectedDate.toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
-            const bookingTime = this.querySelector('select').value;
-            const notes = this.querySelector('textarea').value;
-
-            // Validate form
-            if (!customerName || !customerPhone || !bookingTime) {
-                alert('Vui lòng điền đầy đủ thông tin bắt buộc!');
-                return;
-            }
-
-            // Chuẩn bị dữ liệu giỏ hàng
-            const cartItems = [];
-            for (const itemId in shoppingCart) {
-                const item = shoppingCart[itemId];
-                cartItems.push({
-                    id: itemId,
-                    name: item.name,
-                    price: item.price,
-                    quantity: item.quantity
-                });
-            }
-
-            // Tạo booking với SePay
-            createBookingWithPayment({
-                customerName: customerName,
-                customerPhone: customerPhone,
-                guestCount: guestCount,
-                bookingDate: bookingDate,
-                bookingTime: bookingTime,
-                notes: notes,
-                cartItems: cartItems,
-                totalAmount: totalCartPrice
-            });
         });
     }
 
@@ -566,6 +561,24 @@ document.addEventListener('DOMContentLoaded', function () {
     // === KHÔI PHỤC GIỎ HÀNG TỪ COOKIES SAU KHI TẤT CẢ FUNCTIONS ĐÃ ĐƯỢC ĐỊNH NGHĨA ===
     loadCartFromCookies();
 
+    // === SET THỜI GIAN MẶC ĐỊNH CHO INPUT TIME ===
+    // Lấy thời gian hiện tại
+    const now = new Date();
+    const hours = ('0' + now.getHours()).slice(-2);
+    const minutes = ('0' + now.getMinutes()).slice(-2);
+    const currentTime = hours + ':' + minutes;
+
+    // Set cho cả 2 input time (trong menu2.php và layout.php)
+    const timeInput = document.getElementById('menu2-time-select');
+    const timeInputLayout = document.getElementById('menu2-time-select-layout');
+
+    if (timeInput) {
+        timeInput.value = currentTime;
+    }
+    if (timeInputLayout) {
+        timeInputLayout.value = currentTime;
+    }
+
 }); // --- KẾT THÚC DOMCONTENTLOADED ---
 
 // === FUNCTION TOÀN CỤC CHO CATEGORY FILTERING ===
@@ -638,9 +651,9 @@ function renderMenuGrid(data, type) {
             items.forEach(item => itemsHtml += createMenuCardHtml(item));
 
             categorySection.innerHTML = `
-                <h3 class="menu2-category-title">${categoryName}</h3>
-                <div class="menu2-category-items">${itemsHtml}</div>
-            `;
+                    <h3 class="menu2-category-title">${categoryName}</h3>
+                    <div class="menu2-category-items">${itemsHtml}</div>
+                `;
             menuGrid.appendChild(categorySection);
         });
 
@@ -664,29 +677,29 @@ function createMenuCardHtml(item) {
     const escapedDescription = escapeHtml(item.MoTa || '');
 
     return `
-        <div class="menu2-card" 
-             data-action="open-modal"
-             data-id="${item.MaMon}"
-             data-name="${escapedName}"
-             data-price="${item.Gia}"
-             data-description="${escapedDescription}"
-             data-image-url="${imageUrl}">
-            <img src="${imageUrl}" alt="${escapedName}" onerror="this.src='https://storage.quannhautudo.com/data/thumb_400/Data/images/product/2025/06/202506271712248578.webp'">
-            <div class="menu2-card-content">
-                <span class="menu2-card-name">${escapedName}</span>
-                <div class="menu2-card-price">
-                    ${formatPrice(item.Gia)}đ
-                </div>
-                <div class="menu2-card-actions">
-                    <div class="menu2-btn-add-to-cart" 
-                         data-action="add-to-cart"
-                         data-id="${item.MaMon}"
-                         data-name="${escapedName}"
-                         data-price="${item.Gia}">+ Đặt</div>
+            <div class="menu2-card" 
+                data-action="open-modal"
+                data-id="${item.MaMon}"
+                data-name="${escapedName}"
+                data-price="${item.Gia}"
+                data-description="${escapedDescription}"
+                data-image-url="${imageUrl}">
+                <img src="${imageUrl}" alt="${escapedName}" onerror="this.src='https://storage.quannhautudo.com/data/thumb_400/Data/images/product/2025/06/202506271712248578.webp'">
+                <div class="menu2-card-content">
+                    <span class="menu2-card-name">${escapedName}</span>
+                    <div class="menu2-card-price">
+                        ${formatPrice(item.Gia)}đ
+                    </div>
+                    <div class="menu2-card-actions">
+                        <div class="menu2-btn-add-to-cart" 
+                            data-action="add-to-cart"
+                            data-id="${item.MaMon}"
+                            data-name="${escapedName}"
+                            data-price="${item.Gia}">+ Đặt</div>
+                    </div>
                 </div>
             </div>
-        </div>
-    `;
+        `;
 }
 
 function escapeHtml(text) {
@@ -700,56 +713,41 @@ function escapeHtml(text) {
     return String(text).replace(/[&<>"']/g, function (m) { return map[m]; });
 }
 
-// === HÀM TẠO BOOKING VỚI SEPAY PAYMENT ===
-function createBookingWithPayment(bookingData) {
-    // Hiển thị loading
-    const submitBtn = document.querySelector('#menu2-bookingForm button[type="submit"]');
-    const originalText = submitBtn.innerHTML;
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
-    submitBtn.disabled = true;
+// === HÀM HELPER CHO COOKIES ===
+function saveCartToCookies() {
+    if (typeof window.CartCookies !== 'undefined') {
+        window.CartCookies.saveCart(shoppingCart);
 
-    // Chuẩn bị dữ liệu gửi đến server
-    const formData = new FormData();
-    formData.append('customer_name', bookingData.customerName);
-    formData.append('customer_phone', bookingData.customerPhone);
-    formData.append('customer_email', ''); // Email không bắt buộc trong menu2
-    formData.append('branch_id', getCurrentBranchId()); // Lấy từ URL parameter
-    formData.append('guest_count', bookingData.guestCount);
-    formData.append('booking_date', bookingData.bookingDate);
-    formData.append('booking_time', bookingData.bookingTime);
-    formData.append('notes', bookingData.notes);
-    formData.append('total_amount', bookingData.totalAmount);
-
-    // Thêm thông tin món ăn
-    formData.append('cart_items', JSON.stringify(bookingData.cartItems));
-
-    // Gửi request tạo booking
-    fetch('app/views/menu2/process-create.php', {
-        method: 'POST',
-        body: formData
-    })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success && data.booking_id) {
-                // Chuyển hướng đến trang thanh toán SePay
-                window.location.href = `sepay/sepay_payment.php?booking_id=${data.booking_id}&amount=${bookingData.totalAmount}`;
-            } else {
-                throw new Error(data.message || 'Có lỗi xảy ra khi tạo đặt bàn');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Có lỗi xảy ra: ' + error.message);
-        })
-        .finally(() => {
-            // Khôi phục nút submit
-            submitBtn.innerHTML = originalText;
-            submitBtn.disabled = false;
-        });
+        // Cập nhật global cart display trên tất cả các trang
+        if (typeof window.updateGlobalCart === 'function') {
+            window.updateGlobalCart();
+        }
+    }
 }
 
-// Hàm lấy ID chi nhánh từ URL
-function getCurrentBranchId() {
-    const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get('coso') || '11'; // Default là chi nhánh 11
+function loadCartFromCookies() {
+    if (typeof window.CartCookies !== 'undefined') {
+        const savedCart = window.CartCookies.loadCart();
+        if (savedCart && Object.keys(savedCart).length > 0) {
+            // Khôi phục dữ liệu vào biến global
+            Object.keys(savedCart).forEach(itemId => {
+                shoppingCart[itemId] = savedCart[itemId];
+            });
+
+            // Cập nhật UI sau khi khôi phục
+            updateAllUI();
+            console.log('Cart restored from cookies:', savedCart);
+        }
+    }
+}
+
+function clearCartFromCookies() {
+    if (typeof window.CartCookies !== 'undefined') {
+        window.CartCookies.clearCart();
+
+        // Cập nhật global cart display
+        if (typeof window.updateGlobalCart === 'function') {
+            window.updateGlobalCart();
+        }
+    }
 }

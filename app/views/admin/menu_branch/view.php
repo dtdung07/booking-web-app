@@ -80,7 +80,7 @@ while ($row = mysqli_fetch_assoc($result_menu_items)) {
                                     )">
                                 <i class="fas fa-edit"></i> Sửa
                             </button>
-                            <a href="?page=admin&section=menu_branch&action=delete&branch_id=<?php echo $selected_branch_id; ?>&MaMon=<?php echo $item['MaMon']; ?>" 
+                            <a href="?page=admin&section=menu_branch&action=delete&MaCoSo=<?php echo $selected_branch_id; ?>&MaMon=<?php echo $item['MaMon']; ?>" 
                                class="btn btn-sm btn-danger" 
                                onclick="return confirm('Bạn có chắc chắn muốn xóa món \'<?php echo htmlspecialchars($item['TenMon'], ENT_QUOTES); ?>\' khỏi thực đơn cơ sở này không?');">
                                 <i class="fas fa-trash"></i> Xóa

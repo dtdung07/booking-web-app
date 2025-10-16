@@ -12,14 +12,8 @@
       <div class="modal-body">
         <div class="form-group mb-3">
           <label class="form-label">Tên Danh Mục</label>
-          <input type="text" class="form-control" id="updateTenDM" name="TenDM" required>
-          <small class="text-muted">Tên danh mục không được trùng lặp.</small>
-        </div>
-        
-        <div class="form-group mb-3">
-          <label class="form-label">Mô Tả (Tùy chọn)</label>
-          <textarea class="form-control" id="updateMoTa" name="MoTa" rows="3" 
-                    placeholder="Mô tả ngắn gọn về danh mục món ăn này..."></textarea>
+          <input type="text" class="form-control" id="updateTenDM" name="TenDM" required maxlength="100">
+          <small class="text-muted">Tên danh mục không được trùng lặp. Tối đa 100 ký tự.</small>
         </div>
       </div>
       <div class="modal-footer">
@@ -42,7 +36,6 @@ function loadCategoryData(maDM, tenDM) {
     
     // Điền dữ liệu vào form
     document.getElementById('updateTenDM').value = tenDM;
-    document.getElementById('updateMoTa').value = ''; // Reset mô tả vì bảng chưa có field này
 }
 
 // Kiểm tra validation khi submit form update

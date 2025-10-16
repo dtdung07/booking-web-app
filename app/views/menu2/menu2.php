@@ -115,13 +115,33 @@
             <div class="menu2-form-section">
                 <h3 class="menu2-form-section-title"><i class="fas fa-user"></i>Thông tin của bạn</h3>
                 <div class="menu2-form-group">
-                    <input name="customer_name" type="text" class="menu2-form-input" placeholder="Tên của bạn" required>
+                    <input name="customer_name" 
+                           type="text" 
+                           class="menu2-form-input" 
+                           placeholder="Tên của bạn" 
+                           pattern="^[a-zA-ZÀ-ỹ\s]{2,50}$"
+                           title="Tên chỉ chứa chữ cái và khoảng trắng, từ 2-50 ký tự"
+                           minlength="2"
+                           maxlength="50"
+                           required>
                 </div>
                 <div class="menu2-form-group">
-                    <input name="customer_phone" type="tel" class="menu2-form-input" placeholder="Số điện thoại" required>
+                    <input name="customer_phone" 
+                           type="tel" 
+                           class="menu2-form-input" 
+                           placeholder="Số điện thoại" 
+                           pattern="^0[0-9]{9}$"
+                           title="Số điện thoại phải có 10 số và bắt đầu bằng số 0"
+                           maxlength="10"
+                           required>
                 </div>
                 <div class="menu2-form-group">
-                    <input name="customer_email" type="email" class="menu2-form-input" placeholder="Email (không bắt buộc)">
+                    <input name="customer_email" 
+                           type="email" 
+                           class="menu2-form-input" 
+                           placeholder="Email (không bắt buộc)"
+                           pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+                           title="Email không hợp lệ">
                 </div>
             </div>
 
@@ -147,13 +167,7 @@
                     </div>
                     <div class="menu2-form-group">
                         <label>Chọn giờ</label>
-                        <select name="booking_time" class="menu2-form-select" id="menu2-time-select" required>
-                            <option value="" selected disabled>Chọn giờ</option>
-                            <option value="17:00">17:00</option>
-                            <option value="17:30">17:30</option>
-                            <option value="18:00">18:00</option>
-                            <option value="21:00">21:00</option>
-                        </select>
+                        <input type="time" name="booking_time" class="menu2-form-input" id="menu2-time-select" required>
                     </div>
                 </div>
             </div>
@@ -162,6 +176,8 @@
             <!-- Hidden inputs để truyền dữ liệu -->
             <input type="hidden" name="branch_id" id="menu2-branch-id-hidden">
             <input type="hidden" name="total_amount" id="menu2-total-amount-hidden">
+            <input type="hidden" name="discount_id" id="menu2-discount-id-hidden" value="">
+            <input type="hidden" name="final_amount" id="menu2-final-amount-hidden" value="">
             <input type="hidden" name="cart_items" id="menu2-cart-items-hidden">
             
             <div class="menu2-form-actions">

@@ -36,10 +36,10 @@ while($row = mysqli_fetch_array($result)){
       <thead class="table-dark">
         <tr>
           <th width="5%">ID</th>
-          <th width="25%">Tiêu đề</th>
-          <th width="30%">Nội dung</th>
-          <th>Giảm giá</th>
-          <th>Thời hạn</th>
+          <th width="20%">Mã ưu đãi</th>
+          <th width="30%">Mô tả</th>
+          <th>Mức giảm</th>
+          <th>Thời gian hiệu lực</th>
           <th>Hành động</th>
         </tr>
       </thead>
@@ -62,7 +62,7 @@ while($row = mysqli_fetch_array($result)){
             ?>
             <tr>
               <td><?=$row['MaUD']?></td>
-              <td><?=$row['TieuDe'] ?? 'Chưa có tiêu đề'?></td>
+              <td><b><?=$row['TenMaUD'] ?? 'Chưa có tiêu đề'?></b></td>
               <td><?=$noiDungShort?></td>
               <td><?=$row['GiaTriGiam']?><?=$row['LoaiGiamGia'] == 'phantram' ? '%' : 'đ'?></td>
               <td class="<?=$statusClass?>"><?=$ngayBatDau?> - <?=$ngayKetThuc?></td>
@@ -73,7 +73,8 @@ while($row = mysqli_fetch_array($result)){
               </button>
               <?php include __DIR__ . "/update.php"; ?>
 
-              <a class="btn btn-danger btn-sm" href="?page=admin&section=uudai&action=delete&MaUuDai=<?=$row['MaUD']?>" onclick="return confirm('Bạn có chắc chắn muốn xóa ưu đãi này không?');"><i class="fas fa-trash"></i> Xoá</a>
+              <a class="btn btn-info btn-sm" href="?page=admin&section=uudai&action=view&MaUD=<?=$row['MaUD']?>"><i class="fas fa-eye"></i> Xem</a>
+              <a class="btn btn-danger btn-sm" href="?page=admin&section=uudai&action=delete&MaUD=<?=$row['MaUD']?>" onclick="return confirm('Bạn có chắc chắn muốn xóa ưu đãi này không?');"><i class="fas fa-trash"></i> Xoá</a>
               </div>
             </td>
             </tr>
