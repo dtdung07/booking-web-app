@@ -51,8 +51,12 @@ switch ($request) {
     case 'menu2':
         $controller = new MenuController();
         $action = 'menu2';
-        break;
-        
+        break; 
+
+    case 'promotions':
+        include 'app/views/uudai2/index.php';
+        exit; 
+         
     case 'contact':
         $controller = new ContactController();
         break;
