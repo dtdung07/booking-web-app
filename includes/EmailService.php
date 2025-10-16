@@ -1,7 +1,6 @@
 <?php
 /**
- * EmailService đơn giản - Phong cách code dễ hiểu
- * Sử dụng PHPMailer nhưng code đơn giản như mysqli_
+ * Sử dụng PHPMailer mysqli
  */
 
 // Load PHPMailer

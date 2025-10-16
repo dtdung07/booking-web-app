@@ -28,8 +28,8 @@ define('APP_VERSION', '1.0.0');
 // Cấu hình email (nếu cần)
 define('SMTP_HOST', 'smtp.gmail.com');
 define('SMTP_PORT', 465);
-define('SMTP_USERNAME', 'xxxx@gmail.com');
-define('SMTP_PASSWORD', 'xxxx');
+define('SMTP_USERNAME', 'dangdunglxso2@gmail.com');
+define('SMTP_PASSWORD', 'otcg wbjt tgpj vkou');
 
 // Bao gồm file database
 require_once CONFIG_PATH . '/database.php';
