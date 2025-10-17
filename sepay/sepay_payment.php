@@ -53,7 +53,7 @@ if (!empty($booking['MaUD'])) {
         // Loại giảm giá: 'phantram' là phần trăm, còn lại là số tiền
         if ($udRow['LoaiGiamGia'] === 'phantram') {
             // Tính số tiền giảm = phần trăm * tổng tiền món ăn
-            $discountAmount = intval(($expectedAmount * $discountValue) / 100);
+            $discountAmount = round(($expectedAmount * $discountValue) / 100);
         } else { // Loại giảm là số tiền tuyệt đối
             $discountAmount = $discountValue;
         }
