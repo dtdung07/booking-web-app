@@ -10,7 +10,7 @@ include __DIR__ . '/../config/connect.php';
 
 // Lấy thông tin từ URL
 $bookingId = $_GET['booking_id'] ?? null;
-$amount = $_GET['amount'] ?? null;
+$amount = $_GET['amount'] ?? 50000;
 
 if (!$bookingId || !is_numeric($bookingId)) {
     die('Booking ID không hợp lệ!');
@@ -34,47 +34,47 @@ if (!$booking) {
     die('Không tìm thấy đơn đặt bàn hoặc đã được thanh toán!');
 }
 
-// Lấy tổng tiền món ăn của đơn đặt bàn
-$totalQuery = "SELECT SUM(SoLuong * DonGia) as total_food FROM chitietdondatban WHERE MaDon = '$bookingId'";
-$totalResult = mysqli_query($conn, $totalQuery);
-$totalData = mysqli_fetch_assoc($totalResult);
+// // Lấy tổng tiền món ăn của đơn đặt bàn
+// $totalQuery = "SELECT SUM(SoLuong * DonGia) as total_food FROM chitietdondatban WHERE MaDon = '$bookingId'";
+// $totalResult = mysqli_query($conn, $totalQuery);
+// $totalData = mysqli_fetch_assoc($totalResult);
 
-// Lấy tổng số tiền món ăn (chưa bao gồm giảm) làm số tiền dự kiến phải thanh toán
-$expectedAmount = floatval($totalData['total_food'] ?? 0);
+// // Lấy tổng số tiền món ăn (chưa bao gồm giảm) làm số tiền dự kiến phải thanh toán
+// $expectedAmount = floatval($totalData['total_food'] ?? 0);
 
-// Áp dụng giảm giá nếu đơn có MaUD hợp lệ
-if (!empty($booking['MaUD'])) {
-    $maUD = intval($booking['MaUD']); // Lấy mã ưu đãi từ đơn
-    // Truy vấn thông tin ưu đãi còn hiệu lực (theo ngày)
-    $udQuery = "SELECT GiaTriGiam, LoaiGiamGia FROM uudai WHERE MaUD = '$maUD' AND NgayBD <= CURDATE() AND NgayKT >= CURDATE()";
-    $udResult = mysqli_query($conn, $udQuery);
-    if ($udRow = mysqli_fetch_assoc($udResult)) {
-        $discountValue = floatval($udRow['GiaTriGiam']); // Giá trị giảm (số tiền hoặc %)
-        // Loại giảm giá: 'phantram' là phần trăm, còn lại là số tiền
-        if ($udRow['LoaiGiamGia'] === 'phantram') {
-            // Tính số tiền giảm = phần trăm * tổng tiền món ăn
-            $discountAmount = round(($expectedAmount * $discountValue) / 100);
-        } else { // Loại giảm là số tiền tuyệt đối
-            $discountAmount = $discountValue;
-        }
-        // Đảm bảo số tiền giảm không vượt quá tổng số tiền món ăn
-        $discountAmount = min($discountAmount, $expectedAmount);
-        // Tổng tiền sau khi giảm không nhỏ hơn 0
-        $expectedAmount = max(0, $expectedAmount - $discountAmount);
-    }
-}
+// // Áp dụng giảm giá nếu đơn có MaUD hợp lệ
+// if (!empty($booking['MaUD'])) {
+//     $maUD = intval($booking['MaUD']); // Lấy mã ưu đãi từ đơn
+//     // Truy vấn thông tin ưu đãi còn hiệu lực (theo ngày)
+//     $udQuery = "SELECT GiaTriGiam, LoaiGiamGia FROM uudai WHERE MaUD = '$maUD' AND NgayBD <= CURDATE() AND NgayKT >= CURDATE()";
+//     $udResult = mysqli_query($conn, $udQuery);
+//     if ($udRow = mysqli_fetch_assoc($udResult)) {
+//         $discountValue = floatval($udRow['GiaTriGiam']); // Giá trị giảm (số tiền hoặc %)
+//         // Loại giảm giá: 'phantram' là phần trăm, còn lại là số tiền
+//         if ($udRow['LoaiGiamGia'] === 'phantram') {
+//             // Tính số tiền giảm = phần trăm * tổng tiền món ăn
+//             $discountAmount = round(($expectedAmount * $discountValue) / 100);
+//         } else { // Loại giảm là số tiền tuyệt đối
+//             $discountAmount = $discountValue;
+//         }
+//         // Đảm bảo số tiền giảm không vượt quá tổng số tiền món ăn
+//         $discountAmount = min($discountAmount, $expectedAmount);
+//         // Tổng tiền sau khi giảm không nhỏ hơn 0
+//         $expectedAmount = max(0, $expectedAmount - $discountAmount);
+//     }
+// }
 
-// So sánh theo số tiền phải thu sau giảm (nếu có)
-if (floatval($amount) != floatval($expectedAmount)) {
-    echo json_encode([
-        'success' => false, 
-        'message' => 'So tien thanh toan khong dung',
-        'expected' => $expectedAmount,
-        'received' => $amount,
-        'booking_id' => $bookingId
-    ]);
-    die();
-}
+// // So sánh theo số tiền phải thu sau giảm (nếu có)
+// if (floatval($amount) != floatval($expectedAmount)) {
+//     echo json_encode([
+//         'success' => false, 
+//         'message' => 'So tien thanh toan khong dung',
+//         'expected' => $expectedAmount,
+//         'received' => $amount,
+//         'booking_id' => $bookingId
+//     ]);
+//     die();
+// }
 
 ?>
 <!doctype html>
