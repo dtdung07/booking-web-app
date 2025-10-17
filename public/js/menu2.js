@@ -401,8 +401,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     // === HỆ THỐNG 3: LOGIC CALENDAR (GIỮ NGUYÊN, VÌ ĐÃ TỐT) ===
-    // ... (Toàn bộ code calendar của bạn có thể giữ nguyên ở đây) ...
-    // ... Mình sẽ copy lại để đảm bảo file hoàn chỉnh ...
     const maxDate = new Date(today);
     maxDate.setMonth(maxDate.getMonth() + 2);
     let selectedDate = new Date(today);

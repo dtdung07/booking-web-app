@@ -89,15 +89,6 @@ try {
     // 3. Thêm món ăn vào booking
     addMenuItemsToBooking($conn, $bookingId, $branchId, $cartItems);
     
-<<<<<<< HEAD
-    // Trả về JSON response cho JavaScript
-    header('Content-Type: application/json');
-    echo json_encode([
-        'success' => true,
-        'booking_id' => $bookingId,
-        'message' => 'Đặt bàn thành công'
-    ]);
-=======
     // Quyết định số tiền thanh toán: ưu tiên final_amount nếu hợp lệ
     $payAmount = ($finalAmount > 0 && $finalAmount <= $totalAmount) ? $finalAmount : $totalAmount;
 
@@ -106,7 +97,6 @@ try {
 
     // Chuyển hướng đến trang thanh toán SEPAY với mã đơn và số tiền cần thanh toán
     header("Location: ../../../sepay/sepay_payment.php?booking_id={$bookingId}&amount={$payAmount}");
->>>>>>> main
     exit();
     
 } catch (Exception $e) {

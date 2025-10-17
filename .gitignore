@@ -1,12 +1,6 @@
-# Ignore config folder
-
-
-# Ignore common development files
+# Ignore các file cấu hình nhạy cảm
 .env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+
 
 # Ignore logs
 *.log
@@ -14,7 +8,8 @@ logs/
 sepay/
 
 # Ignore file docs
-docs
+docs/
+think/
 
 # Ignore temporary files
 *.tmp
