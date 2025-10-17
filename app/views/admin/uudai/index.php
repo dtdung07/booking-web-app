@@ -1,12 +1,14 @@
 <?php
 include dirname(__DIR__,4) . "/config/connect.php";
 
+$stats = [
+    'active' => 0,
+    'expired' => 0
+];
+
 // Xử lý các action
 if(isset($_GET['action'])){
     switch ($_GET['action']) {
-        case 'view':
-            include "view.php";
-            return; // Dừng để không hiển thị danh sách
         case 'delete':
             include "process-delete.php";
             break;
@@ -77,7 +79,7 @@ include __DIR__ . "/create.php";
         let newRow = document.createElement("tr");
         newRow.id = "noSearchResult";
         newRow.innerHTML = `
-          <td colspan="6" class="text-center text-muted py-4">
+          <td colspan="5" class="text-center text-muted py-4">
             <i class="fas fa-search fa-2x mb-2"></i>
             <br>
             Không tìm thấy ưu đãi phù hợp với từ khóa "<strong>${filter}</strong>"
@@ -93,7 +95,5 @@ include __DIR__ . "/create.php";
     } else if (noResultRow) {
       noResultRow.style.display = "none";
     }
-  });
+});
 </script>
-
-</div>
