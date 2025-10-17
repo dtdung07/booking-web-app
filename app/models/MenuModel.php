@@ -92,7 +92,8 @@ public function searchMenuItems($maCoSo, $tenMon = '') {
             WHERE mc.MaCoSo = ? AND mc.TinhTrang = 'con_hang'";
     
     if (!empty($tenMon)) {
-        $sql .= " AND  m.TenMon LIKE ? COLLATE utf8mb4_0900_as_ci";
+        // $sql .= " AND  m.TenMon LIKE ? COLLATE utf8mb4_0900_as_ci";
+        $sql .= " AND  m.TenMon LIKE ?";
         $sql .= " ORDER BY m.TenMon";
         
         $stmt = mysqli_prepare($this->db, $sql);
