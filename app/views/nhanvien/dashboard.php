@@ -21,6 +21,7 @@ $totalBooking = $dashboardData['todayBookings'] ?? 0;
 $todayNewBookings = $dashboardData['todayNewBookings'] ?? 0;
 $completedBookings = $dashboardData['completedBookings'] ?? 0;
 $pendingBookings = $dashboardData['pendingBookings'] ?? 0;
+$upcomingBookings = $dashboardData['upcomingBookings'] ?? 0;
 $confirmedBookings = $dashboardData['confirmedBookings'] ?? 0;
 
 // Extract dữ liệu table status nếu có
@@ -353,7 +354,7 @@ if (isset($tableStatusData) && is_array($tableStatusData)) {
                                     </div>
                                     <div>
                                         <h6 class="text-muted mb-1">Đặt bàn trước</h6>
-                                        <h3 class="mb-0"><?php echo number_format($pendingBookings); ?></h3>
+                                        <h3 class="mb-0"><?php echo number_format($upcomingBookings); ?></h3>
                                     </div>
                                 </div>
                             </div>

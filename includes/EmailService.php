@@ -1,6 +1,7 @@
 <?php
 /**
- * Sử dụng PHPMailer mysqli
+ * EmailService
+ * Sử dụng PHPMailer
  */
 
 // Load PHPMailer

@@ -1,7 +1,4 @@
-# Ignore config folder
-
-
-# Ignore common development files
+# Ignore các file cấu hình nhạy cảm
 .env
 
 

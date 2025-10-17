@@ -16,6 +16,9 @@ $totalRecords = mysqli_fetch_array($countResult)['total'];
 $totalPages = ceil($totalRecords / $recordsPerPage);
 
 // Lấy dữ liệu với phân trang
+// Truy vấn dưới đây thực hiện lấy dữ liệu các món ăn từ bảng `monan` (bảng lưu thông tin món ăn trong hệ thống).
+// - $offset: vị trí bản ghi bắt đầu lấy (tính dựa vào trang hiện tại, dùng cho phân trang)
+// - $recordsPerPage: số lượng bản ghi sẽ lấy ra trên mỗi trang
 $sql = "SELECT * FROM `monan` WHERE 1 LIMIT $offset, $recordsPerPage";
 $result = mysqli_query($conn, $sql);
 $menuItems = [];

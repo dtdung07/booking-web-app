@@ -19,17 +19,18 @@ if (!is_object($data)) {
 }
 
 // Khởi tạo các biến từ webhook SePay
-$gateway = $data->gateway;
-$transaction_date = $data->transactionDate;  
-$account_number = $data->accountNumber;
-$sub_account = $data->subAccount;
-$transfer_type = $data->transferType;
-$transfer_amount = $data->transferAmount;
-$accumulated = $data->accumulated;
-$code = $data->code;
-$transaction_content = $data->content;
-$reference_number = $data->referenceCode;
-$body = $data->description;
+// Lấy các trường thông tin từ webhook SePay
+$gateway = $data->gateway; // Cổng thanh toán (MBBank)
+$transaction_date = $data->transactionDate;  // Thời gian giao dịch
+$account_number = $data->accountNumber; // Số tài khoản nhận/chi
+$sub_account = $data->subAccount; // Sub-account số tài khoản ảo nhận
+$transfer_type = $data->transferType; // Loại giao dịch: in (nhận), out (chi)
+$transfer_amount = $data->transferAmount; // Số tiền giao dịch
+$accumulated = $data->accumulated; // Số dư sau giao dịch (nếu có)
+$code = $data->code; // Mã giao dịch (unique transaction code từ SePay)
+$transaction_content = $data->content; // Nội dung chuyển khoản
+$reference_number = $data->referenceCode; // Mã tham chiếu (reference code bên SePay ghi nhận)
+$body = $data->description; // Mô tả chi tiết (nếu có)
 
 $amount_in = 0;
 $amount_out = 0;
@@ -93,21 +94,27 @@ $totalQuery = "SELECT SUM(SoLuong * DonGia) as total_food FROM chitietdondatban 
 $totalResult = mysqli_query($conn, $totalQuery);
 $totalData = mysqli_fetch_assoc($totalResult);
 
+// Lấy tổng số tiền món ăn (chưa bao gồm giảm) làm số tiền dự kiến phải thanh toán
 $expectedAmount = floatval($totalData['total_food'] ?? 0);
 
 // Áp dụng giảm giá nếu đơn có MaUD hợp lệ
 if (!empty($booking['MaUD'])) {
-    $maUD = intval($booking['MaUD']);
+    $maUD = intval($booking['MaUD']); // Lấy mã ưu đãi từ đơn
+    // Truy vấn thông tin ưu đãi còn hiệu lực (theo ngày)
     $udQuery = "SELECT GiaTriGiam, LoaiGiamGia FROM uudai WHERE MaUD = '$maUD' AND NgayBD <= CURDATE() AND NgayKT >= CURDATE()";
     $udResult = mysqli_query($conn, $udQuery);
     if ($udRow = mysqli_fetch_assoc($udResult)) {
-        $discountValue = floatval($udRow['GiaTriGiam']);
+        $discountValue = floatval($udRow['GiaTriGiam']); // Giá trị giảm (số tiền hoặc %)
+        // Loại giảm giá: 'phantram' là phần trăm, còn lại là số tiền
         if ($udRow['LoaiGiamGia'] === 'phantram') {
+            // Tính số tiền giảm = phần trăm * tổng tiền món ăn
             $discountAmount = ($expectedAmount * $discountValue) / 100;
-        } else { // sotien
+        } else { // Loại giảm là số tiền tuyệt đối
             $discountAmount = $discountValue;
         }
+        // Đảm bảo số tiền giảm không vượt quá tổng số tiền món ăn
         $discountAmount = min($discountAmount, $expectedAmount);
+        // Tổng tiền sau khi giảm không nhỏ hơn 0
         $expectedAmount = max(0, $expectedAmount - $discountAmount);
     }
 }
@@ -116,7 +123,7 @@ if (!empty($booking['MaUD'])) {
 if (floatval($amount_in) < floatval($expectedAmount)) {
     echo json_encode([
         'success' => false, 
-        'message' => 'Insufficient payment amount',
+        'message' => 'So tien thanh toan khong du',
         'expected' => $expectedAmount,
         'received' => $amount_in,
         'booking_id' => $bookingId
@@ -141,6 +148,14 @@ if (mysqli_query($conn, $updateBookingQuery)) {
     // GỬI EMAIL THÔNG BÁO THANH TOÁN THÀNH CÔN
     try {
         // Lấy thông tin đơn đặt bàn
+        // Đoạn truy vấn này lấy thông tin chi tiết về đơn đặt bàn để gửi email xác nhận thanh toán:
+        // - d.*: Tất cả thông tin từ bảng đơn đặt bàn (dondatban)
+        // - kh.TenKH, kh.SDT, kh.Email: Tên, số điện thoại, email khách hàng từ bảng khachhang
+        // - cs.TenCoSo: Tên chi nhánh từ bảng coso
+        // - GROUP_CONCAT(...): Lấy danh sách các bàn đã được gán cho đơn đặt bàn, cộng cả sức chứa của bàn (nối thành chuỗi)
+        // Kết hợp các bảng với LEFT JOIN nhằm đảm bảo luôn lấy đầy đủ thông tin dù có thể thiếu
+        // WHERE: Chỉ lấy duy nhất đơn theo bookingId truyền vào (chắc chắn chỉ có một)
+        // GROUP BY d.MaDon: Đảm bảo kết quả trả về theo từng đơn
         $emailQuery = "SELECT d.*, kh.TenKH, kh.SDT, kh.Email, cs.TenCoSo,
                               GROUP_CONCAT(CONCAT(b.TenBan, ' (', b.SucChua, ' chỗ)') SEPARATOR ', ') as DanhSachBan
                        FROM dondatban d

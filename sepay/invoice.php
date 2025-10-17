@@ -16,6 +16,12 @@ if (!$bookingId || !is_numeric($bookingId)) {
 }
 
 // Lấy thông tin đặt bàn chi tiết
+// Đoạn truy vấn SQL dưới đây lấy tất cả thông tin đơn đặt bàn đã thanh toán (trạng thái 'da_xac_nhan'), bao gồm:
+// - Thông tin đơn từ dondatban (d.*)
+// - Thông tin khách hàng (TênKH, SĐT, Email)
+// - Thông tin cơ sở (Tên cơ sở, địa chỉ)
+// - Danh sách bàn đã đặt (GROUP_CONCAT các bàn, định dạng: Tên bàn (sức chứa chỗ)), nếu đặt nhiều bàn sẽ nối bằng dấu phẩy
+// - Thông tin ưu đãi áp dụng nếu có (Tên mã, giá trị giảm, loại giảm giá: phần trăm hoặc tiền trực tiếp)
 $query = "SELECT d.*, kh.TenKH, kh.SDT, kh.Email, cs.TenCoSo, cs.DiaChi,
                  GROUP_CONCAT(CONCAT(b.TenBan, ' (', b.SucChua, ' chỗ)') SEPARATOR ', ') as DanhSachBan,
                  ud.TenMaUD, ud.GiaTriGiam, ud.LoaiGiamGia
@@ -27,6 +33,7 @@ $query = "SELECT d.*, kh.TenKH, kh.SDT, kh.Email, cs.TenCoSo, cs.DiaChi,
           LEFT JOIN uudai ud ON d.MaUD = ud.MaUD
           WHERE d.MaDon = '$bookingId' AND d.TrangThai = 'da_xac_nhan'
           GROUP BY d.MaDon";
+// End: Truy vấn trả về thông tin chi tiết hóa đơn đã thanh toán cho khách xem.
 
 $result = mysqli_query($conn, $query);
 $booking = mysqli_fetch_assoc($result);
@@ -36,6 +43,11 @@ if (!$booking) {
 }
 
 // Lấy danh sách món ăn
+// Đoạn code sau truy vấn danh sách các món ăn trong đơn đặt bàn có mã $bookingId.
+// - Lấy tên món (m.TenMon), số lượng đặt (ct.SoLuong), đơn giá của từng món (ct.DonGia)
+// - Tính thành tiền cho từng món (SoLuong * DonGia) đặt tên cột là ThanhTien
+// - Dữ liệu này lấy từ bảng chi tiết đơn đặt bàn (chitietdondatban) kết hợp với bảng món ăn (monan) để lấy tên món ăn
+// - Mỗi bản ghi là một món của đơn, sắp xếp theo tên món (ORDER BY m.TenMon)
 $menuQuery = "SELECT m.TenMon, ct.SoLuong, ct.DonGia, (ct.SoLuong * ct.DonGia) as ThanhTien
               FROM chitietdondatban ct
               JOIN monan m ON ct.MaMon = m.MaMon

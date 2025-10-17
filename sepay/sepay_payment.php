@@ -10,7 +10,7 @@ include __DIR__ . '/../config/connect.php';
 
 // Lấy thông tin từ URL
 $bookingId = $_GET['booking_id'] ?? null;
-$amount = $_GET['amount'] ?? 50000; // Mặc định 50k nếu không có
+$amount = $_GET['amount'] ?? 50000;
 
 if (!$bookingId || !is_numeric($bookingId)) {
     die('Booking ID không hợp lệ!');
@@ -34,6 +34,48 @@ if (!$booking) {
     die('Không tìm thấy đơn đặt bàn hoặc đã được thanh toán!');
 }
 
+// // Lấy tổng tiền món ăn của đơn đặt bàn
+// $totalQuery = "SELECT SUM(SoLuong * DonGia) as total_food FROM chitietdondatban WHERE MaDon = '$bookingId'";
+// $totalResult = mysqli_query($conn, $totalQuery);
+// $totalData = mysqli_fetch_assoc($totalResult);
+
+// // Lấy tổng số tiền món ăn (chưa bao gồm giảm) làm số tiền dự kiến phải thanh toán
+// $expectedAmount = floatval($totalData['total_food'] ?? 0);
+
+// // Áp dụng giảm giá nếu đơn có MaUD hợp lệ
+// if (!empty($booking['MaUD'])) {
+//     $maUD = intval($booking['MaUD']); // Lấy mã ưu đãi từ đơn
+//     // Truy vấn thông tin ưu đãi còn hiệu lực (theo ngày)
+//     $udQuery = "SELECT GiaTriGiam, LoaiGiamGia FROM uudai WHERE MaUD = '$maUD' AND NgayBD <= CURDATE() AND NgayKT >= CURDATE()";
+//     $udResult = mysqli_query($conn, $udQuery);
+//     if ($udRow = mysqli_fetch_assoc($udResult)) {
+//         $discountValue = floatval($udRow['GiaTriGiam']); // Giá trị giảm (số tiền hoặc %)
+//         // Loại giảm giá: 'phantram' là phần trăm, còn lại là số tiền
+//         if ($udRow['LoaiGiamGia'] === 'phantram') {
+//             // Tính số tiền giảm = phần trăm * tổng tiền món ăn
+//             $discountAmount = round(($expectedAmount * $discountValue) / 100);
+//         } else { // Loại giảm là số tiền tuyệt đối
+//             $discountAmount = $discountValue;
+//         }
+//         // Đảm bảo số tiền giảm không vượt quá tổng số tiền món ăn
+//         $discountAmount = min($discountAmount, $expectedAmount);
+//         // Tổng tiền sau khi giảm không nhỏ hơn 0
+//         $expectedAmount = max(0, $expectedAmount - $discountAmount);
+//     }
+// }
+
+// // So sánh theo số tiền phải thu sau giảm (nếu có)
+// if (floatval($amount) != floatval($expectedAmount)) {
+//     echo json_encode([
+//         'success' => false, 
+//         'message' => 'So tien thanh toan khong dung',
+//         'expected' => $expectedAmount,
+//         'received' => $amount,
+//         'booking_id' => $bookingId
+//     ]);
+//     die();
+// }
+
 ?>
 <!doctype html>
 <html lang="vi">
@@ -45,7 +87,7 @@ if (!$booking) {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        .payment-container { max-width: 800px; margin: 0 auto; padding: 20px; }
+        .payment-container { max-width: 1000px; margin: 0 auto; padding: 20px; }
         .qr-container { text-align: center; padding: 30px; border: 2px solid #e9ecef; border-radius: 15px; background: #f8f9fa; }
         .qr-container img { max-width: 300px; width: 100%; height: auto; border: 3px solid #fff; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         .info-card { background: #fff; border-radius: 15px; padding: 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
@@ -194,7 +236,7 @@ if (!$booking) {
                         <small class="text-muted">
                             <i class="fas fa-comment me-2"></i>
                             <strong>Ghi chú:</strong><br>
-                            <?= nl2br(htmlspecialchars($booking['GhiChu'])) ?>
+                            <?= nl2br(htmlspecialchars($booking['GhiChu']) ?? '') ?>
                         </small>
                     </div>
                     <?php endif; ?>
@@ -256,7 +298,7 @@ if (!$booking) {
         }
         
         // Kiểm tra trạng thái thanh toán mỗi 2 giây một lần
-        setInterval(checkPaymentStatus, 2000);
+        setInterval(checkPaymentStatus, 1000);
         
         // Kiểm tra ngay khi trang load
         $(document).ready(function() {
