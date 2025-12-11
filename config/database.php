@@ -1,10 +1,19 @@
 <?php
 class Database {
-    private $host = "localhost";
-    private $db_name = "booking_restaurant";
-    private $username = "root";
-    private $password = "";
+    // Sử dụng biến môi trường hoặc giá trị mặc định cho local
+    private $host;
+    private $db_name;
+    private $username;
+    private $password;
     public $conn;
+    
+    public function __construct() {
+        // Sử dụng hàm env() từ config.php để đọc file .env
+        $this->host = env('DB_HOST', 'localhost');
+        $this->db_name = env('DB_NAME', 'booking_restaurant');
+        $this->username = env('DB_USER', 'root');
+        $this->password = env('DB_PASS', '');
+    }
    public function getConnection() {
     $this->conn = null;
     try {

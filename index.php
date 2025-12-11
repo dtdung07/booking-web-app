@@ -3,6 +3,11 @@
  * File điểm vào chính của ứng dụng
  */
 
+// DEBUG: Bật hiển thị lỗi để tìm nguyên nhân (TẮT SAU KHI FIX XONG)
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 // Bắt đầu session
 session_start();
 
