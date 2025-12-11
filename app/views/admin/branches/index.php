@@ -60,7 +60,7 @@ $branches = $controller->getBranches();
             <th>Tên cơ sở</th>
             <th>Địa chỉ</th>
             <th>Số điện thoại</th>
-            <th>Ảnh</th>
+            <!-- <th>Ảnh</th> -->
             <th>Hành động</th>
           </tr>
         </thead>
@@ -74,7 +74,7 @@ $branches = $controller->getBranches();
                 </td>
                 <td class="text-start"><?php echo htmlspecialchars($branch['DiaChi']); ?></td>
                 <td><?php echo htmlspecialchars($branch['DienThoai']); ?></td>
-                <td>
+                <!-- <td>
                   <?php if (!empty($branch['AnhUrl'])): ?>
                     <img src="<?php echo htmlspecialchars($branch['AnhUrl']); ?>" 
                          alt="Ảnh cơ sở" class="branch-image">
@@ -82,7 +82,7 @@ $branches = $controller->getBranches();
                     <img src="https://via.placeholder.com/60x60?text=No+Image" 
                          alt="Không có ảnh" class="branch-image">
                   <?php endif; ?>
-                </td>
+                </td> -->
                 <td>
                 
                   <button class="btn btn-warning btn-sm" 
@@ -146,10 +146,11 @@ $branches = $controller->getBranches();
           </div>
           <div class="mb-3">
             <label for="dienThoai" class="form-label">Số điện thoại <span class="text-danger">*</span></label>
-            <input type="tel" class="form-control" id="dienThoai" required pattern="[0-9]{10,11}" maxlength="15" placeholder="Ví dụ: 0922782387">
+              <input type="tel" class="form-control" id="editDienThoai" required pattern="[0-9]{10,11}" maxlength="15" placeholder="Ví dụ: 0922782387">
+          
             <small class="text-muted">Nhập 10-11 chữ số</small>
           </div>
-          <div class="mb-3">
+          <div class="mb-3" style="display: none;">
             <label for="anhUrl" class="form-label">URL ảnh</label>
             <input type="url" class="form-control" id="anhUrl" placeholder="https://example.com/image.jpg" maxlength="100">
             <small class="text-muted">Tối đa 100 ký tự</small>
@@ -188,11 +189,11 @@ $branches = $controller->getBranches();
             <input type="tel" class="form-control" id="editDienThoai" required pattern="[0-9]{10,11}" maxlength="15" placeholder="Ví dụ: 0922782387">
             <small class="text-muted">Nhập 10-11 chữ số</small>
           </div>
-          <div class="mb-3">
+          <div class="mb-3" style="display: none;">
             <label for="editAnhUrl" class="form-label">URL ảnh</label>
             <input type="url" class="form-control" id="editAnhUrl" placeholder="https://example.com/image.jpg" maxlength="100">
             <small class="text-muted">Tối đa 100 ký tự</small>
-          </div>
+          </div> 
         </form>
       </div>
       <div class="modal-footer">
