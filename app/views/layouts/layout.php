@@ -30,7 +30,7 @@
         <?php echo $additional_head; ?>
     <?php endif; ?>
 </head>
-<body>
+<body >
     <!-- Include Header Component -->
     <?php include 'header.php'; ?>
     
