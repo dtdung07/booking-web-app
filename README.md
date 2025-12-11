@@ -47,14 +47,17 @@ booking-web-app/
 │   ├── models/            # Các Model (Booking, Branch, Menu, Table...)  
 │   └── views/             # Các View (admin (nhân viên), client)
 ├── config/                # File cấu hình (database, config, connect)
-├── database/              # FIle SQL
+├── database/              # File SQL
 ├── public/                # Assets (CSS, JS, Images, Fonts, Videos)
 ├── includes/              # Dịch vụ gửi Mail
 ├── libs/                  # Thư viện bên thứ 3 (PHPMailer)
 ├── sepay/                 # Tích hợp thanh toán trực tuyến QR code (payment, webhook, invoice)
+├── .env.example           # File mẫu cấu hình môi trường (copy thành .env để sử dụng)
+├── .htaccess              # Cấu hình Apache (rewrite, security, cache)
+├── .user.ini              # Cấu hình PHP cho hosting CGI/FastCGI
 ├── index.php              # File chính điều hướng
 ├── login.php              # Trang đăng nhập Admin/Nhân viên
-└── *README.md                   # File README hướng dẫn
+└── README.md              # File README hướng dẫn
 ```
 
 ---
@@ -104,9 +107,81 @@ booking-web-app/
 
 ## V. CẤU HÌNH ỨNG DỤNG
 
-### 1. Cấu hình Database Connection
+### 1. Cấu hình bằng file `.env` (Khuyến nghị)
 
-**Cần cấu hình các trường kết nối ở file: `config/database.php`**
+**Bước 1: Copy file mẫu `.env.example` thành `.env`**
+```bash
+# Windows (Command Prompt)
+copy .env.example .env
+
+# Windows (PowerShell)
+Copy-Item .env.example .env
+
+# Linux/Mac
+cp .env.example .env
+```
+
+**Bước 2: Chỉnh sửa file `.env` theo môi trường**
+
+**Cho LOCAL (XAMPP) - giữ nguyên giá trị mặc định:**
+```env
+# CAU HINH DATABASE
+DB_HOST=localhost
+DB_NAME=booking_restaurant
+DB_USER=root
+DB_PASS=
+DB_PORT=3306
+
+# CAU HINH URL
+BASE_URL=http://localhost/booking-web-app
+
+# CAU HINH EMAIL (SMTP)
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=465
+SMTP_USERNAME=your-email@gmail.com
+SMTP_PASSWORD=your-app-password
+```
+
+**Cho SERVER/HOSTING - thay đổi theo thông tin hosting:**
+```env
+# CAU HINH DATABASE - Thay doi theo thong tin hosting
+DB_HOST=localhost
+DB_NAME=ten_database_tren_hosting
+DB_USER=username_database_hosting
+DB_PASS=password_database_hosting
+DB_PORT=3306
+
+# CAU HINH URL
+BASE_URL=https://yourdomain.com/path-to-project
+
+# CAU HINH EMAIL (SMTP)
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=465
+SMTP_USERNAME=your-email@gmail.com
+SMTP_PASSWORD=your-app-password
+```
+
+> **Lưu ý:** 
+> - File `.env.example` là file mẫu, có thể commit lên git
+> - File `.env` chứa thông tin nhạy cảm, đã được thêm vào `.gitignore` để không commit lên git
+
+### 2. Cấu hình thủ công (Tùy chọn)
+
+**Nếu không dùng file `.env`, có thể cấu hình trực tiếp:**
+
+**File: `config/connect.php`**
+```php
+<?php
+    $host = 'localhost';                // MySQL Host
+    $user = 'root';                     // MySQL Username
+    $pass = '';                         // MySQL Password (XAMPP default: rỗng)
+    $database = 'booking_restaurant';   // Tên Database
+    $port = '3306';                     // MySQL Port
+
+    $conn = mysqli_connect($host, $user, $pass, $database, $port);
+```
+
+**File: `config/database.php`**
 ```php
 <?php
 class Database {
@@ -117,8 +192,6 @@ class Database {
     public $conn;
 }
 ```
-
-### 2. Cấu hình URL và SMTP
 
 **File: `config/config.php`** 
 ```php
@@ -227,10 +300,95 @@ Password: admin123
 - Tạo mới/Sửa/Xóa mã giảm giá
 ---
 
-## VIII. Team
+## VIII. DEPLOY LÊN SERVER/HOSTING
+
+### 1. Chuẩn bị trên Hosting
+
+**Bước 1: Tạo Database trên hosting**
+```bash
+# Truy cập panel quản trị hosting (cPanel, DirectAdmin, Plesk...)
+# Vào phần MySQL Databases:
+1. Tạo database mới (VD: username_booking)
+2. Tạo user database mới (VD: username_dbuser)
+3. Gán quyền ALL PRIVILEGES cho user vào database
+4. Ghi lại thông tin: DB_NAME, DB_USER, DB_PASS
+```
+
+**Bước 2: Import file SQL**
+```bash
+# Trong phpMyAdmin của hosting:
+1. Chọn database vừa tạo
+2. Click tab 'Import'
+3. Chọn file: database/booking_restaurant.sql
+4. Click 'Go' để import
+```
+
+### 2. Upload và Cấu hình
+
+**Bước 1: Upload toàn bộ source code lên hosting**
+```bash
+# Sử dụng FTP hoặc File Manager của hosting
+# Upload vào thư mục public_html hoặc subdomain tương ứng
+```
+
+**Bước 2: Tạo file `.env` trên server**
+```bash
+# Copy file mẫu thành file .env
+cp .env.example .env
+
+# Hoặc tạo mới file .env với nội dung:
+```
+```env
+DB_HOST=localhost
+DB_NAME=username_booking
+DB_USER=username_dbuser
+DB_PASS=mat_khau_database
+DB_PORT=3306
+
+BASE_URL=https://yourdomain.com
+
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=465
+SMTP_USERNAME=your-email@gmail.com
+SMTP_PASSWORD=your-app-password
+```
+
+**Bước 3: Kiểm tra quyền file/thư mục**
+```bash
+# Đảm bảo quyền truy cập đúng:
+- Thư mục: 755
+- File: 644
+- File .env: 600 (bảo mật)
+```
+
+### 3. Xử lý lỗi thường gặp
+
+**Lỗi HTTP 500:**
+- Kiểm tra file `.htaccess` có tương thích với hosting không
+- Kiểm tra file `.user.ini` đã được upload chưa
+- Xem error log trong panel hosting
+
+**Lỗi kết nối Database:**
+- Kiểm tra thông tin DB_HOST, DB_NAME, DB_USER, DB_PASS trong file `.env`
+- Đảm bảo user database có quyền truy cập
+
+**Lỗi đường dẫn/URL:**
+- Kiểm tra BASE_URL trong file `.env` đã đúng chưa
+- Đảm bảo không có dấu `/` ở cuối URL
+
+---
+
+## IX. TEAM
 
 - **Nhóm 03** - WEBSITE ĐẶT BÀN & THỰC ĐƠN NHÀ HÀNG
-1.	Vũ Văn Tín	MSSV: 2221050564
-2.	Đặng Trí Dũng	MSSV: 2221050407
-3.  Nguyễn Hữu Tuấn MSSV: 2121051096
-4.  Phạm Tuấn Bảo MSSV: 2121050893
+
+| STT | Họ và Tên | MSSV |
+|-----|-----------|------|
+| 1 | Vũ Văn Tín | 2221050564 |
+| 2 | Đặng Trí Dũng | 2221050407 |
+| 3 | Nguyễn Hữu Tuấn | 2121051096 |
+| 4 | Phạm Tuấn Bảo | 2121050893 |
+
+---
+
+**© 2024 - Nhóm 03 - Website đặt bàn & thực đơn nhà hàng**
