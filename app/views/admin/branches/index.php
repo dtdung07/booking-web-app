@@ -135,7 +135,7 @@ $branches = $controller->getBranches();
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
-        <form id="addBranchForm">
+        <form id="addBranchForm" onsubmit="event.preventDefault(); addBranch();">
           <div class="mb-3">
             <label for="tenCoSo" class="form-label">Tên cơ sở <span class="text-danger">*</span></label>
             <input type="text" class="form-control" id="tenCoSo" required>
@@ -146,21 +146,21 @@ $branches = $controller->getBranches();
           </div>
           <div class="mb-3">
             <label for="dienThoai" class="form-label">Số điện thoại <span class="text-danger">*</span></label>
-              <input type="tel" class="form-control" id="editDienThoai" required pattern="[0-9]{10,11}" maxlength="15" placeholder="Ví dụ: 0922782387">
-          
-            <small class="text-muted">Nhập 10-11 chữ số</small>
+              <input type="text" id="dienThoai" class="form-control"  required pattern="0[0-9]{9}" maxlength="10" placeholder="Ví dụ: 0922782387">
+            <small class="text-muted">Nhập 10 chữ số</small>
           </div>
           <div class="mb-3" style="display: none;">
             <label for="anhUrl" class="form-label">URL ảnh</label>
             <input type="url" class="form-control" id="anhUrl" placeholder="https://example.com/image.jpg" maxlength="100">
             <small class="text-muted">Tối đa 100 ký tự</small>
           </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+            <button type="submit" class="btn btn-primary">Thêm cơ sở</button>
+          </div>
         </form>
       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-        <button type="button" class="btn btn-primary" onclick="addBranch()">Thêm cơ sở</button>
-      </div>
+      
     </div>
   </div>
 </div>
@@ -174,7 +174,7 @@ $branches = $controller->getBranches();
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
-        <form id="editBranchForm">
+        <form id="editBranchForm" onsubmit="event.preventDefault(); updateBranch();">
           <input type="hidden" id="editMaCoSo">
           <div class="mb-3">
             <label for="editTenCoSo" class="form-label">Tên cơ sở <span class="text-danger">*</span></label>
@@ -186,20 +186,21 @@ $branches = $controller->getBranches();
           </div>
           <div class="mb-3">
             <label for="editDienThoai" class="form-label">Số điện thoại <span class="text-danger">*</span></label>
-            <input type="tel" class="form-control" id="editDienThoai" required pattern="[0-9]{10,11}" maxlength="15" placeholder="Ví dụ: 0922782387">
-            <small class="text-muted">Nhập 10-11 chữ số</small>
+            <input type="tel" class="form-control" id="editDienThoai" required pattern="0[0-9]{9}" maxlength="10" placeholder="Ví dụ: 0922782387">
+            <small class="text-muted">Nhập 10 chữ số</small>
           </div>
           <div class="mb-3" style="display: none;">
             <label for="editAnhUrl" class="form-label">URL ảnh</label>
             <input type="url" class="form-control" id="editAnhUrl" placeholder="https://example.com/image.jpg" maxlength="100">
             <small class="text-muted">Tối đa 100 ký tự</small>
           </div> 
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+            <button type="submit" class="btn btn-warning" >Cập nhật</button>
+          </div>
         </form>
       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-        <button type="button" class="btn btn-warning" onclick="updateBranch()">Cập nhật</button>
-      </div>
+      
     </div>
   </div>
 </div>
