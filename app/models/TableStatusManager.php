@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../../config/config.php'; // Đọc env và helper
 
 class TableStatusManager {
     private $conn;
@@ -16,11 +17,12 @@ class TableStatusManager {
      * @return mysqli
      */
     private static function getConnection() {
-        $host = 'localhost';
-        $user = 'root';
-        $pass = '';
-        $database = 'booking_restaurant';
-        $port = '3306';
+        // Đọc cấu hình DB từ biến môi trường (.env) với giá trị mặc định
+        $host = env('DB_HOST', 'localhost');
+        $user = env('DB_USER', 'root');
+        $pass = env('DB_PASS', '');
+        $database = env('DB_NAME', 'booking_restaurant');
+        $port = env('DB_PORT', '3306');
 
         $conn = mysqli_connect($host, $user, $pass, $database, $port);
         if (!$conn) {
