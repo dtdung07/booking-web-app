@@ -7,8 +7,10 @@ Endpoint nhận webhook sẽ là: https://yourdomain.com/booking-web-app/sepay/b
 
 // Include cấu hình database của hệ thống đặt bàn
 include __DIR__ . '/../config/connect.php';
-include __DIR__ . '/../config/config.php';
 include __DIR__ . '/../includes/EmailService.php';
+
+//Bỏ config.php vì connect.php đã tự include config.php
+//include __DIR__ . '/../config/config.php';
 
 // Lấy dữ liệu từ webhook SePay
 $data = json_decode(file_get_contents('php://input'));
