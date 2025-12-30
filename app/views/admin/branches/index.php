@@ -7,33 +7,24 @@ $controller = new AdminBranchController();
 $branches = $controller->getBranches();
 ?>
 
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Quản lý cơ sở</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    .table td, .table th {
-      vertical-align: middle;
-    }
-    .status-active { color: green; font-weight: bold; }
-    .status-inactive { color: red; font-weight: bold; }
-    .branch-image {
-      width: 60px;
-      height: 60px;
-      object-fit: cover;
-      border-radius: 8px;
-    }
-    .btn-sm {
-      margin: 2px;
-    }
-  </style>
-</head>
-<body class="bg-light">
+<style>
+  .table td, .table th {
+    vertical-align: middle;
+  }
+  .status-active { color: green; font-weight: bold; }
+  .status-inactive { color: red; font-weight: bold; }
+  .branch-image {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+  .btn-sm {
+    margin: 2px;
+  }
+</style>
 
-<div class="container mt-5">
+<div class="container-fluid">
   <h2 class="mb-4 text-center">Hệ thống quản lý cơ sở</h2>
 
 
@@ -202,10 +193,6 @@ $branches = $controller->getBranches();
     </div>
   </div>
 </div>
-
-<!-- Include Font Awesome for icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
   // Tìm kiếm cơ sở
@@ -389,6 +376,4 @@ $branches = $controller->getBranches();
     location.reload();
   }
 </script>
-
-</body>
-</html>
+</div>

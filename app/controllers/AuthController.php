@@ -19,6 +19,12 @@ class AuthController extends BaseController
         }
     }
 
+    // Phương thức mặc định - chuyển hướng đến login
+    public function index()
+    {
+        $this->login();
+    }
+
     // Hiển thị form đăng nhập
     public function login()
     {
@@ -37,6 +43,18 @@ class AuthController extends BaseController
         }
         include __DIR__ . '/../../login.php';
         exit;
+    }
+
+    // Hiển thị thông tin cá nhân
+    public function profile()
+    {
+        $this->requireAuth();
+        
+        // Lấy thông tin user từ session
+        $user = $_SESSION['user'];
+        
+        // Tạo view cho profile
+        include __DIR__ . '/../views/auth/profile.php';
     }
     
     // Xử lý thông tin đăng nhập từ form
