@@ -113,7 +113,7 @@ $branches = $controller->getBranches();
 
     <!-- Phân trang (nếu cần) -->
     <?php if (count($branches) > 10): ?>
-    <nav>
+    <nav style="display:none;">
       <ul class="pagination justify-content-center">
         <li class="page-item disabled"><a class="page-link">Trước</a></li>
         <li class="page-item active"><a class="page-link" href="#">1</a></li>
@@ -160,7 +160,6 @@ $branches = $controller->getBranches();
           </div>
         </form>
       </div>
-      
     </div>
   </div>
 </div>
@@ -200,7 +199,6 @@ $branches = $controller->getBranches();
           </div>
         </form>
       </div>
-      
     </div>
   </div>
 </div>
@@ -212,7 +210,7 @@ $branches = $controller->getBranches();
 <script>
   // Tìm kiếm cơ sở
   document.getElementById('searchInput').addEventListener('keyup', function() {
-    let filter = this.value.toLowerCase();
+    let filter = this.value.toLowerCase().trim();
     let rows = document.querySelectorAll("#branchTable tbody tr");
     
     rows.forEach(row => {
