@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Thêm mới danh mục món ăn - Quán Nhậu Tự Do</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      body {
+        background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+        color: #333;
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+      }
+
+      header {
+        background: linear-gradient(to right, #b21f1f, #fdbb2d);
+        color: white;
+        padding: 20px;
+        text-align: center;
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 10px;
+      }
+
+      .logo h1 {
+        font-size: 2.2rem;
+        margin-left: 15px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .logo-icon {
+        font-size: 2.5rem;
+      }
+
+      .page-title {
+        font-size: 1.8rem;
+        margin: 15px 0;
+      }
+
+      .content {
+        padding: 30px;
+      }
+
+      .back-button {
+        display: inline-block;
+        margin-bottom: 20px;
+        color: #b21f1f;
+        text-decoration: none;
+        font-weight: 500;
+      }
+
+      .back-button i {
+        margin-right: 8px;
+      }
+
+      .back-button:hover {
+        color: #1a2a6c;
+      }
+
+      .form-container {
+        background: white;
+        padding: 25px;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #1a2a6c;
+      }
+
+      .form-control {
+        width: 100%;
+        padding: 12px 15px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        font-size: 16px;
+        transition: border-color 0.3s;
+      }
+
+      .form-control:focus {
+        border-color: #b21f1f;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(178, 31, 31, 0.2);
+      }
+
+      textarea.form-control {
+        min-height: 120px;
+        resize: vertical;
+      }
+
+      .form-check {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+      }
+
+      .form-check-input {
+        margin-right: 10px;
+        width: 18px;
+        height: 18px;
+      }
+
+      .btn {
+        display: inline-block;
+        background: linear-gradient(to right, #b21f1f, #fdbb2d);
+        color: white;
+        padding: 14px 30px;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-align: center;
+      }
+
+      .btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .btn-reset {
+        background: #6c757d;
+        margin-left: 15px;
+      }
+
+      .btn-reset:hover {
+        background: #5a6268;
+      }
+
+      .image-preview {
+        width: 100%;
+        max-width: 300px;
+        height: 200px;
+        border: 2px dashed #ddd;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 15px;
+        overflow: hidden;
+      }
+
+      .image-preview img {
+        max-width: 100%;
+        max-height: 100%;
+        display: none;
+      }
+
+      .footer {
+        text-align: center;
+        padding: 20px;
+        background: #f8f9fa;
+        color: #6c757d;
+        border-top: 1px solid #e9ecef;
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          margin: 10px;
+        }
+
+        .content {
+          padding: 20px;
+        }
+
+        .logo h1 {
+          font-size: 1.8rem;
+        }
+
+        .btn-container {
+          display: flex;
+          flex-direction: column;
+        }
+
+        .btn-reset {
+          margin-left: 0;
+          margin-top: 15px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <div class="logo">
+          <i class="fas fa-utensils logo-icon"></i>
+          <h1>Quán Nhậu Tự Do</h1>
+        </div>
+        <h2 class="page-title">Thêm mới danh mục món ăn</h2>
+      </header>
+
+      <div class="content">
+        <a href="#" class="back-button">
+          <i class="fas fa-arrow-left"></i> Quay lại trang quản lý
+        </a>
+
+        <div class="form-container">
+          <form id="categoryForm">
+            <div class="form-group">
+              <label for="categoryName"
+                >Tên danh mục <span style="color: red">*</span></label
+              >
+              <input
+                type="text"
+                class="form-control"
+                id="categoryName"
+                placeholder="Nhập tên danh mục"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="categoryDescription">Mô tả danh mục</label>
+              <textarea
+                class="form-control"
+                id="categoryDescription"
+                placeholder="Mô tả ngắn gọn về danh mục..."
+              ></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="categoryImage">Hình ảnh đại diện</label>
+              <input
+                type="file"
+                class="form-control"
+                id="categoryImage"
+                accept="image/*"
+              />
+              <div class="image-preview">
+                <img id="previewImage" src="" alt="Preview" />
+                <span id="previewText">Xem trước hình ảnh</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Trạng thái</label>
+              <div class="form-check">
+                <input
+                  type="checkbox"
+                  class="form-check-input"
+                  id="categoryStatus"
+                  checked
+                />
+                <label class="form-check-label" for="categoryStatus"
+                  >Kích hoạt danh mục</label
+                >
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="displayOrder">Thứ tự hiển thị</label>
+              <input
+                type="number"
+                class="form-control"
+                id="displayOrder"
+                value="1"
+                min="1"
+              />
+            </div>
+
+            <div class="form-group">
+              <button type="submit" class="btn">
+                <i class="fas fa-save"></i> Lưu danh mục
+              </button>
+              <button type="reset" class="btn btn-reset">
+                <i class="fas fa-times"></i> Nhập lại
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="footer">
+        <p>© 2023 Quán Nhậu Tự Do. Hệ thống quản lý nhà hàng.</p>
+      </div>
+    </div>
+
+    <script>
+      // Xử lý xem trước hình ảnh
+      document
+        .getElementById("categoryImage")
+        .addEventListener("change", function (e) {
+          const file = e.target.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+              const previewImage = document.getElementById("previewImage");
+              const previewText = document.getElementById("previewText");
+
+              previewImage.src = e.target.result;
+              previewImage.style.display = "block";
+              previewText.style.display = "none";
+            };
+            reader.readAsDataURL(file);
+          }
+        });
+
+      // Xử lý submit form
+      document
+        .getElementById("categoryForm")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+
+          const categoryName = document.getElementById("categoryName").value;
+
+          // Hiển thị thông báo thành công
+          alert(`Đã thêm danh mục "${categoryName}" thành công!`);
+
+          // Reset form
+          this.reset();
+
+          // Reset preview image
+          document.getElementById("previewImage").style.display = "none";
+          document.getElementById("previewText").style.display = "block";
+        });
+    </script>
+  </body>
+</html>

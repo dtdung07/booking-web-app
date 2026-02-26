@@ -1,3 +1,5 @@
+<<<<<<< HEAD
+=======
 <?php
 include dirname(__DIR__,4) . "/config/connect.php";
 
@@ -36,3 +38,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit();
 }
 ?>
+>>>>>>> b12307961b7a3ce595324f3c47e524fa0f4928b2

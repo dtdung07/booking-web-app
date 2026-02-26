@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quản lý Ưu đãi - Nhà hàng Lẩu Tự chọn</title>
+    <style>
+      :root {
+        --primary-color: #e74c3c;
+        --secondary-color: #c0392b;
+        --light-color: #f9f9f9;
+        --dark-color: #333;
+        --success-color: #2ecc71;
+        --warning-color: #f39c12;
+        --danger-color: #e74c3c;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      body {
+        background-color: #f5f5f5;
+        color: var(--dark-color);
+      }
+
+      .container {
+        display: flex;
+        min-height: 100vh;
+      }
+
+      /* Sidebar */
+      .sidebar {
+        width: 250px;
+        background-color: var(--primary-color);
+        color: white;
+        padding: 20px 0;
+        transition: all 0.3s;
+      }
+
+      .logo {
+        text-align: center;
+        padding: 20px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        margin-bottom: 20px;
+      }
+
+      .logo h2 {
+        font-size: 1.5rem;
+      }
+
+      .nav-links {
+        list-style: none;
+      }
+
+      .nav-links li {
+        padding: 15px 20px;
+        transition: all 0.3s;
+      }
+
+      .nav-links li:hover,
+      .nav-links li.active {
+        background-color: var(--secondary-color);
+      }
+
+      .nav-links a {
+        color: white;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+      }
+
+      .nav-links i {
+        margin-right: 10px;
+        font-size: 1.2rem;
+      }
+
+      /* Main Content */
+      .main-content {
+        flex: 1;
+        padding: 20px;
+        overflow-y: auto;
+      }
+
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #ddd;
+      }
+
+      .header h1 {
+        color: var(--primary-color);
+      }
+
+      .user-info {
+        display: flex;
+        align-items: center;
+      }
+
+      .user-info img {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        margin-right: 10px;
+      }
+
+      /* Card Layout */
+      .card {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+        overflow: hidden;
+      }
+
+      .card-header {
+        padding: 15px 20px;
+        background-color: var(--light-color);
+        border-bottom: 1px solid #eee;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .card-body {
+        padding: 20px;
+      }
+
+      /* Buttons */
+      .btn {
+        padding: 8px 15px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.3s;
+      }
+
+      .btn-primary {
+        background-color: var(--primary-color);
+        color: white;
+      }
+
+      .btn-primary:hover {
+        background-color: var(--secondary-color);
+      }
+
+      .btn-success {
+        background-color: var(--success-color);
+        color: white;
+      }
+
+      .btn-warning {
+        background-color: var(--warning-color);
+        color: white;
+      }
+
+      .btn-danger {
+        background-color: var(--danger-color);
+        color: white;
+      }
+
+      /* Table */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      th,
+      td {
+        padding: 12px 15px;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+      }
+
+      th {
+        background-color: #f8f9fa;
+        font-weight: 600;
+      }
+
+      tr:hover {
+        background-color: #f5f5f5;
+      }
+
+      .status {
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+      }
+
+      .status.active {
+        background-color: #e7f7ef;
+        color: var(--success-color);
+      }
+
+      .status.inactive {
+        background-color: #fef0f0;
+        color: var(--danger-color);
+      }
+
+      .actions button {
+        margin-right: 5px;
+        padding: 5px 10px;
+        font-size: 0.8rem;
+      }
+
+      /* Form */
+      .form-group {
+        margin-bottom: 15px;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 500;
+      }
+
+      input,
+      select,
+      textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 1rem;
+      }
+
+      .form-row {
+        display: flex;
+        gap: 15px;
+      }
+
+      .form-row .form-group {
+        flex: 1;
+      }
+
+      /* Modal */
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .modal-content {
+        background-color: white;
+        width: 500px;
+        max-width: 90%;
+        border-radius: 8px;
+        overflow: hidden;
+      }
+
+      .modal-header {
+        padding: 15px 20px;
+        background-color: var(--primary-color);
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .modal-body {
+        padding: 20px;
+        max-height: 70vh;
+        overflow-y: auto;
+      }
+
+      .modal-footer {
+        padding: 15px 20px;
+        background-color: #f8f9fa;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+      }
+
+      .close {
+        font-size: 1.5rem;
+        cursor: pointer;
+      }
+
+      /* Stats */
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+      }
+
+      .stat-card {
+        background-color: white;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        text-align: center;
+      }
+
+      .stat-card h3 {
+        font-size: 2rem;
+        color: var(--primary-color);
+        margin-bottom: 10px;
+      }
+
+      .stat-card p {
+        color: #666;
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .container {
+          flex-direction: column;
+        }
+
+        .sidebar {
+          width: 100%;
+          height: auto;
+        }
+
+        .form-row {
+          flex-direction: column;
+          gap: 0;
+        }
+
+        .stats {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <!-- Sidebar -->
+      <div class="sidebar">
+        <div class="logo">
+          <h2>Lẩu Tự chọn</h2>
+          <p>Quản lý ưu đãi</p>
+        </div>
+        <ul class="nav-links">
+          <li class="active">
+            <a href="#"><i class="fas fa-tachometer-alt"></i> Tổng quan</a>
+          </li>
+          <li>
+            <a href="#"><i class="fas fa-tags"></i> Ưu đãi</a>
+          </li>
+          <li>
+            <a href="#"><i class="fas fa-users"></i> Khách hàng</a>
+          </li>
+          <li>
+            <a href="#"><i class="fas fa-chart-bar"></i> Báo cáo</a>
+          </li>
+          <li>
+            <a href="#"><i class="fas fa-cog"></i> Cài đặt</a>
+          </li>
+          <li>
+            <a href="#"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Main Content -->
+      <div class="main-content">
+        <div class="header">
+          <h1>Quản lý Ưu đãi</h1>
+          <div class="user-info">
+            <img src="https://i.pravatar.cc/40" alt="User Avatar" />
+            <span>Quản trị viên</span>
+          </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats">
+          <div class="stat-card">
+            <h3>15</h3>
+            <p>Ưu đãi đang hoạt động</p>
+          </div>
+          <div class="stat-card">
+            <h3>324</h3>
+            <p>Lượt sử dụng hôm nay</p>
+          </div>
+          <div class="stat-card">
+            <h3>1,245</h3>
+            <p>Lượt sử dụng tháng này</p>
+          </div>
+          <div class="stat-card">
+            <h3>12.5%</h3>
+            <p>Tăng trưởng so với tháng trước</p>
+          </div>
+        </div>
+
+        <!-- Promotion List -->
+        <div class="card">
+          <div class="card-header">
+            <h2>Danh sách Ưu đãi</h2>
+            <button class="btn btn-primary" id="addPromotionBtn">
+              <i class="fas fa-plus"></i> Thêm ưu đãi mới
+            </button>
+          </div>
+          <div class="card-body">
+            <table>
+              <thead>
+                <tr>
+                  <th>Mã ưu đãi</th>
+                  <th>Tên ưu đãi</th>
+                  <th>Loại</th>
+                  <th>Giá trị</th>
+                  <th>Ngày bắt đầu</th>
+                  <th>Ngày kết thúc</th>
+                  <th>Trạng thái</th>
+                  <th>Thao tác</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>LAU001</td>
+                  <td>Giảm 20% cho nhóm 4 người</td>
+                  <td>Phần trăm</td>
+                  <td>20%</td>
+                  <td>01/10/2023</td>
+                  <td>31/12/2023</td>
+                  <td><span class="status active">Đang hoạt động</span></td>
+                  <td class="actions">
+                    <button class="btn btn-warning">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-danger">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>LAU002</td>
+                  <td>Mua 1 tặng 1 thứ 2 hàng tuần</td>
+                  <td>Sản phẩm</td>
+                  <td>1 lẩu miễn phí</td>
+                  <td>01/09/2023</td>
+                  <td>31/12/2023</td>
+                  <td><span class="status active">Đang hoạt động</span></td>
+                  <td class="actions">
+                    <button class="btn btn-warning">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-danger">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>LAU003</td>
+                  <td>Giảm 50k cho đơn từ 500k</td>
+                  <td>Tiền mặt</td>
+                  <td>50,000đ</td>
+                  <td>15/10/2023</td>
+                  <td>15/11/2023</td>
+                  <td><span class="status active">Đang hoạt động</span></td>
+                  <td class="actions">
+                    <button class="btn btn-warning">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-danger">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>LAU004</td>
+                  <td>Ưu đãi sinh nhật - Giảm 30%</td>
+                  <td>Phần trăm</td>
+                  <td>30%</td>
+                  <td>01/01/2023</td>
+                  <td>31/12/2023</td>
+                  <td><span class="status active">Đang hoạt động</span></td>
+                  <td class="actions">
+                    <button class="btn btn-warning">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-danger">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>LAU005</td>
+                  <td>Giảm 10% cho khách hàng mới</td>
+                  <td>Phần trăm</td>
+                  <td>10%</td>
+                  <td>01/08/2023</td>
+                  <td>31/08/2023</td>
+                  <td><span class="status inactive">Đã kết thúc</span></td>
+                  <td class="actions">
+                    <button class="btn btn-warning">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-danger">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add Promotion Modal -->
+    <div class="modal" id="addPromotionModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Thêm Ưu đãi Mới</h3>
+          <span class="close">&times;</span>
+        </div>
+        <div class="modal-body">
+          <form id="promotionForm">
+            <div class="form-group">
+              <label for="promoCode">Mã ưu đãi</label>
+              <input type="text" id="promoCode" required />
+            </div>
+            <div class="form-group">
+              <label for="promoName">Tên ưu đãi</label>
+              <input type="text" id="promoName" required />
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="promoType">Loại ưu đãi</label>
+                <select id="promoType" required>
+                  <option value="">Chọn loại</option>
+                  <option value="percentage">Phần trăm</option>
+                  <option value="fixed">Tiền mặt</option>
+                  <option value="product">Sản phẩm</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="promoValue">Giá trị</label>
+                <input type="text" id="promoValue" required />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="startDate">Ngày bắt đầu</label>
+                <input type="date" id="startDate" required />
+              </div>
+              <div class="form-group">
+                <label for="endDate">Ngày kết thúc</label>
+                <input type="date" id="endDate" required />
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="promoDescription">Mô tả</label>
+              <textarea id="promoDescription" rows="3"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="promoConditions">Điều kiện áp dụng</label>
+              <textarea
+                id="promoConditions"
+                rows="3"
+                placeholder="Ví dụ: Áp dụng cho đơn từ 300.000đ, không áp dụng cùng ưu đãi khác..."
+              ></textarea>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button class="btn" id="cancelBtn">Hủy</button>
+          <button class="btn btn-primary" id="savePromotionBtn">
+            Lưu Ưu đãi
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Modal functionality
+      const addPromotionBtn = document.getElementById("addPromotionBtn");
+      const addPromotionModal = document.getElementById("addPromotionModal");
+      const closeModal = document.querySelector(".close");
+      const cancelBtn = document.getElementById("cancelBtn");
+      const savePromotionBtn = document.getElementById("savePromotionBtn");
+
+      addPromotionBtn.addEventListener("click", () => {
+        addPromotionModal.style.display = "flex";
+      });
+
+      closeModal.addEventListener("click", () => {
+        addPromotionModal.style.display = "none";
+      });
+
+      cancelBtn.addEventListener("click", () => {
+        addPromotionModal.style.display = "none";
+      });
+
+      savePromotionBtn.addEventListener("click", () => {
+        // Here you would typically save the promotion data
+        alert("Ưu đãi đã được lưu thành công!");
+        addPromotionModal.style.display = "none";
+        document.getElementById("promotionForm").reset();
+      });
+
+      // Close modal when clicking outside
+      window.addEventListener("click", (event) => {
+        if (event.target === addPromotionModal) {
+          addPromotionModal.style.display = "none";
+        }
+      });
+
+      // Set minimum end date to start date
+      const startDateInput = document.getElementById("startDate");
+      const endDateInput = document.getElementById("endDate");
+
+      startDateInput.addEventListener("change", () => {
+        endDateInput.min = startDateInput.value;
+      });
+    </script>
+  </body>
+</html>

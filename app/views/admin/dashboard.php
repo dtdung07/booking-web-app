@@ -6,7 +6,7 @@ if ($conn) {
     // Số lượng món ăn
     $result = mysqli_query($conn, "SELECT COUNT(*) as total FROM monan");
     $totalMenuItems = mysqli_fetch_assoc($result)['total'];
-    
+
     // Số lượng danh mục
     $result = mysqli_query($conn, "SELECT COUNT(*) as total FROM danhmuc");
     $totalCategories = mysqli_fetch_assoc($result)['total'];

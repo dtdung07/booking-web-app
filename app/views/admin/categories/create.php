@@ -1,3 +1,4 @@
+
 <!-- Modal thêm danh mục -->
 <div class="modal fade" id="addCategoryModal" tabindex="-1" aria-labelledby="addCategoryModalLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -44,3 +45,4 @@ document.getElementById('addCategoryForm').addEventListener('submit', function(e
     }
 });
 </script>
+    

@@ -1,280 +1,309 @@
-<link rel="stylesheet" href="public/css/pages/branches.css">
+<?php
+$title = "Quán Nhậu Tự Do - Quản lý Ưu đãi";
+$page_title = "Quản lý Ưu đãi";
+?>
 
+<link rel="stylesheet" href="<?= dirname(__DIR__,3) . '/public/css/pages/uudai.css'?>">
 
-<main class="branches-page">
-
-    <section class="tab-section-branches">
-        <div class="container">
-            <div class="tab-navigation">
-                <button class="tab-btn active" data-district="all">
-                    <span class="tab-text">TẤT CẢ</span>
-                </button>
-                <?php foreach($branch_districts as $district): ?>
-                <button class="tab-btn" data-district="<?php echo $district; ?>">
-                    <span class="tab-text"><?php echo strtoupper($district); ?></span>
-                </button>
-                <?php endforeach; ?>
+<main class="uudai-page">
+    <div class="uudai-container">
+        <!-- Header -->
+        <div class="uudai-header">
+            <div class="header-info">
+                <h1><i class="fas fa-tags"></i> Quản lý Ưu đãi</h1>
+                <p>Quản lý các chương trình khuyến mãi và ưu đãi cho nhà hàng</p>
+            </div>
+            
+            <div class="header-actions">
+                <!-- Dropdown chọn cơ sở -->
+                <div class="branch-select-wrapper">
+                    <select id="branchSelect" class="branch-select">
+                        <?php if (isset($branches) && is_array($branches)): ?>
+                            <?php foreach ($branches as $branch): ?>
+                                <option value="<?= $branch['MaCoSo'] ?>" 
+                                    <?= $branch['MaCoSo'] == $maCoSo ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($branch['TenCoSo']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </select>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                
+                <a href="?page=uudai_create&coso=<?= $maCoSo ?>" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Thêm Ưu đãi
+                </a>
             </div>
         </div>
-    </section>
 
-<section class="branches-section">
-  <div class="container">
-    <div class="branches-grid" id="branchesGrid">
-      <?php foreach ($branches as $branch): ?>
-        <div class="branch-card" data-district="<?php echo strtolower(str_replace(' ', '-', $branch['district'])); ?>">
-         
-          <!-- Nội dung bên trái -->
-          <div class="branch-content">
-            <div class="branch-header">
-              <h3 class="branch-name"><?php echo $branch['name']; ?></h3>
+        <!-- Thông báo -->
+        <?php if (isset($_SESSION['success'])): ?>
+            <div class="alert alert-success">
+                <i class="fas fa-check-circle"></i>
+                <?= $_SESSION['success']; unset($_SESSION['success']); ?>
+            </div>
+        <?php endif; ?>
+
+        <?php if (isset($_SESSION['error'])): ?>
+            <div class="alert alert-error">
+                <i class="fas fa-exclamation-circle"></i>
+                <?= $_SESSION['error']; unset($_SESSION['error']); ?>
+            </div>
+        <?php endif; ?>
+
+        <!-- Thống kê -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon total">
+                    <i class="fas fa-tags"></i>
+                </div>
+                <div class="stat-info">
+                    <h3><?= $stats['active'] + $stats['inactive'] ?></h3>
+                    <p>Tổng số ưu đãi</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon active">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-info">
+                    <h3><?= $stats['active'] ?></h3>
+                    <p>Đang hoạt động</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon inactive">
+                    <i class="fas fa-pause-circle"></i>
+                </div>
+                <div class="stat-info">
+                    <h3><?= $stats['inactive'] ?></h3>
+                    <p>Đã kết thúc</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Danh sách ưu đãi -->
+        <div class="uudai-list">
+            <div class="list-header">
+                <h2><i class="fas fa-list"></i> Danh sách Ưu đãi</h2>
+                <div class="list-actions">
+                    <input type="text" id="searchInput" placeholder="Tìm kiếm ưu đãi..." class="search-input">
+                </div>
             </div>
 
-            <div class="branch-actions">
-              <a href="https://maps.google.com/?q=<?php echo urlencode($branch['district']); ?>" target="_blank" class="btn btn-outline">
-                <i class="fas fa-map-marker-alt"></i>
-                Xem bản đồ
-              </a>
-
-              <a href="?page=menu2&action=menu2&coso=<?php echo $branch['id']; ?>" class="btn btn-outline">
-                <i class="fas fa-utensils"></i>
-                Xem menu
-              </a>
-              <button class="btn btn-outline" onclick="openBookingModal(<?php echo $branch['id']; ?>)">
-                <i class="fas fa-calendar-check"></i>
-                Đặt bàn ngay
-              </button>
-            </div>
-             <div class="info-item">
-                <i class="fas fa-phone"></i>
-                <span><?php echo $branch['hotline']; ?></span>
-              </div>
-          </div> <!-- end branch-content -->
-
-          <!-- Ảnh bên phải -->
-          <div class="branch-image">
-            <img src="<?php echo $branch['image']; ?>" alt="<?php echo $branch['name']; ?>" loading="lazy">
-          </div>
-
-        </div> <!-- end branch-card -->
-        
-      <?php endforeach; ?>
+            <?php if (isset($uuDais) && count($uuDais) > 0): ?>
+                <div class="uudai-grid">
+                    <?php foreach ($uuDais as $uuDai): ?>
+                        <div class="uudai-card" data-status="<?= $uuDai['status'] ?>">
+                            <div class="uudai-header">
+                                <div class="uudai-code"><?= htmlspecialchars($uuDai['code']) ?></div>
+                                <span class="status-badge <?= $uuDai['status'] ?>">
+                                    <?= $uuDai['status'] == 'active' ? 'Đang hoạt động' : 'Đã kết thúc' ?>
+                                </span>
+                            </div>
+                            
+                            <div class="uudai-body">
+                                <h3 class="uudai-name"><?= htmlspecialchars($uuDai['name']) ?></h3>
+                                
+                                <div class="uudai-details">
+                                    <div class="detail-item">
+                                        <i class="fas fa-gift"></i>
+                                        <span>
+                                            <?php 
+                                            if ($uuDai['type'] == 'percentage') {
+                                                echo $uuDai['value'] . '% giảm giá';
+                                            } elseif ($uuDai['type'] == 'fixed') {
+                                                echo number_format($uuDai['value']) . 'đ giảm trực tiếp';
+                                            } else {
+                                                echo htmlspecialchars($uuDai['value']);
+                                            }
+                                            ?>
+                                        </span>
+                                    </div>
+                                    
+                                    <div class="detail-item">
+                                        <i class="fas fa-calendar"></i>
+                                        <span>
+                                            <?= date('d/m/Y', strtotime($uuDai['start_date'])) ?> - 
+                                            <?= date('d/m/Y', strtotime($uuDai['end_date'])) ?>
+                                        </span>
+                                    </div>
+                                    
+                                    <?php if (!empty($uuDai['description'])): ?>
+                                        <div class="detail-item">
+                                            <i class="fas fa-info-circle"></i>
+                                            <span><?= htmlspecialchars($uuDai['description']) ?></span>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                            
+                            <div class="uudai-footer">
+                                <div class="uudai-actions">
+                                    <a href="?page=uudai_edit&id=<?= $uuDai['id'] ?>" 
+                                       class="btn btn-warning btn-sm">
+                                        <i class="fas fa-edit"></i> Sửa
+                                    </a>
+                                    <button class="btn btn-danger btn-sm delete-btn" 
+                                            data-id="<?= $uuDai['id'] ?>" 
+                                            data-name="<?= htmlspecialchars($uuDai['name']) ?>">
+                                        <i class="fas fa-trash"></i> Xóa
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php else: ?>
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <i class="fas fa-tags"></i>
+                    </div>
+                    <h3>Chưa có ưu đãi nào</h3>
+                    <p>Hãy thêm ưu đãi đầu tiên để bắt đầu quản lý</p>
+                    <a href="?page=uudai_create&coso=<?= $maCoSo ?>" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Thêm Ưu đãi đầu tiên
+                    </a>
+                </div>
+            <?php endif; ?>
+        </div>
     </div>
-
-    <?php if (empty($branches)): ?>
-      <div class="no-results">
-        <i class="fas fa-search"></i>
-        <h3>Không tìm thấy cơ sở nào</h3>
-        <p>Vui lòng thử lại với bộ lọc khác</p>
-      </div>
-    <?php endif; ?>
-  </div>
-</section>
 </main>
 
-<script>
-// Data and tab management
-let currentAddress = 'all';
-let allDistricts = <?php echo json_encode($branch_districts); ?>;
-
-// Initialize functionality
-document.addEventListener('DOMContentLoaded', function() {
-    initializeTabs();
-});
-
-function initializeTabs() {
-    // Add tab click listeners
-    const tabButtons = document.querySelectorAll('.tab-btn');
-    tabButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            // Add click animation
-            this.style.transform = 'scale(0.95)';
-            setTimeout(() => {
-                this.style.transform = 'scale(1)';
-            }, 150);
-            
-            const address = this.dataset.district || 'all';
-            switchTab(address);
-        });
-        
-        // Add hover effects
-        button.addEventListener('mouseenter', function() {
-            if (!this.classList.contains('active')) {
-                this.style.transform = 'translateY(-2px)';
-            }
-        });
-        button.addEventListener('mouseleave', function() {
-            if (!this.classList.contains('active')) {
-                this.style.transform = 'translateY(0)';
-            }
-        });
-    });
-    
-    // Set initial state
-    switchTab('all');
-}
-
-function switchTab(address) {
-    currentAddress = address;
-    
-    // Update active tab
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    
-    const targetTab = address === 'all' 
-        ? document.querySelector('[data-district="all"]') 
-        : document.querySelector(`[data-district="${address}"]`);
-    
-    if (targetTab) {
-        targetTab.classList.add('active');
-    }
-    
-    // Load data from server
-    loadBranchData(address);
-    
-    // Update URL without reload
-    const url = new URL(window.location);
-    if (address === 'all') {
-        url.searchParams.delete('district');
-    } else {
-        url.searchParams.set('district', address);
-    }
-    window.history.pushState({}, '', url);
-}
-
-function loadBranchData(address) {
-    const grid = document.getElementById('branchesGrid');
-    
-    // Show loading state
-    grid.innerHTML = '<div class="loading-state"><i class="fas fa-spinner fa-spin"></i> Đang tải dữ liệu...</div>';
-    
-    // Call API
-    const apiUrl = `?page=branches&action=api&address=${encodeURIComponent(address)}`;
-    
-    fetch(apiUrl)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                renderBranches(data.data);
-            } else {
-                showError('Không thể tải dữ liệu');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showError('Lỗi kết nối');
-        });
-}
-
-function renderBranches(branches) {
-    const grid = document.getElementById('branchesGrid');
-    
-    if (branches.length === 0) {
-        grid.innerHTML = `
-            <div class="no-results">
-                <i class="fas fa-search"></i>
-                <h3>Không tìm thấy cơ sở nào</h3>
-                <p>Chưa có cơ sở nào tại địa chỉ này</p>
-            </div>
-        `;
-        return;
-    }
-    
-    let html = '';
-    branches.forEach(branch => {
-        html += `
-            <div class="branch-card" data-district="${branch.district.toLowerCase()}">
-                
-             
-
-            <div class="branch-content">
-                    <div class="branch-header">
-                        <h3 class="branch-name">${branch.name}</h3>
-                    </div>
-                               
-                    <div class="branch-actions">
-                            <a href="https://maps.google.com/?q=${encodeURIComponent(branch.district)}" target="_blank" class="btn btn-outline">
-                                <i class="fas fa-map-marker-alt"></i>
-                                Xem bản đồ
-                            </a>
-                                      <a href="?page=menu2&action=menu2&coso=${branch.id}" class="btn btn-outline">
-                            <i class="fas fa-utensils"></i>
-                            Xem menu
-                        </a>
-                        <button class="btn btn-outline" onclick="openBookingModal(${branch.id})">
-                            <i class="fas fa-calendar-check"></i>
-                            Đặt bàn ngay
-                        </button>
-                    </div>
-                    <div class="info-item">
-                        <i class="fas fa-phone"></i>
-                        <span>${branch.hotline}</span>
-                    </div>
-                </div>
-                <div class="branch-image">
-                    <img src="${branch.image}" alt="${branch.name}" loading="lazy">
-                </div>
-               
-            </div>
-        `;
-    });
-    
-    grid.innerHTML = html;
-    
-    // Add animation
-    const cards = grid.querySelectorAll('.branch-card');
-    cards.forEach((card, index) => {
-        card.style.opacity = '0';
-        card.style.transform = 'translateY(20px)';
-        setTimeout(() => {
-            card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-            card.style.opacity = '1';
-            card.style.transform = 'translateY(0)';
-        }, index * 100);
-    });
-}
-
-function showError(message) {
-    const grid = document.getElementById('branchesGrid');
-    grid.innerHTML = `
-        <div class="error-state">
-            <i class="fas fa-exclamation-triangle"></i>
-            <h3>Có lỗi xảy ra</h3>
-            <p>${message}</p>
-            <button onclick="loadBranchData(currentAddress)" class="btn btn-primary">Thử lại</button>
+<!-- Modal xác nhận xóa -->
+<div id="deleteModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-exclamation-triangle"></i> Xác nhận xóa</h3>
+            <span class="close">&times;</span>
         </div>
-    `;
-}
+        <div class="modal-body">
+            <p>Bạn có chắc chắn muốn xóa ưu đãi "<strong id="uuDaiName"></strong>"?</p>
+            <p class="text-warning">Hành động này không thể hoàn tác!</p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" id="cancelDelete">Hủy bỏ</button>
+            <button class="btn btn-danger" id="confirmDelete">Xóa ưu đãi</button>
+        </div>
+    </div>
+</div>
 
-// Modal functions (nếu cần)
-function openBookingModal(branchId) {
-    // Implement booking modal logic
-    console.log('Open booking modal for branch:', branchId);
-}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Xử lý chọn cơ sở
+    const branchSelect = document.getElementById('branchSelect');
+    if (branchSelect) {
+        branchSelect.addEventListener('change', function() {
+            window.location.href = '?page=uudai&coso=' + this.value;
+        });
+    }
 
-// Add CSS for loading and error states
-const style = document.createElement('style');
-style.textContent = `
-    .loading-state, .error-state {
-        text-align: center;
-        padding: 60px 20px;
-        color: #666;
+    // Xử lý tìm kiếm
+    const searchInput = document.getElementById('searchInput');
+    const uudaiCards = document.querySelectorAll('.uudai-card');
+    
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            
+            uudaiCards.forEach(function(card) {
+                const uudaiName = card.querySelector('.uudai-name').textContent.toLowerCase();
+                const uudaiCode = card.querySelector('.uudai-code').textContent.toLowerCase();
+                
+                if (uudaiName.includes(searchTerm) || uudaiCode.includes(searchTerm)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
     }
-    .loading-state i, .error-state i {
-        font-size: 48px;
-        margin-bottom: 20px;
-        color: #ddd;
+
+    // Xử lý xóa ưu đãi
+    const deleteButtons = document.querySelectorAll('.delete-btn');
+    const deleteModal = document.getElementById('deleteModal');
+    const uuDaiNameSpan = document.getElementById('uuDaiName');
+    const confirmDeleteBtn = document.getElementById('confirmDelete');
+    const cancelDeleteBtn = document.getElementById('cancelDelete');
+    const closeModal = document.querySelector('.close');
+
+    let currentUuDaiId = null;
+
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            currentUuDaiId = this.getAttribute('data-id');
+            const uuDaiName = this.getAttribute('data-name');
+            
+            uuDaiNameSpan.textContent = uuDaiName;
+            deleteModal.style.display = 'block';
+        });
+    });
+
+    // Xác nhận xóa
+    confirmDeleteBtn.addEventListener('click', function() {
+        if (currentUuDaiId) {
+            // Gửi yêu cầu xóa qua AJAX
+            const formData = new FormData();
+            formData.append('id', currentUuDaiId);
+            
+            fetch('?page=uudai_delete', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Reload trang sau khi xóa thành công
+                    window.location.reload();
+                } else {
+                    alert('Lỗi: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Có lỗi xảy ra khi xóa ưu đãi!');
+            });
+        }
+        deleteModal.style.display = 'none';
+    });
+
+    // Đóng modal
+    function closeDeleteModal() {
+        deleteModal.style.display = 'none';
     }
-    .fa-spin {
-        animation: fa-spin 2s infinite linear;
+
+    closeModal.addEventListener('click', closeDeleteModal);
+    cancelDeleteBtn.addEventListener('click', closeDeleteModal);
+
+    // Đóng modal khi click bên ngoài
+    window.addEventListener('click', function(event) {
+        if (event.target === deleteModal) {
+            closeDeleteModal();
+        }
+    });
+
+    // Lọc theo trạng thái (nếu có)
+    const statusFilters = document.querySelectorAll('.status-filter');
+    if (statusFilters.length > 0) {
+        statusFilters.forEach(filter => {
+            filter.addEventListener('click', function() {
+                const status = this.getAttribute('data-status');
+                
+                uudaiCards.forEach(card => {
+                    if (status === 'all' || card.getAttribute('data-status') === status) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+                
+                // Cập nhật active class cho filter
+                statusFilters.forEach(f => f.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
     }
-    @keyframes fa-spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-`;
-document.head.appendChild(style);
+});
 </script>
-
-

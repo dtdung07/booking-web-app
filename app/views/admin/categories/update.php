@@ -1,3 +1,5 @@
+<<<<<<< HEAD
+=======
 <!-- Modal sửa danh mục -->
 <div class="modal fade" id="updateCategoryModal" tabindex="-1">
   <div class="modal-dialog">
@@ -51,3 +53,4 @@ document.getElementById('updateCategoryForm').addEventListener('submit', functio
     }
 });
 </script>
+>>>>>>> b12307961b7a3ce595324f3c47e524fa0f4928b2
